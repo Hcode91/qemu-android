@@ -78,8 +78,8 @@ hardware-virtualization security guarantee.
 
 OSV checks native commits and resolved Maven runtime/test coordinates, failing
 on findings or lookup failure. Commit coverage in OSV is incomplete; a clean
-report is not proof of safety. Current bootstrap dependency pins require security
-review and updating as reports arrive. Build-tool/SDK supply-chain scanning is
+report is not proof of safety. Pinned upstream snapshots address the latest reported findings; see
+`ci/SECURITY_FIXES.md`. They still require the next CI security and build checks. Build-tool/SDK supply-chain scanning is
 not comprehensive yet. Native ELF inspection enforces AArch64 PIE, Android linker,
 16 KiB load alignment, no text relocations, RELRO/NOW and a system-only dependency
 closure. APK validation checks permissions, merged manifest, variant, ZIP,

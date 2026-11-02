@@ -31,7 +31,7 @@ runs:
       run: |
         set -euo pipefail
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends build-essential cmake pkg-config autoconf automake libtool gettext python3-venv flex bison
+        sudo apt-get install -y --no-install-recommends build-essential cmake pkg-config autoconf automake libtool libltdl-dev gettext python3-venv flex bison
         python3 -m venv "$RUNNER_TEMP/qemu-tools"
         "$RUNNER_TEMP/qemu-tools/bin/pip" install -r android/ci/requirements.txt
         echo "$RUNNER_TEMP/qemu-tools/bin" >> "$GITHUB_PATH"

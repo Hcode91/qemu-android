@@ -22,7 +22,7 @@ WORK="$ROOT/android/.native"
 PREFIX="$WORK/prefix"
 mkdir -p "$WORK/src" "$PREFIX" "$ROOT/android/reports/native" "$ROOT/android/app/src/main/assets/licenses"
 exec > >(tee "$ROOT/android/reports/native/build.log") 2>&1
-trap 'find "$WORK" -name meson-log.txt -exec cp --parents {} "$ROOT/android/reports/native/" \; || true' EXIT
+trap 'find "$WORK" \( -name meson-log.txt -o -name config.log \) -exec cp --parents {} "$ROOT/android/reports/native/" \; || true' EXIT
 export PKG_CONFIG_LIBDIR="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
 export PKG_CONFIG_PATH="$PKG_CONFIG_LIBDIR"
 # Static dependency lookup is mandatory: never link Ubuntu's host libraries.
@@ -74,6 +74,9 @@ meson_build() {
 cmake_build zlib -DZLIB_BUILD_TESTING=OFF -DZLIB_BUILD_SHARED=OFF -DZLIB_BUILD_STATIC=ON
 cmake_build pcre2 -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DPCRE2_STATIC_PIC=ON -DPCRE2_BUILD_TESTS=OFF \
   -DPCRE2_BUILD_PCRE2GREP=OFF -DPCRE2_SUPPORT_JIT=OFF -DPCRE2_BUILD_PCRE2_16=OFF -DPCRE2_BUILD_PCRE2_32=OFF
+# LT_SYS_SYMBOL_USCORE is supplied by libltdl-dev, not libtool alone.
+ACLOCAL_DIR=$(aclocal --print-ac-dir)
+[[ -r "$ACLOCAL_DIR/ltdl.m4" ]] || { echo "Missing ltdl.m4: install libltdl-dev" >&2; exit 1; }
 (cd "$WORK/src/libffi" && ./autogen.sh)
 mkdir -p "$WORK/libffi-build"
 (cd "$WORK/libffi-build" && "$WORK/src/libffi/configure" --host=aarch64-linux-android \

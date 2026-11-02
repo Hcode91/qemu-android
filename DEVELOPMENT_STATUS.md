@@ -7,8 +7,8 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Initial build scripts | No | Setup failed; fix submitted | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | Setup failed; fix submitted | No | No |
+| A: Android ARM64 QEMU | Initial build scripts | No | Dependency bootstrap failed; fix submitted | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | Dependency bootstrap failed; fix submitted | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,20 +31,23 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **failed during SDK setup, before native compilation**.
-Run: https://github.com/Hcode91/qemu-android/actions/runs/41457940560
-Source commit: `b3e30185abe8ac7ee4d4cf2354858967d3dd4eb4`.
-Primary error: `sdkmanager: command not found`. JDK and Gradle setup succeeded;
-native compilation, Kotlin compilation, APK creation and their tests were skipped.
-The independent OSV step also failed on native dependency findings.
+Latest observed status: **failed during libffi Autoconf bootstrap**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41485396615
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41485384203
+Source commit: `ac43c128104041d47eb4c9020ae676e47da839d5`.
+SDK/JDK/Gradle setup now succeeds. zlib and PCRE2 compiled and installed for
+Android ARM64. libffi bootstrap stopped at `LT_SYS_SYMBOL_USCORE` because the
+host dependency `libltdl-dev` was missing. QEMU itself, Kotlin and APK packaging
+were not reached. No successful APK or guest boot is claimed.
 
-Fix submitted: explicitly provision SDK command-line tools 16.0 using a pinned
-setup action, upgrade zlib to 1.3.2, PCRE2 to 10.49 and GLib to 2.86.5 at verified
-release commit SHAs, and adjust static-library CMake options for those versions.
-Security failures remain blocking; advisories are now printed in job logs too.
-The new commit triggers another run; its results have not been observed. The
-owner asked the agent not to wait and will report completion.
-Draft PR: https://github.com/Hcode91/qemu-android/pull/1
+Fix submitted: install `libltdl-dev`, check for `ltdl.m4` before bootstrap and
+retain Autoconf `config.log` alongside Meson logs. OSV still reported zlib
+CVE-2026-76844/CVE-2026-85091 and PCRE2 OSV-2026-343, so the pins now use
+verified upstream snapshots containing the corresponding recorded fix commits.
+See `android/ci/SECURITY_FIXES.md` for references and ancestry evidence. No
+findings have been suppressed; the next scan remains required and blocking.
+The new commit triggers another run. The owner asked the agent not to wait and
+will report completion. Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
 Latest successful APK: **none**.
 Runs: https://github.com/Hcode91/qemu-android/actions
@@ -53,8 +56,9 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
 
 ## Known bugs and open risks
 
-- NDK/Bionic compilation and executable packaging have not been tested. Meson
-  feature probes, Linux-only APIs and static dependency linkage may require port fixes.
+- QEMU NDK/Bionic compilation and executable packaging have not been reached.
+  zlib/PCRE2 ARM64 compilation passed at the previous pins. Meson probes,
+  Linux-only APIs and static linkage may still require port fixes.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
@@ -63,12 +67,15 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
   physical controller forwarding or audio. These controls are not simulated.
 - Guest command line fixed for initramfs Linux. No guest binary is bundled and no
   Linux boot has been verified. CI boot harness is not wired to a fixture yet.
-- The failed run reported zlib CVE-2026-22184, CVE-2026-27171, CVE-2026-3381
-  and CVE-2026-76844; PCRE2 CVE-2026-103111, CVE-2026-89158 and
-  CVE-2026-89161; and GLib CVE-2025-3360. Release pins have been upgraded in
-  response. The replacement pins require a fresh OSV result; no clean scan is
-  claimed. libffi/dtc had no findings in that report. Maven was not resolved.
-  OSV commit coverage is incomplete.
+- Latest OSV scan: zlib CVE-2026-76844/CVE-2026-85091 and PCRE2
+  OSV-2026-343 remain findings against the previous release pins. New snapshot
+  pins contain the recorded upstream fixes but have not been rescanned here.
+  GLib/libffi/dtc had no findings in that run. Maven was not resolved. The
+  earlier release-pin update did not remove all findings. OSV commit coverage
+  is incomplete, and no fully clean security result is claimed.
+- zlib and PCRE2 now use pinned development snapshots because the selected
+  stable releases did not include all recorded fixes. These need fresh ARM64
+  compilation and security validation; see the dependency fix notes.
 - Gradle top-level versions are pinned; transitive checksum/lockfiles still need
   initial CI resolution. SDK/host package reproducibility is incomplete.
 - Upstream's inherited Repo Lockdown workflow may close this first PR because
