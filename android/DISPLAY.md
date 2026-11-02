@@ -1,9 +1,11 @@
 # Software guest display: milestone D
 
-Status: the graphical Linux fixture passed in Actions at commit `681d79d`.
-The new APK compiled, but the owner's S23 screenshot shows VNC startup failing
-because `en-us` was absent from the APK. Runtime keymap packaging and `-L`
-correction are submitted for CI; S23 pixels/controllers remain unverified.
+Status: host graphics/input/shutdown checks passed at `681d79d`; the runtime-map
+APK correction passed Android CI at `f9714c9`. The owner's S23 screenshot now
+shows real guest color bars, and serial output confirms framebuffer readiness
+and tablet/button delivery. Graphics and touch are device verified. Physical
+controller input and graphical-session shutdown/native exit remain pending.
+See diagnostics/s23-graphics-touch-2026-11-02.md for the evidence limits.
 
 ## Data path
 
