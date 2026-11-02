@@ -94,3 +94,17 @@ Maven dependencies remain unresolved.
 
 - https://github.com/GNOME/glib/blob/3033f7862c2d3c7569cef2ad4b425cf42e95d4b4/subprojects/proxy-libintl.wrap
 - https://github.com/frida-forks/proxy-libintl/tree/33934de09af6a6627eb44e310a8079df009abdbb
+
+## Follow-up: native dependencies build; QEMU Bionic memory port begins
+
+Runs 41488567863 and 41488557630 pass four fetch regressions and the eight-commit
+native scan. GLib, GVDB and proxy-libintl now compile/install alongside the other
+native dependencies. Maven remains unresolved. QEMU configuration fails because
+Bionic lacks shm_open and librt.
+
+The downstream port uses qemu_memfd_create for Android's qemu_shm_alloc and skips
+the Android-only librt search. The helper sets CLOEXEC, sizes the anonymous fd
+and reports allocation/resize failures while closing failed descriptors. Other
+hosts retain the original POSIX implementation. This is an API compatibility
+change, not a security mitigation or evidence of working guest execution.
+SELinux/JIT policy remains unchanged; device verification is still required.

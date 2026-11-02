@@ -7,8 +7,8 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Initial build scripts | No | GLib intl fallback missing; fix submitted | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | GLib intl fallback missing; fix submitted | No | No |
+| A: Android ARM64 QEMU | Initial build scripts | No | QEMU Bionic configuration failed; fix submitted | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | QEMU Bionic configuration failed; fix submitted | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,25 +31,23 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **failed configuring GLib's libintl fallback**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41487483407
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41487471503
-Source commit: `9dbdd791d8120f04812edadf78b5950008d176cd`.
-All three dependency-fetch regression tests passed. SDK setup, zlib/PCRE2/libffi
-ARM64 compilation and GVDB preparation passed. The native OSV step passed for
-seven queried commits; Maven dependencies were not yet resolved. GLib requires
-libintl even with `nls=disabled`; Android lacks it, and its proxy-libintl fallback
-was unavailable under the intentionally enforced `--wrap-mode=nodownload`.
-QEMU/Kotlin compilation and APK creation were not reached.
+Latest observed status: **failed in QEMU Meson configuration on Bionic**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41488567863
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41488557630
+Source commit: `3c95181277a35060c64d1a193860a2a8aa068ec5`.
+Four fetch regression tests pass. All native dependencies, including GLib with
+GVDB and proxy-libintl, compile/install for Android ARM64. The eight-commit native
+OSV step passes with no findings; Maven dependencies remain unresolved. QEMU
+configuration stops at `C shared or static library 'rt' not found` after finding
+that Bionic lacks `shm_open`. Kotlin and APK packaging were not reached.
 
-Fix submitted: explicitly fetch the exact proxy-libintl commit from GLib's wrap
-file into its nested subproject directory. Verify the wrap revision, URL and
-directory against dependency metadata; use the repository's canonical renamed
-GitHub location for retrieval. Include its licence, source and commit in existing
-provenance/security evidence. Add a CI regression for pinned wrap retrieval and
-revision mismatch rejection. Automatic Meson downloads remain disabled.
-The expanded eight-commit scan and new build are pending. No APK or guest boot
-is claimed. The owner will report when the next run ends.
+Fix submitted: skip the librt lookup specifically for Android and implement
+Android's qemu_shm_alloc through QEMU's existing qemu_memfd_create helper.
+This supplies anonymous fd-owned shared memory with CLOEXEC and error reporting,
+without named POSIX shared-memory objects. Other hosts retain their existing
+allocation path. No SELinux/JIT restrictions are relaxed. Compilation of this
+port change and Android runtime memory/JIT behaviour remain unverified.
+The next build is pending; the owner will report completion. No APK or boot claim.
 Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
 Latest successful APK: **none**.
@@ -59,9 +57,9 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
 
 ## Known bugs and open risks
 
-- QEMU NDK/Bionic compilation and executable packaging have not been reached.
-  zlib/PCRE2/libffi ARM64 compilation passed at the current pins. Meson probes,
-  Linux-only APIs and static linkage may still require port fixes.
+- QEMU Meson configuration has been reached, but QEMU compilation and APK
+  packaging have not. All native dependencies compile for ARM64. Bionic API
+  differences and static linkage may still require additional port fixes.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
@@ -70,13 +68,12 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
   physical controller forwarding or audio. These controls are not simulated.
 - Guest command line fixed for initramfs Linux. No guest binary is bundled and no
   Linux boot has been verified. CI boot harness is not wired to a fixture yet.
-- Latest native OSV step passed with no findings for the seven scanned commits.
-  This does not cover unresolved Maven dependencies or prove the downstream
-  QEMU commit is indexed. proxy-libintl is added to the next scan, so the expanded
-  eight-commit scan remains unverified. No full application security pass is claimed.
-- zlib and PCRE2 now use pinned development snapshots because the selected
-  stable releases did not include all recorded fixes. These need fresh ARM64
-  compilation and security validation; see the dependency fix notes.
+- Latest native OSV step passed with no findings for the eight scanned commits.
+  Maven dependencies remain unresolved, and downstream QEMU commit coverage is
+  not guaranteed. No full application security pass is claimed.
+- zlib and PCRE2 use pinned development snapshots because stable releases lacked
+  recorded fixes. Their native builds and scan passed at the current pins;
+  runtime verification remains pending. See the dependency fix notes.
 - Gradle top-level versions are pinned; transitive checksum/lockfiles still need
   initial CI resolution. SDK/host package reproducibility is incomplete.
 - Upstream's inherited Repo Lockdown workflow may close this first PR because
