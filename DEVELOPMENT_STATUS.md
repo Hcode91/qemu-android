@@ -7,8 +7,8 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Initial build scripts | No | Pending first run | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | Pending first run | No | No |
+| A: Android ARM64 QEMU | Initial build scripts | No | Setup failed; fix submitted | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | Setup failed; fix submitted | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,12 +31,20 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **first development run started** for source commit
-`bedf579be272a8c18770f15e037ea81e77071a17`:
-https://github.com/Hcode91/qemu-android/actions/runs/41457733307
+Latest observed status: **failed during SDK setup, before native compilation**.
+Run: https://github.com/Hcode91/qemu-android/actions/runs/41457940560
+Source commit: `b3e30185abe8ac7ee4d4cf2354858967d3dd4eb4`.
+Primary error: `sdkmanager: command not found`. JDK and Gradle setup succeeded;
+native compilation, Kotlin compilation, APK creation and their tests were skipped.
+The independent OSV step also failed on native dependency findings.
+
+Fix submitted: explicitly provision SDK command-line tools 16.0 using a pinned
+setup action, upgrade zlib to 1.3.2, PCRE2 to 10.49 and GLib to 2.86.5 at verified
+release commit SHAs, and adjust static-library CMake options for those versions.
+Security failures remain blocking; advisories are now printed in job logs too.
+The new commit triggers another run; its results have not been observed. The
+owner asked the agent not to wait and will report completion.
 Draft PR: https://github.com/Hcode91/qemu-android/pull/1
-A follow-up source/status commit may supersede this run. No build success is
-claimed. The owner asked the agent not to wait for Actions and will report completion.
 
 Latest successful APK: **none**.
 Runs: https://github.com/Hcode91/qemu-android/actions
@@ -55,8 +63,12 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
   physical controller forwarding or audio. These controls are not simulated.
 - Guest command line fixed for initramfs Linux. No guest binary is bundled and no
   Linux boot has been verified. CI boot harness is not wired to a fixture yet.
-- Native dependency pins are bootstrap versions; security review/update pending.
-  OSV commit coverage is incomplete. No clean security result has been observed.
+- The failed run reported zlib CVE-2026-22184, CVE-2026-27171, CVE-2026-3381
+  and CVE-2026-76844; PCRE2 CVE-2026-103111, CVE-2026-89158 and
+  CVE-2026-89161; and GLib CVE-2025-3360. Release pins have been upgraded in
+  response. The replacement pins require a fresh OSV result; no clean scan is
+  claimed. libffi/dtc had no findings in that report. Maven was not resolved.
+  OSV commit coverage is incomplete.
 - Gradle top-level versions are pinned; transitive checksum/lockfiles still need
   initial CI resolution. SDK/host package reproducibility is incomplete.
 - Upstream's inherited Repo Lockdown workflow may close this first PR because

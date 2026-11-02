@@ -29,6 +29,12 @@ except Exception as exc:
     raise
 report = [{"dependency": dep, "osv": result} for dep, result in zip(deps, results)]
 (reports / "osv.json").write_text(json.dumps(report, indent=2) + "\n")
-print("OSV checked pinned native commits and resolved Maven dependencies. Absence of findings is not a security guarantee.")
+print(f"OSV checked {len(queries)} dependency coordinates/commits. Absence of findings is not a security guarantee.")
+if not resolved.exists():
+    print("Maven dependency scan unavailable: Gradle has not exported resolved dependencies.")
+for dependency, result in zip(deps, results):
+    ids = [finding["id"] for finding in result.get("vulns", [])]
+    if ids:
+        print(f"::error::{dependency['name']}: {', '.join(ids)}")
 if any(result.get("vulns") for result in results):
     raise SystemExit("OSV findings require review; see reports/security/osv.json")
