@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 package org.qemu.android
-import android.test.InstrumentationTestCase
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 /** Requires an ARM64 Android device/runner. Version execution is not guest boot evidence. */
-@Suppress("DEPRECATION")
-class BackendTest : InstrumentationTestCase() {
-    fun testPackagedBackendExecutes() {
-        val file = File(instrumentation.targetContext.applicationInfo.nativeLibraryDir, "libqemu-system-arm.so")
+@RunWith(AndroidJUnit4::class)
+class BackendTest {
+    @Test fun packagedBackendExecutes() {
+        val file = File(InstrumentationRegistry.getInstrumentation().targetContext.applicationInfo.nativeLibraryDir, "libqemu-system-arm.so")
         assertTrue(file.canExecute())
         val process = ProcessBuilder(file.absolutePath, "--version").redirectErrorStream(true).start()
         assertTrue(process.waitFor(15, TimeUnit.SECONDS))
@@ -17,8 +21,8 @@ class BackendTest : InstrumentationTestCase() {
         assertTrue(text.contains("QEMU emulator version"))
     }
     /** Runs only on an ARM64 Android runner; no guest boot is implied. */
-    fun testPackagedRuntimeDataAllowsVncStartup() {
-        val context = instrumentation.targetContext
+    @Test fun packagedRuntimeDataAllowsVncStartup() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         val directory = java.nio.file.Files.createTempDirectory(context.cacheDir.toPath(), "vnc-").toFile()
         val data = QemuRuntimeData.install(File(directory, "data"),
             context.assets.list("qemu/keymaps")?.toList() ?: emptyList()) { context.assets.open("qemu/keymaps/$it") }

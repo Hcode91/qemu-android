@@ -12,7 +12,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         ndk { abiFilters += "arm64-v8a" }
-        testInstrumentationRunner = "android.test.InstrumentationTestRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         debug { applicationIdSuffix = ".dev"; versionNameSuffix = "-dev"; resValue("string", "app_name", "QEMU-Android Development") }
@@ -28,7 +28,13 @@ android {
     lint { abortOnError = true; checkReleaseBuilds = true }
     testOptions { unitTests.isReturnDefaultValues = false }
 }
-dependencies { testImplementation("junit:junit:4.13.2") }
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:monitor:1.7.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+}
 val verifyBackend by tasks.registering {
     doLast {
         val backend = file("src/main/jniLibs/arm64-v8a/libqemu-system-arm.so")
