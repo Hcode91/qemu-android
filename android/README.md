@@ -15,7 +15,8 @@ images before uninstalling (an in-app export feature is still pending).
 
 The workflow compiles the actual fork checkout for `arm-softmmu`, using pinned
 NDK r28c, SDK 35, SDK command-line tools 16.0 (12266719), JDK 17, Gradle 8.11.1, AGP 8.9.2, Kotlin 2.1.20 and native
-source commits. Native sources are fetched and SHA-checked in Actions. QEMU's
+source commits. Native sources and declared submodules are fetched and SHA-checked in Actions.
+Each declared submodule is checked against its parent gitlink and expected URL. QEMU's
 own subprojects use its checked-in wrap/submodule revisions. Host apt package
 versions follow the Ubuntu 24.04 runner; this is not a reproducible hermetic build.
 Maven dependencies are versioned but transitive checksum verification and a

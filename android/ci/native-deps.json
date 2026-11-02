@@ -31,7 +31,17 @@
     "version": "2.86.5",
     "repository": "https://github.com/GNOME/glib.git",
     "commit": "3033f7862c2d3c7569cef2ad4b425cf42e95d4b4",
-    "license": "LGPL-2.1-or-later"
+    "license": "LGPL-2.1-or-later",
+    "submodules": [
+      {
+        "name": "gvdb",
+        "path": "subprojects/gvdb",
+        "version": "git.2b42fc75",
+        "repository": "https://github.com/GNOME/gvdb.git",
+        "commit": "2b42fc75f09dbe1cd1057580b5782b08f2dcb400",
+        "license": "LGPL-2.1-or-later"
+      }
+    ]
   },
   {
     "name": "dtc",

@@ -36,6 +36,8 @@ jobs:
           APPROVED_COMMIT: ${{ inputs.approved_commit || vars.APPROVED_RELEASE_COMMIT }}
         run: bash android/ci/validate-release.sh
       - uses: ./.github/actions/android-setup
+      - name: Dependency fetch regression tests
+        run: python3 -m unittest discover -s android/ci/tests -v
       - name: Build genuine QEMU ARM64 backend
         run: bash android/ci/build-native.sh
       - name: Unit tests, lint and unsigned release
