@@ -84,7 +84,9 @@ mkdir -p "$WORK/libffi-build"
 meson_build glib -Dtests=false -Dinstalled_tests=false -Dnls=disabled -Dlibmount=disabled \
   -Dselinux=disabled -Dxattr=false -Dlibelf=disabled -Dintrospection=disabled \
   -Ddocumentation=false -Dman-pages=disabled -Dsysprof=disabled
-meson_build dtc -Dtools=false -Dtests=false -Dpython=disabled -Dyaml=disabled
+meson_build dtc -Dtools=false -Dtests=false -Dpython=disabled -Dyaml=disabled -Dstatic-build=true
+# dtc builds both library variants; QEMU's Android lookup explicitly selects .a.
+[[ -s "$PREFIX/lib/libfdt.a" ]] || { echo 'Static libfdt archive missing' >&2; exit 1; }
 mkdir -p "$WORK/qemu-build"
 cd "$WORK/qemu-build"
 "$ROOT/configure" --cross-prefix="$TOOLCHAIN/bin/aarch64-linux-android-" \

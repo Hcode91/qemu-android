@@ -123,3 +123,19 @@ not fabricate disk capabilities, raise the minimum Android API or suppress a
 compiler diagnostic. Runtime probing and complete backend compilation/linking
 still require validation. Ninja now continues independent compilation after a
 failure to gather port errors together, while its nonzero exit still fails CI.
+
+## Follow-up: native link succeeds; unpackaged libfdt dependency rejected
+
+Run 41492571109 completes all 1,992 Ninja targets and links qemu-system-arm for
+Android ARM64. The ELF validator then rejects DT_NEEDED libfdt.so because that
+library is not part of the Android system or packaged runtime. This check remains
+blocking. Its earlier architecture/linker/TEXTREL/RELRO checks passed, while the
+later segment-alignment check was not reached. The eight-commit OSV step passes;
+Maven remains unresolved.
+
+Dtc uses both_libraries, so default_library=static alone did not prevent a shared
+library from being installed and selected. QEMU's Android-specific find_library
+now requests static: true. The dependency build enables dtc's static-build option
+and verifies libfdt.a exists. The runtime-library allowlist is unchanged. Other
+hosts keep their existing selection. Corrected closure, alignment, APK packaging
+and runtime still require the next CI/device checks.
