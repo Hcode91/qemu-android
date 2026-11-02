@@ -9,7 +9,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 |---|---|---|---|---|---|
 | A: Android ARM64 QEMU | Native port/build scripts | Yes | Build and ELF validation passed | No | No |
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | No | Installed; VM creation reported |
-| C: Minimal ARM Linux | Fixture build and two-boot harness | Pending Actions | Pending host test | No | No |
+| C: Minimal ARM Linux | Fixture build and two-boot harness | Yes, fixture built | Two host boots/persistence passed | First S23 boot shown | Kernel/userspace/disk write/power-down shown; second-boot persistence pending |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
 | F: Android 4.1 test app | No | No | No | No | No |
@@ -42,9 +42,10 @@ tests and lint; QEMU ARM64 compilation/link; static fdt link probe; native ELF
 closure/hardening/alignment; debug APK packaging; native/Maven vulnerability
 scan; manifest, packaged-backend identity, ZIP/alignment and debug signature
 validation; APK and evidence uploads. All reported success. No device install,
-backend execution on Android or guest boot has been observed.
+backend execution on Android or guest boot had been observed at that build checkpoint.
+The later owner-supplied screenshot below provides first-boot device evidence.
 
-Latest successful debug APK artifact:
+Verified debug APK artifact used for the first device test:
 https://github.com/Hcode91/qemu-android/actions/runs/41499762975/artifacts/13168483152
 Name: `QEMU-Android-debug-21c17cf462ad1a968b798c5a12f18787ede31170`.
 Evidence artifact:
@@ -52,26 +53,25 @@ https://github.com/Hcode91/qemu-android/actions/runs/41499762975/artifacts/13168
 Artifacts expire 2026-11-16. The commit in the PR artifact name is GitHub's
 merge checkout; the push run builds the branch commit directly.
 
-Next milestone: build a source-pinned, redistributable ARMv7 Linux kernel and
-BusyBox initramfs through Actions; prepare an ext4 raw test disk; validate the
-fixture with the existing two-boot headless harness; then verify actual kernel,
-userspace, disk persistence and shutdown through the Android-packaged backend.
-A host-side fixture boot alone does not verify Android execution. Milestone C
-stays unverified until guest-boot evidence is captured, and real-device status
-stays pending until the S23 has been tested.
+Milestone C now has passing host fixture tests and first-boot S23 evidence.
+The remaining device check is persistence across a second boot, together with
+QEMU exit/control behaviour. Copyable logs are being added to make that
+verification practical. Milestone D graphics/controller work follows.
 
 ## Known bugs and open risks
 
-- Development build and static validation now pass. Real Android execution,
-  installation, guest boot and performance remain unverified.
-- Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
-  testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
+- The baseline development build and static validation pass. The new copy-log
+  feature needs its own CI build and clipboard test. Performance is unmeasured.
+- The S23 first boot demonstrates extracted PIE execution and TCG for this
+  fixture/device. Broader Android compatibility, JIT failure handling, lifecycle
+  behaviour and performance still require testing.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
-  image export/deletion, serial-log export or live profile editing yet.
+  image export/deletion, log file export or live profile editing yet.
 - Networking disabled; no Android Internet permission. No graphics, touch,
   physical controller forwarding or audio. These controls are not simulated.
-- Guest command line fixed for initramfs Linux. No guest binary is bundled and no
-  Linux boot has been verified. The new fixture workflow is awaiting its first run.
+- Guest command line is fixed for initramfs Linux. Guest images are downloaded
+  separately. First S23 boot is shown; second-boot persistence and scrolling-log
+  behaviour still need captured evidence.
 - Latest combined OSV step passed with no findings for 13 native/Maven entries.
   Dependency resolution now succeeds. Downstream QEMU commit coverage is not
   guaranteed, and no full application security pass is claimed.
@@ -87,22 +87,36 @@ stays pending until the S23 has been tested.
 
 ## Owner-reported device evidence
 
-The owner reports the CI-built app opened and VM creation succeeded on the
-Galaxy S23. This verifies that frontend path. It does not establish native
-QEMU execution, JIT allocation, guest kernel/userspace, storage or shutdown.
-No guest image has been supplied/tested on the device yet.
+The owner reports the app opens and VM creation works on the Galaxy S23.
+A later screenshot shows genuine Linux serial output: /init starts,
+QEMU-ANDROID-USERSPACE appears, ext4 on vda mounts read/write, PERSIST-WRITTEN
+appears, the filesystem unmounts, QEMU-ANDROID-SHUTDOWN appears and the kernel
+reports reboot: Power down. This verifies guest kernel/userspace execution,
+virtual disk writes and the guest's power-down path on that device. QEMU process
+exit status is not shown in that screenshot.
 
-## Milestone C source work
+Second-boot PERSIST-READ has not been confirmed. The owner reports output that
+keeps scrolling; this could be normal output or repeated boots, and the cause
+is undiagnosed without captured logs. No reboot-loop diagnosis is claimed.
+No performance benchmark has been performed.
 
-A separate ARM Linux guest fixture workflow now builds a pinned Buildroot
-configuration with ARMv7 Linux, static BusyBox initramfs and an ext4 test disk.
-It invokes the two-boot host-QEMU persistence/poweroff harness and uploads
-pristine images, checksums, build/serial logs and corresponding source/licence
-evidence. This source is uncompiled and the fixture has not booted yet.
-Only a passing host test permits handing the images to the owner; Android
-boot/device status remains pending until the phone's actual serial evidence.
-See android/guest/README.md for the eventual test protocol. Full guest
-vulnerability clearance is not claimed by download-hash validation.
+## Milestone C fixture and diagnostic work
+
+Linux fixture run 41503085561 succeeded:
+https://github.com/Hcode91/qemu-android/actions/runs/41503085561
+Images: https://github.com/Hcode91/qemu-android/actions/runs/41503085561/artifacts/13172783014
+Buildroot images compiled and the two host-QEMU boot checks passed, including
+kernel, userspace, persistence and poweroff. These host results are distinct
+from the S23 screenshot evidence above. Full guest vulnerability clearance is
+not claimed by hash validation or fixture tests.
+
+New source change: a Copy logs section exposes Android clipboard snapshots of
+the last 100 guest lines, the retained guest console, host diagnostics, or both
+with explicit stream headings. It does not pause/reset the guest or synthesize
+boot output. Existing stream retention remains 128 Ki characters each. No new
+Android permission or network access is added. Source is implemented; the new
+APK, lint and clipboard behaviour are awaiting Actions/device verification.
+The owner asked the agent not to wait for CI completion.
 
 ## Real-device requirements
 
@@ -116,10 +130,10 @@ No performance measurements exist.
 
 ## Next priorities
 
-1. Inspect the Linux fixture workflow; fix build/boot failures and retain real
-   serial evidence. The Android APK build already passed at the recorded commit.
-2. Build pinned, legally redistributable Linux/BusyBox fixtures in Actions,
-   exercise the two-boot harness on host QEMU, then run on Android ARM64.
+1. Build and validate the copy-log update through Actions; capture the scrolling
+   guest output and host diagnostics without assuming a reboot-loop cause.
+2. Verify PERSIST-READ on a second S23 boot using the same imported disk and
+   confirm QEMU process exit after guest shutdown.
 3. Add ARM64 device CI and retain instrumentation, guest serial and disk evidence.
 4. Implement a software display transport (likely local QEMU VNC/RFB to Android
    Surface), input/controller forwarding, then audio. Benchmark before optimising.
