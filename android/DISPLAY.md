@@ -72,7 +72,9 @@ fixture; it does not execute the Android-packaged ARM64 binary or SurfaceView.
 Pixman 0.46.4 uses the official Xorg release archive with the SHA-512 recorded in
 Buildroot's `package/pixman/pixman.hash` at Buildroot commit
 `7fdeadb3b9f12f78e5fccca914d7fef47090ab9a`. Download and extraction sizes are
-bounded; archive links, special files and traversing paths are rejected. OSV
+bounded. Direct relative symlinks to regular archive members are materialized as
+regular files; escaping/missing targets, link chains, hardlinks, special files,
+duplicate paths and traversing paths are rejected. OSV
 checks its explicit OSS-Fuzz package/version coordinate. Coverage for version
 queries and downstream QEMU commits is incomplete; an empty result is not a
 vulnerability clearance. Exact dependency sources remain CI artifacts.

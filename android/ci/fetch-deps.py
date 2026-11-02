@@ -38,15 +38,34 @@ def extract_archive(archive, data, dest):
         raise ValueError("Dependency archive hash mismatch")
     with tarfile.open(fileobj=io.BytesIO(data), mode="r:xz") as source:
         entries = source.getmembers()
-        if len(entries) > 10000 or sum(e.size for e in entries) > 128 * 1024 * 1024:
+        if len(entries) > 10000:
             raise ValueError("Dependency archive exceeds extraction limits")
+        by_path = {}
         for entry in entries:
             path = checked_path(entry.name)
-            if path.parts[0] != archive["root"] or entry.issym() or entry.islnk() or not (entry.isfile() or entry.isdir()):
-                raise ValueError("Unsafe dependency archive member")
+            if (path.parts[0] != archive["root"] or path in by_path or entry.size < 0
+                    or not (entry.isfile() or entry.isdir() or entry.issym())):
+                raise ValueError(f"Unsafe dependency archive member: {entry.name!r}")
+            by_path[path] = entry
+        # Pixman's official tarball contains CI-config symlinks. Materialize only
+        # direct, relative references to regular members as regular files. Never
+        # extract a filesystem link, follow a link chain, or accept a hardlink.
+        members = []
+        for path, entry in by_path.items():
+            if entry.issym():
+                target_path = path.parent / checked_path(entry.linkname)
+                target = by_path.get(target_path)
+                if target is None or not target.isfile():
+                    raise ValueError(f"Unsafe archive link target: {entry.name!r}")
+                # Preserve the regular target's data offset/size, changing only
+                # its output name. tarfile's data filter still applies below.
+                entry = target.replace(name=entry.name, linkname="", deep=False)
+            members.append(entry)
+        if sum(e.size for e in members) > 128 * 1024 * 1024:
+            raise ValueError("Dependency archive exceeds extraction limits")
         dest.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=dest.parent) as temp:
-            source.extractall(temp, filter="data")
+            source.extractall(temp, members=members, filter="data")
             if dest.exists():
                 shutil.rmtree(dest)
             shutil.move(str(pathlib.Path(temp) / archive["root"]), dest)
