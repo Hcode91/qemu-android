@@ -1,0 +1,72 @@
+name: Android development
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: android-dev-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          submodules: false
+      - uses: ./.github/actions/android-setup
+        with:
+          read-only-cache: ${{ github.event_name == 'pull_request' }}
+      - name: Dependency fetch regression tests
+        run: python3 -m unittest discover -s android/ci/tests -v
+      - name: Kotlin compilation, unit tests, lint and dependency resolution
+        shell: bash
+        run: |
+          set -euo pipefail
+          source android/ci/guard.sh
+          mkdir -p android/reports
+          gradle -p android --no-daemon --stacktrace --console=plain -I "$GITHUB_WORKSPACE/android/ci/dependencies.init.gradle" :app:testDebugUnitTest :app:lintDebug :app:exportSecurityDependencies 2>&1 | tee android/reports/frontend-debug.log
+      - name: Build genuine QEMU for Android ARM64
+        run: bash android/ci/build-native.sh
+      - name: Build debug APK containing the genuine backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          source android/ci/guard.sh
+          gradle -p android --no-daemon --stacktrace --console=plain -I "$GITHUB_WORKSPACE/android/ci/dependencies.init.gradle" :app:assembleDebug 2>&1 | tee android/reports/gradle.log
+      - name: Native and Maven vulnerability checks
+        if: ${{ !cancelled() }}
+        run: python3 android/ci/security.py
+      - name: Verify debug manifest, ZIP, ARM64 backend and signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash android/ci/verify-apk.sh android/app/build/outputs/apk/debug/app-debug.apk debug
+          mkdir -p android/dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk "android/dist/QEMU-Android-debug-${GITHUB_SHA}.apk"
+      - name: Downloadable development APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: QEMU-Android-debug-${{ github.sha }}
+          path: android/dist/*.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Native, lint, security and test evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: QEMU-Android-evidence-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            android/reports/
+            android/app/build/reports/
+            android/app/build/test-results/
+          retention-days: 14
+      - name: Status summary
+        if: always()
+        shell: bash
+        run: |
+          echo 'APK compilation is not guest-boot verification. ARM64 device instrumentation and guest boot are still required.' >> "$GITHUB_STEP_SUMMARY"

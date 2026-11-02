@@ -1,0 +1,65 @@
+[
+  {
+    "name": "zlib",
+    "version": "1.3.2.1-motley-git.df84af25",
+    "repository": "https://github.com/madler/zlib.git",
+    "commit": "df84af25dc1942490e1d1c899a07619152a46148",
+    "license": "Zlib",
+    "security_fix_commits": [
+      "df84af25dc1942490e1d1c899a07619152a46148"
+    ]
+  },
+  {
+    "name": "pcre2",
+    "version": "10.50-DEV-git.80c3e6e9",
+    "repository": "https://github.com/PCRE2Project/pcre2.git",
+    "commit": "80c3e6e98a70a5666a24fbeab4c3f9677a65f8f1",
+    "license": "BSD-3-Clause",
+    "security_fix_commits": [
+      "e19e76ad8e5bbdf8a22b69e0f408692329e1e516"
+    ]
+  },
+  {
+    "name": "libffi",
+    "version": "3.4.6",
+    "repository": "https://github.com/libffi/libffi.git",
+    "commit": "3d0ce1e6fcf19f853894862abcbac0ae78a7be60",
+    "license": "MIT"
+  },
+  {
+    "name": "glib",
+    "version": "2.86.5",
+    "repository": "https://github.com/GNOME/glib.git",
+    "commit": "3033f7862c2d3c7569cef2ad4b425cf42e95d4b4",
+    "license": "LGPL-2.1-or-later",
+    "submodules": [
+      {
+        "name": "gvdb",
+        "path": "subprojects/gvdb",
+        "version": "git.2b42fc75",
+        "repository": "https://github.com/GNOME/gvdb.git",
+        "commit": "2b42fc75f09dbe1cd1057580b5782b08f2dcb400",
+        "license": "LGPL-2.1-or-later"
+      }
+    ]
+  },
+  {
+    "name": "proxy-libintl",
+    "version": "1-git.33934de0",
+    "repository": "https://github.com/frida-forks/proxy-libintl.git",
+    "commit": "33934de09af6a6627eb44e310a8079df009abdbb",
+    "license": "LGPL-2.0-or-later",
+    "destination": "glib/subprojects/proxy-libintl",
+    "wrap": {
+      "path": "glib/subprojects/proxy-libintl.wrap",
+      "url": "https://github.com/frida/proxy-libintl.git"
+    }
+  },
+  {
+    "name": "dtc",
+    "version": "1.7.2",
+    "repository": "https://github.com/qemu/dtc.git",
+    "commit": "2d10aa2afe35527728db30b35ec491ecb6959e5c",
+    "license": "GPL-2.0-or-later OR BSD-2-Clause"
+  }
+]
