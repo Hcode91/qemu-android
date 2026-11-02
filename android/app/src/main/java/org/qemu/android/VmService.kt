@@ -52,10 +52,10 @@ class VmService : Service() {
             append(diagnostics, "QMP: ${qmp!!.execute("query-status")}\n")
             io.execute {
                 val code = p.waitFor()
-                commands.execute {
+                runCatching { commands.execute {
                     if (process === p) { qmp?.close(); qmp = null; process = null; imageLock?.close(); imageLock = null; activeId = null }
                     append(diagnostics, "QEMU exit status: $code\n")
-                }
+                } } // Service teardown can close the command executor before this callback.
             }
         } catch (e: Exception) {
             append(diagnostics, "Host: ${e.message}\n")
