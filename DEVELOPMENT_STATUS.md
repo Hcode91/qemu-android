@@ -10,7 +10,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | A: Android ARM64 QEMU | Native port/build scripts | Yes | Build and ELF validation passed | Linux fixture | Yes, via guest boot |
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | Linux fixture | Installed and guest boot shown |
 | C: Minimal ARM Linux | Fixture build and two-boot harness | Yes | Two host boots/persistence passed | Yes, S23 | Kernel/userspace/disk persistence/unmount/power-down shown |
-| D: Graphics/controller | Software RFB Surface + touch/keyboard/controller mappings + guest fixture | Pending | Pending | Previous headless fixture only | Graphics/controller pending |
+| D: Graphics/controller | Software RFB Surface + touch/keyboard/controller mappings + guest fixture | Kotlin yes; native blocked at archive validation | Protocol/unit/lint/fetch/security passed; full build pending | Previous headless fixture only | Graphics/controller pending |
 | E: Android ARM guest | Research pending | No | No | No | No |
 | F: Android 4.1 test app | No | No | No | No | No |
 | G: OUYA application | No | No | No | No | No |
@@ -32,7 +32,17 @@ Downstream: https://github.com/Hcode91/qemu-android
 ## GitHub Actions and artifacts
 
 Latest known successful APK baseline: **copy-log update passed both Android runs**.
-Milestone D source is being submitted separately; its Actions results are pending.
+Milestone D initial Android runs failed while validating Pixman's source archive:
+push https://github.com/Hcode91/qemu-android/actions/runs/41518914626 and
+PR https://github.com/Hcode91/qemu-android/actions/runs/41518972640.
+Dependency regressions, Kotlin compilation/unit tests, lint and OSV passed in
+both. Native compilation did not start; no D APK was produced. The official
+SHA-512-verified tarball contains legitimate relative symlinks in `.gitlab-ci.d`.
+A correction materializes direct in-archive regular-file targets, retaining the
+path/size/type checks; regression tests are added for safe links and attacks.
+Pixman demo/test helper builds are also explicitly disabled; only its target
+library is needed. Correction CI is pending. Two Linux fixture runs were still in progress when
+inspected; their results have not been inferred from the Android failures.
 Successful baseline source: `4240f9a24e875326b80eb7828313fced3159dda8`.
 PR run: https://github.com/Hcode91/qemu-android/actions/runs/41514018172
 Push run: https://github.com/Hcode91/qemu-android/actions/runs/41514009590
@@ -155,12 +165,19 @@ No performance measurements exist.
   and third host-QEMU boot checking actual pixels, input/redraw and shutdown.
 - Actions-only protocol/archive safety tests; exact source and graphical evidence
   artifacts. New scripts have only received local syntax/static review.
-- No D APK/fixture result observed yet. The earlier successful APK and fixture
+- Initial D Kotlin/protocol tests, lint and dependency scan passed. Both Android
+  jobs failed before compilation on legitimate Pixman archive symlinks; the
+  correction is submitted for Actions validation. No D APK/fixture success yet. The earlier successful APK and fixture
   above do not contain this graphical implementation. No phone graphics,
   physical-controller, audio, acceleration or performance evidence exists.
-- Pixman's archive is SHA-512 pinned, with bounded safe extraction. Its OSV
-  version coordinate has incomplete coverage. New security results are pending;
-  the previous clean OSV result does not clear this newly added dependency.
+- Pixman's archive is SHA-512 pinned, with bounded extraction and direct safe
+  links materialized as regular files. Its OSV version coordinate has incomplete
+  coverage. Initial D native/Maven scans passed; this is not a full security
+  clearance or validation of the archive correction.
+- The inherited master-branch Repo Lockdown action failed separately because its
+  old token validator rejects the current token length. The development branch
+  already scopes it away from this fork; default-branch workflow repair still
+  requires an owner-approved merge. No merge has been performed.
 
 See android/DISPLAY.md for architecture, limitations and S23 verification steps.
 
