@@ -22,7 +22,10 @@ qmp_path = report / 'qmp.sock'
 def wait_for(text, timeout=180):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        if text in (serial.read_text(errors='replace') if serial.exists() else ''):
+        output = serial.read_text(errors='replace') if serial.exists() else ''
+        if 'Kernel panic - not syncing:' in output or 'framebuffer open/info:' in output:
+            raise RuntimeError(f'Guest failed before {text}; inspect guest-serial.log\n' + output[-2000:])
+        if text in output:
             return
         if process.poll() is not None:
             raise RuntimeError(f'QEMU exited before {text}')
@@ -40,12 +43,14 @@ def exact(sock, size):
 
 with (report / 'qemu.log').open('wb') as host:
     command = [qemu, '-M', 'virt', '-cpu', 'cortex-a15', '-accel', 'tcg', '-m', '512', '-smp', '2',
-               '-no-user-config', '-nodefaults', '-display', 'none', '-monitor', 'none', '-nic', 'none',
+               '-no-user-config', '-nodefaults', '-no-reboot', '-display', 'none', '-monitor', 'none', '-nic', 'none',
                '-serial', f'file:{serial}', '-qmp', f'unix:{qmp_path},server=on,wait=off',
+               '-global', 'virtio-mmio.force-legacy=false',
                '-vnc', f'unix:{vnc_path}', '-device', 'virtio-gpu-device', '-device', 'virtio-keyboard-device',
                '-device', 'virtio-tablet-device', '-kernel', kernel, '-initrd', initrd,
                '-append', 'console=tty0 console=ttyAMA0 rdinit=/init panic=1 qemu_android.display_test=1',
                '-drive', f'if=none,id=disk0,format=raw,file={disk}', '-device', 'virtio-blk-device,drive=disk0']
+    (report / 'command.json').write_text(json.dumps(command, indent=2) + '\n')
     process = subprocess.Popen(command, stdout=host, stderr=subprocess.STDOUT)
     try:
         wait_for('DISPLAY-READY')

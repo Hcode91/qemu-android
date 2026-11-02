@@ -22,7 +22,11 @@ data class VmConfig(val id: String, val name: String, val memoryMiB: Int = 512, 
         if (graphics) {
             require(vncPath != null && vncPath.length < 100 && !vncPath.contains(',')) { "Private display socket required" }
             args[args.indexOf("-append") + 1] = "console=tty0 console=ttyAMA0 rdinit=/init panic=1 qemu_android.display_test=1"
-            args += listOf("-vnc", "unix:$vncPath", "-device", "virtio-gpu-device", "-device", "virtio-keyboard-device", "-device", "virtio-tablet-device")
+            // GPU and input drivers require VIRTIO_F_VERSION_1. The MMIO
+            // transport defaults to legacy on virt, including our QEMU base.
+            args += listOf("-global", "virtio-mmio.force-legacy=false",
+                "-vnc", "unix:$vncPath", "-device", "virtio-gpu-device",
+                "-device", "virtio-keyboard-device", "-device", "virtio-tablet-device")
         }
         if (File(directory, "initrd").isFile) args += listOf("-initrd", File(directory, "initrd").absolutePath)
         if (File(directory, "disk.raw").isFile) {
