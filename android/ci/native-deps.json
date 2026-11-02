@@ -1,17 +1,23 @@
 [
   {
     "name": "zlib",
-    "version": "1.3.2",
+    "version": "1.3.2.1-motley-git.df84af25",
     "repository": "https://github.com/madler/zlib.git",
-    "commit": "da607da739fa6047df13e66a2af6b8bec7c2a498",
-    "license": "Zlib"
+    "commit": "df84af25dc1942490e1d1c899a07619152a46148",
+    "license": "Zlib",
+    "security_fix_commits": [
+      "df84af25dc1942490e1d1c899a07619152a46148"
+    ]
   },
   {
     "name": "pcre2",
-    "version": "10.49",
+    "version": "10.50-DEV-git.80c3e6e9",
     "repository": "https://github.com/PCRE2Project/pcre2.git",
-    "commit": "6f9d7c1373262c541324a16a358785b33ef116cf",
-    "license": "BSD-3-Clause"
+    "commit": "80c3e6e98a70a5666a24fbeab4c3f9677a65f8f1",
+    "license": "BSD-3-Clause",
+    "security_fix_commits": [
+      "e19e76ad8e5bbdf8a22b69e0f408692329e1e516"
+    ]
   },
   {
     "name": "libffi",
