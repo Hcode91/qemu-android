@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
+import hashlib
+import json
 import pathlib
+import re
 import sys
 import zipfile
 import xml.etree.ElementTree as ET
@@ -26,4 +29,16 @@ with zipfile.ZipFile(apk) as z:
     original = pathlib.Path(__file__).resolve().parents[1] / "app/src/main/jniLibs/arm64-v8a/libqemu-system-arm.so"
     if original.exists():
         assert native == original.read_bytes(), "Packager altered native backend"
-print("Manifest, permissions, variant, ZIP integrity and packaged backend verified")
+    source = pathlib.Path(__file__).resolve().parents[2] / "pc-bios/keymaps"
+    maps = [p for p in source.iterdir() if p.is_file() and not p.is_symlink() and re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,31}", p.name)]
+    assert any(p.name == "en-us" for p in maps), "Upstream default keymap missing"
+    evidence = []
+    for path in sorted(maps):
+        entry = "assets/qemu/keymaps/" + path.name
+        data = z.read(entry)  # Missing runtime assets must fail APK validation.
+        assert data and data == path.read_bytes(), f"Missing/altered QEMU runtime data: {entry}"
+        evidence.append({"asset": entry, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+    report = pathlib.Path(__file__).resolve().parents[1] / f"reports/apk-{kind}"
+    report.mkdir(parents=True, exist_ok=True)
+    (report / "runtime-data.json").write_text(json.dumps(evidence, indent=2) + "\n")
+print(f"Manifest, permissions, variant, ZIP integrity, backend and {len(maps)} exact runtime keymaps verified")

@@ -109,6 +109,18 @@ cd "$WORK/qemu-build"
 ninja -k 0 -j2 qemu-system-arm
 DEST="$ROOT/android/app/src/main/jniLibs/arm64-v8a"
 mkdir -p "$DEST"
+# The executable alone is insufficient: VNC loads keymaps at runtime through -L.
+# Retain exact upstream map contents, not host-installed/generated alternatives.
+ASSET_KEYMAPS="$ROOT/android/app/src/main/assets/qemu/keymaps"
+rm -rf "$ASSET_KEYMAPS"
+mkdir -p "$ASSET_KEYMAPS"
+for keymap in "$ROOT"/pc-bios/keymaps/*; do
+  map_name=$(basename "$keymap")
+  if [[ "$map_name" =~ ^[a-z0-9][a-z0-9_-]{0,31}$ && -f "$keymap" && ! -L "$keymap" ]]; then
+    cp -- "$keymap" "$ASSET_KEYMAPS/$map_name"
+  fi
+done
+[[ -s "$ASSET_KEYMAPS/en-us" ]] || { echo 'Required QEMU en-us runtime keymap missing' >&2; exit 1; }
 # A PIE executable named lib*.so is extracted by Android's package installer.
 # It is launched using exec, never System.loadLibrary/dlopen.
 cp qemu-system-arm "$DEST/libqemu-system-arm.so"
