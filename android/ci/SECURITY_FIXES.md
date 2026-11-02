@@ -108,3 +108,18 @@ and reports allocation/resize failures while closing failed descriptors. Other
 hosts retain the original POSIX implementation. This is an API compatibility
 change, not a security mitigation or evidence of working guest execution.
 SELinux/JIT policy remains unchanged; device verification is still required.
+
+## Follow-up: QEMU compilation reaches block driver statx API mismatch
+
+Run 41490614868 passes QEMU configuration and compiles more than 1,000 native
+build targets before block/file-posix.c fails on statx. Its old guard checked
+only Linux and STATX_DIOALIGN from kernel headers, not the target libc's declared
+and linkable statx API. The NDK API-28 configuration does not expose that API.
+
+The new CONFIG_STATX_DIOALIGN compile/link probe checks the function declaration,
+symbol, flags and struct alignment fields. When unavailable, QEMU retains its
+existing ioctl, logical-block-size and direct-I/O probing fallbacks. This does
+not fabricate disk capabilities, raise the minimum Android API or suppress a
+compiler diagnostic. Runtime probing and complete backend compilation/linking
+still require validation. Ninja now continues independent compilation after a
+failure to gather port errors together, while its nonzero exit still fails CI.
