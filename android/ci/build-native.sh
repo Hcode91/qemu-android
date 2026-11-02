@@ -71,9 +71,8 @@ meson_build() {
   meson install -C "$WORK/$dep-build"
 }
 # Rebuild dependencies from pinned sources. No cached target binaries in release jobs.
-cmake_build zlib -DZLIB_BUILD_EXAMPLES=OFF
-rm -f "$PREFIX"/lib/libz.so*
-cmake_build pcre2 -DBUILD_SHARED_LIBS=OFF -DPCRE2_BUILD_TESTS=OFF \
+cmake_build zlib -DZLIB_BUILD_TESTING=OFF -DZLIB_BUILD_SHARED=OFF -DZLIB_BUILD_STATIC=ON
+cmake_build pcre2 -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DPCRE2_STATIC_PIC=ON -DPCRE2_BUILD_TESTS=OFF \
   -DPCRE2_BUILD_PCRE2GREP=OFF -DPCRE2_SUPPORT_JIT=OFF -DPCRE2_BUILD_PCRE2_16=OFF -DPCRE2_BUILD_PCRE2_32=OFF
 (cd "$WORK/src/libffi" && ./autogen.sh)
 mkdir -p "$WORK/libffi-build"
