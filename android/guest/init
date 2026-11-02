@@ -1,0 +1,21 @@
+#!/bin/busybox sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Install in a GPL-compliant ARMv7 Linux initramfs with static BusyBox applets.
+export PATH=/bin:/sbin
+mount -t devtmpfs devtmpfs /dev || exit 1
+mount -t proc proc /proc || exit 1
+mount -t sysfs sysfs /sys || exit 1
+echo QEMU-ANDROID-USERSPACE
+mkdir -p /mnt
+mount -t ext4 /dev/vda /mnt || exit 1
+if [ -f /mnt/persistence-test ]; then
+    [ "$(cat /mnt/persistence-test)" = QEMU-Android ] || exit 1
+    echo PERSIST-READ
+else
+    echo QEMU-Android > /mnt/persistence-test || exit 1
+    sync
+    echo PERSIST-WRITTEN
+fi
+umount /mnt || exit 1
+echo QEMU-ANDROID-SHUTDOWN
+poweroff -f

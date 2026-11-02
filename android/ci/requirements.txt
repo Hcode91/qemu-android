@@ -1,0 +1,4 @@
+meson==1.9.1
+ninja==1.13.0
+packaging==25.0
+PyYAML==6.0.2

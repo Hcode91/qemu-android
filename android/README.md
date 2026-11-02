@@ -1,0 +1,99 @@
+# QEMU-Android
+
+Experimental downstream Android port in a history-preserving QEMU fork. Target:
+Galaxy S23, ARM64 host, Android 14. All Android/native compilation, APK packaging,
+signing and APK tests belong in GitHub Actions. No local APK build is required.
+
+## First development build
+
+Open the **Android development** Actions run for the PR/branch. On success download
+`QEMU-Android-debug-<commit>` and unzip the APK. It uses a disposable CI debug
+certificate, has a `.dev` package suffix and a Development application label.
+CI certificates can change between runs; Android may require uninstalling an older
+development APK, which deletes its private VM images. Export/back up valuable
+images before uninstalling (an in-app export feature is still pending).
+
+The workflow compiles the actual fork checkout for `arm-softmmu`, using pinned
+NDK r28c, SDK 35, JDK 17, Gradle 8.11.1, AGP 8.9.2, Kotlin 2.1.20 and native
+source commits. Native sources are fetched and SHA-checked in Actions. QEMU's
+own subprojects use its checked-in wrap/submodule revisions. Host apt package
+versions follow the Ubuntu 24.04 runner; this is not a reproducible hermetic build.
+Maven dependencies are versioned but transitive checksum verification and a
+committed resolved lockfile still need the first CI resolution. No wrapper JAR
+is downloaded/executed on the owner's machine.
+
+## Current application
+
+Create a profile with 128–3072 MiB RAM and 1–4 guest CPUs. Import a legally
+obtained ARM Linux **zImage** (not an Android boot.img), optionally an initramfs,
+and a **raw** virtual disk through Android's document picker. Images are copied
+to app-private storage under UUID directories. Start runs `virt/cortex-a15`, TCG
+and PL011 serial. A blank disk is sparse and unformatted; importing a formatted
+ext4 disk is needed for a Linux persistence test. The kernel command line is
+currently fixed to `console=ttyAMA0 rdinit=/init panic=1`; this is an initramfs
+boot path, not a generic Android guest boot path.
+
+Pause/resume/reset/shutdown use the real QMP server over an app-private Unix
+socket. Guest shutdown requires a guest handling the virtual power button; Stop
+QEMU or Force stop can corrupt a mounted guest filesystem. The guest console
+shows QEMU stdout, while QMP responses and host errors use a separate diagnostics
+pane. Logs are bounded to 128 Ki characters per stream in memory and are not
+exported yet. A bound service owns one child process. Closing/recreating the UI
+stops the VM; background execution and rotation continuity are not implemented.
+
+The native binary is a PIE executable packaged as `libqemu-system-arm.so`, with
+legacy native-library extraction enabled, then executed from the package
+installer's `nativeLibraryDir`. It is **not** a JNI library and is never dlopened.
+This avoids trying to execute writable imported files on Android 10+. It still
+needs execution and SELinux/JIT verification on Android 14. Split W/X TCG is
+requested; there is no root, KVM, Termux, Surface renderer or GPU acceleration.
+JNI embedding remains a fallback if real-device policy prevents this architecture.
+
+## Verification limits
+
+See [DEVELOPMENT_STATUS.md](../DEVELOPMENT_STATUS.md). Unit tests and lint run in
+Actions. The ARM64 instrumentation test executes the packaged backend's version
+command; it requires an ARM64 Android runner and is **not yet wired to a device**.
+An x86 hosted emulator cannot execute this ARM64-only backend through native
+hardware acceleration. No device test is implied by an APK artifact.
+
+`ci/boot-test.py` and `guest/init` define a two-boot Linux persistence test. They
+are not enabled until a source-pinned, redistributable ARM kernel/BusyBox fixture
+is built in Actions. The harness requires a fresh ext4 raw disk and verifies
+kernel messages, PID 1 userspace, persistence over two runs and poweroff. A host
+QEMU pass would establish fixture correctness, not Android backend correctness.
+No guest binaries, firmware, games or copyrighted OUYA artwork are included.
+
+## Security and licensing
+
+No Android permissions, Internet access, telemetry, host directory exports,
+external QMP listeners or arbitrary emulator command lines in phase one. Imports
+are bounded, copied without trusting provider filenames, committed by rename,
+and protected against concurrent VM writes with a file lock. QCOW magic is
+rejected and block format is fixed to raw, preventing backing-file traversal.
+Private app storage is not a security boundary against a compromised native
+process running under the app's UID. Do not run untrusted images or put host
+secrets into this experimental app. TCG does not provide the upstream QEMU
+hardware-virtualization security guarantee.
+
+OSV checks native commits and resolved Maven runtime/test coordinates, failing
+on findings or lookup failure. Commit coverage in OSV is incomplete; a clean
+report is not proof of safety. Current bootstrap dependency pins require security
+review and updating as reports arrive. Build-tool/SDK supply-chain scanning is
+not comprehensive yet. Native ELF inspection enforces AArch64 PIE, Android linker,
+16 KiB load alignment, no text relocations, RELRO/NOW and a system-only dependency
+closure. APK validation checks permissions, merged manifest, variant, ZIP,
+packaged backend identity, signature and ZIP alignment. Reports and exact native
+dependency sources are artifacts even when later checks fail.
+
+Android additions are GPL-2.0-or-later. QEMU's original copyright notices,
+COPYING/COPYING.LIB and individual file licences remain intact. Dependency
+licences are recorded in `ci/native-deps.json`; full dependency source archives
+are in CI evidence. Before distributing APKs outside development, accompany them
+with exact QEMU and dependency sources and build instructions, including LGPL
+static relinking requirements. Release publishing is currently gated separately;
+see [SIGNING.md](SIGNING.md).
+
+This downstream work uses AI assistance. Do not submit these generated changes
+upstream: QEMU's `docs/devel/code-provenance.rst` disallows AI-generated upstream
+contributions. Nothing in this fork claims an upstream DCO certification.
