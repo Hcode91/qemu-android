@@ -82,10 +82,10 @@ class MainActivity : Activity() {
     }
     private fun selected() = vms.getOrNull(chooser.selectedItemPosition) ?: error("Create a VM first")
     private fun checkIdle() { check(service != null && service?.activeId == null) { "Stop VM before modifying images" }; check(!importing) { "Import in progress" } }
-    private fun label(text: String) = TextView(this).apply { this.text = text; setTextIsSelectable(true); layout.addView(this) }
-    private fun edit(hint: String, value: String) = EditText(this).apply { this.hint = hint; setText(value); layout.addView(this) }
+    private fun label(text: String) = TextView(this).apply { this.text = text; setTextIsSelectable(true); this@MainActivity.layout.addView(this) }
+    private fun edit(hint: String, value: String) = EditText(this).apply { this.hint = hint; setText(value); this@MainActivity.layout.addView(this) }
     private fun button(title: String, action: () -> Unit) = Button(this).apply {
-        text = title; layout.addView(this); setOnClickListener { try { action() } catch (e: Exception) { Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show() } }
+        text = title; this@MainActivity.layout.addView(this); setOnClickListener { try { action() } catch (e: Exception) { Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show() } }
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
