@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """CI-only Git fixture regression tests. No Android/native compilation."""
+import hashlib
+import io
+import tarfile
 import importlib.util
 import os
 import pathlib
@@ -96,6 +99,32 @@ class DependencyFetchTest(unittest.TestCase):
         self.dep["submodules"][0]["path"] = "../outside"
         with self.assertRaises(ValueError):
             fetch.fetch_dependency(self.dep, self.dest)
+
+
+@unittest.skipUnless(os.environ.get("GITHUB_ACTIONS") == "true", "Source archive tests run in Actions")
+class ArchiveFetchTest(unittest.TestCase):
+    def archive(self, name, value=b"source"):
+        stream = io.BytesIO()
+        with tarfile.open(fileobj=stream, mode="w:xz") as tar:
+            item = tarfile.TarInfo(name); item.size = len(value)
+            tar.addfile(item, io.BytesIO(value))
+        data = stream.getvalue()
+        return {"root": "fixture-1", "sha512": hashlib.sha512(data).hexdigest()}, data
+
+    def test_archive_hash_and_safe_extraction(self):
+        archive, data = self.archive("fixture-1/source.c")
+        with tempfile.TemporaryDirectory() as temp:
+            dest = pathlib.Path(temp) / "source"
+            fetch.extract_archive(archive, data, dest)
+            self.assertEqual((dest / "source.c").read_bytes(), b"source")
+            with self.assertRaises(ValueError):
+                fetch.extract_archive(archive, data + b"changed", dest)
+
+    def test_archive_path_traversal_is_rejected(self):
+        archive, data = self.archive("fixture-1/../../outside")
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaises(ValueError):
+                fetch.extract_archive(archive, data, pathlib.Path(temp) / "source")
 
 
 if __name__ == "__main__":

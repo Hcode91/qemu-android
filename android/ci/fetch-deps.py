@@ -2,6 +2,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Fetch exact dependency commits and explicitly declared pinned submodules."""
 import configparser
+import hashlib
+import io
+import shutil
+import tarfile
+import tempfile
+import urllib.request
 import json
 import os
 import pathlib
@@ -25,6 +31,36 @@ def checked_sha(value):
     if not re.fullmatch(r"[0-9a-f]{40}", value):
         raise ValueError("Dependency must specify a full commit SHA")
     return value
+
+
+def extract_archive(archive, data, dest):
+    if hashlib.sha512(data).hexdigest() != archive["sha512"]:
+        raise ValueError("Dependency archive hash mismatch")
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:xz") as source:
+        entries = source.getmembers()
+        if len(entries) > 10000 or sum(e.size for e in entries) > 128 * 1024 * 1024:
+            raise ValueError("Dependency archive exceeds extraction limits")
+        for entry in entries:
+            path = checked_path(entry.name)
+            if path.parts[0] != archive["root"] or entry.issym() or entry.islnk() or not (entry.isfile() or entry.isdir()):
+                raise ValueError("Unsafe dependency archive member")
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=dest.parent) as temp:
+            source.extractall(temp, filter="data")
+            if dest.exists():
+                shutil.rmtree(dest)
+            shutil.move(str(pathlib.Path(temp) / archive["root"]), dest)
+
+
+def fetch_archive(dep, dest):
+    archive = dep["archive"]
+    if not archive["url"].startswith("https://"):
+        raise ValueError("Dependency archive URL must use HTTPS")
+    with urllib.request.urlopen(archive["url"], timeout=90) as response:
+        data = response.read(32 * 1024 * 1024 + 1)
+    if len(data) > 32 * 1024 * 1024:
+        raise ValueError("Dependency archive download exceeds limit")
+    extract_archive(archive, data, dest)
 
 
 def fetch_dependency(dep, dest):
@@ -69,7 +105,10 @@ def fetch_manifest_entry(dep, out):
                 or source["url"] != wrap["url"]
                 or source["directory"] != destination.name):
             raise RuntimeError(f"Pinned dependency disagrees with source wrap: {dep['name']}")
-    fetch_dependency(dep, destination)
+    if "archive" in dep:
+        fetch_archive(dep, destination)
+    else:
+        fetch_dependency(dep, destination)
 
 
 def main():

@@ -18,5 +18,11 @@ else
     echo PERSIST-WRITTEN
 fi
 umount /mnt || exit 1
+case "$(cat /proc/cmdline)" in
+    *qemu_android.display_test=1*)
+        echo QEMU-ANDROID-GRAPHICS
+        /usr/bin/qemu-display-test || exit 1
+        ;;
+esac
 echo QEMU-ANDROID-SHUTDOWN
 poweroff -f

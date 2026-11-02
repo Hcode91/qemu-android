@@ -15,6 +15,10 @@ class VmService : Service() {
     inner class LocalBinder : Binder() { fun service() = this@VmService }
     private val commands = Executors.newSingleThreadExecutor()
     private val io = Executors.newCachedThreadPool()
+    private val displayInput = Executors.newSingleThreadExecutor()
+    @Volatile private var display: RfbConnection? = null
+    @Volatile private var latestFrame: GuestFrame? = null
+    fun frame() = latestFrame
     private var process: Process? = null
     private var qmp: QmpClient? = null
     private var imageLock: java.io.Closeable? = null
@@ -38,8 +42,10 @@ class VmService : Service() {
             val executable = File(applicationInfo.nativeLibraryDir, "libqemu-system-arm.so")
             check(executable.canExecute()) { "Packaged QEMU executable unavailable" }
             val socket = File(filesDir, "qmp.sock").apply { delete() }
+            val displaySocket = File(filesDir, "vnc.sock").apply { delete() }
+            latestFrame = null
             val dir = VmStore(this).directory(vm)
-            val p = ProcessBuilder(listOf(executable.absolutePath) + vm.arguments(dir, socket.absolutePath))
+            val p = ProcessBuilder(listOf(executable.absolutePath) + vm.arguments(dir, socket.absolutePath, displaySocket.absolutePath))
                 .directory(dir).apply { environment()["TMPDIR"] = cacheDir.absolutePath }.start()
             process = p; activeId = vm.id
             synchronized(serial) { serial.clear() }
@@ -50,10 +56,25 @@ class VmService : Service() {
             check(p.isAlive && socket.exists()) { "QEMU exited or QMP startup timed out" }
             qmp = QmpClient(socket.absolutePath)
             append(diagnostics, "QMP: ${qmp!!.execute("query-status")}\n")
+            if (vm.graphics) io.execute {
+                var connection: RfbConnection? = null
+                try {
+                    val until = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
+                    while (!displaySocket.exists() && p.isAlive && System.nanoTime() < until) Thread.sleep(25)
+                    check(p.isAlive && displaySocket.exists()) { "Display socket startup timed out" }
+                    val active = RfbConnection(displaySocket.absolutePath)
+                    connection = active
+                    display = active
+                    append(diagnostics, "Display: private RFB connected (software rendering)\n")
+                    while (p.isAlive) active.nextFrame()?.let { latestFrame = it }
+                } catch (e: Exception) {
+                    if (p.isAlive) append(diagnostics, "Display error: ${e.message}\n")
+                } finally { connection?.close(); if (display === connection) display = null }
+            }
             io.execute {
                 val code = p.waitFor()
                 runCatching { commands.execute {
-                    if (process === p) { qmp?.close(); qmp = null; process = null; imageLock?.close(); imageLock = null; activeId = null }
+                    if (process === p) { display?.close(); display = null; qmp?.close(); qmp = null; process = null; imageLock?.close(); imageLock = null; activeId = null }
                     append(diagnostics, "QEMU exit status: $code\n")
                 } } // Service teardown can close the command executor before this callback.
             }
@@ -77,8 +98,15 @@ class VmService : Service() {
         try { checkNotNull(process).outputStream.apply { write((text + "\n").toByteArray()); flush() } }
         catch (e: Exception) { append(diagnostics, "Host input error: ${e.message}\n") }
     }
+    fun displayKey(keysym: Int, down: Boolean) = displayInput.execute {
+        try { display?.key(keysym, down) } catch (e: Exception) { append(diagnostics, "Display input: ${e.message}\n") }
+    }
+    fun displayPointer(x: Int, y: Int, pressed: Boolean) = displayInput.execute {
+        try { display?.pointer(x, y, pressed) } catch (e: Exception) { append(diagnostics, "Display input: ${e.message}\n") }
+    }
     fun forceStop() = commands.execute { terminate() }
     private fun terminate() {
+        display?.close(); display = null
         qmp?.close(); qmp = null
         process?.let { p ->
             p.destroy()
@@ -87,7 +115,7 @@ class VmService : Service() {
         process = null; imageLock?.close(); imageLock = null; activeId = null
     }
     override fun onDestroy() {
-        commands.execute { terminate(); io.shutdown(); commands.shutdown() }
+        commands.execute { terminate(); io.shutdown(); displayInput.shutdown(); commands.shutdown() }
         super.onDestroy()
     }
 }
