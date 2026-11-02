@@ -9,3 +9,6 @@ app/src/main/assets/licenses/
 .native/
 reports/
 dist/
+.guest/
+.guest-downloads/
+guest-dist/
