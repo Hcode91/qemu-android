@@ -52,7 +52,10 @@ and checks APK contents. The first keymap-correction Android runs failed before 
 `:app:compileDebugAndroidTestKotlin` referenced `android.test.InstrumentationTestCase`,
 which SDK 35 no longer supplies. The source now uses the AndroidX JUnit4 runner,
 explicit test dependencies and includes the instrumented runtime classpath in
-OSV scanning. New Actions results are pending. The Linux fixture images above
+OSV scanning. The first AndroidX correction runs then stopped at `checkDebugAndroidTestAarMetadata`
+because `android.useAndroidX=false` was still explicit in Gradle properties.
+That property is now enabled for the AndroidX test runner. Source revalidation
+is pending. The Linux fixture images above
 remain valid for the retest; no kernel rebuild is required for this packaging fix.
 
 Earlier host graphics failure at 6fa6199 was legacy Virtio MMIO; explicit modern
