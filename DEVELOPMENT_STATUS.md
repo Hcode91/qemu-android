@@ -7,8 +7,8 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Initial build scripts | No | GLib source setup failed; fix submitted | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | GLib source setup failed; fix submitted | No | No |
+| A: Android ARM64 QEMU | Initial build scripts | No | GLib intl fallback missing; fix submitted | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | GLib intl fallback missing; fix submitted | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,24 +31,25 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **failed preparing GLib's GVDB source submodule**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41486471866
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41486463409
-Source commit: `1c2654d75fab3503f7d3cdcfd36ac13a5b2ba848`.
-SDK setup, zlib/PCRE2 ARM64 compilation and libffi compilation/install passed.
-The native dependency OSV step passed for six scanned commits with no findings;
-Maven was not resolved and the downstream QEMU commit has limited OSV coverage.
-GLib configuration failed because the fetch script had no named origin, causing
-`../../GNOME/gvdb.git` to resolve to a nonexistent local filesystem path.
+Latest observed status: **failed configuring GLib's libintl fallback**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41487483407
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41487471503
+Source commit: `9dbdd791d8120f04812edadf78b5950008d176cd`.
+All three dependency-fetch regression tests passed. SDK setup, zlib/PCRE2/libffi
+ARM64 compilation and GVDB preparation passed. The native OSV step passed for
+seven queried commits; Maven dependencies were not yet resolved. GLib requires
+libintl even with `nls=disabled`; Android lacks it, and its proxy-libintl fallback
+was unavailable under the intentionally enforced `--wrap-mode=nodownload`.
 QEMU/Kotlin compilation and APK creation were not reached.
 
-Fix submitted: set/repair dependency origin remotes, initialize only explicitly
-declared submodules, check each pin against the parent gitlink and verify the
-resolved repository and checkout SHA. GLib's GVDB commit is explicitly recorded
-and included in OSV queries, source archives and provenance. Actions now runs
-Git fixture regression tests for relative URLs, cached URL repair, mismatched
-gitlinks and path traversal before native compilation. Their results are pending.
-No APK or guest boot is claimed. The owner will report when the next run ends.
+Fix submitted: explicitly fetch the exact proxy-libintl commit from GLib's wrap
+file into its nested subproject directory. Verify the wrap revision, URL and
+directory against dependency metadata; use the repository's canonical renamed
+GitHub location for retrieval. Include its licence, source and commit in existing
+provenance/security evidence. Add a CI regression for pinned wrap retrieval and
+revision mismatch rejection. Automatic Meson downloads remain disabled.
+The expanded eight-commit scan and new build are pending. No APK or guest boot
+is claimed. The owner will report when the next run ends.
 Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
 Latest successful APK: **none**.
@@ -69,10 +70,10 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
   physical controller forwarding or audio. These controls are not simulated.
 - Guest command line fixed for initramfs Linux. No guest binary is bundled and no
   Linux boot has been verified. CI boot harness is not wired to a fixture yet.
-- Latest native OSV step passed with no findings for the six scanned commits.
+- Latest native OSV step passed with no findings for the seven scanned commits.
   This does not cover unresolved Maven dependencies or prove the downstream
-  QEMU commit is indexed. GVDB is added to the next scan, so the expanded scan
-  remains unverified. No full application security pass is claimed.
+  QEMU commit is indexed. proxy-libintl is added to the next scan, so the expanded
+  eight-commit scan remains unverified. No full application security pass is claimed.
 - zlib and PCRE2 now use pinned development snapshots because the selected
   stable releases did not include all recorded fixes. These need fresh ARM64
   compilation and security validation; see the dependency fix notes.

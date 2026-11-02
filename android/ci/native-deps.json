@@ -44,6 +44,18 @@
     ]
   },
   {
+    "name": "proxy-libintl",
+    "version": "1-git.33934de0",
+    "repository": "https://github.com/frida-forks/proxy-libintl.git",
+    "commit": "33934de09af6a6627eb44e310a8079df009abdbb",
+    "license": "LGPL-2.0-or-later",
+    "destination": "glib/subprojects/proxy-libintl",
+    "wrap": {
+      "path": "glib/subprojects/proxy-libintl.wrap",
+      "url": "https://github.com/frida/proxy-libintl.git"
+    }
+  },
+  {
     "name": "dtc",
     "version": "1.7.2",
     "repository": "https://github.com/qemu/dtc.git",

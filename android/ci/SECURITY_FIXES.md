@@ -70,3 +70,27 @@ seven-commit scan. Source archives and provenance retain this nested dependency.
 
 - https://github.com/GNOME/glib/blob/3033f7862c2d3c7569cef2ad4b425cf42e95d4b4/.gitmodules
 - https://github.com/GNOME/gvdb/tree/2b42fc75f09dbe1cd1057580b5782b08f2dcb400
+
+## Follow-up: seven-commit scan passed; proxy-libintl fallback pinned
+
+Runs 41487483407 and 41487471503 passed all three fetch regressions and the
+seven-commit native OSV scan, including GVDB. GLib then required its libintl
+fallback despite `nls=disabled`. Bionic does not supply GNU libintl and automatic
+wrap retrieval is intentionally disabled.
+
+The exact upstream wrap pins proxy-libintl to
+`33934de09af6a6627eb44e310a8079df009abdbb`. Its upstream-provided implementation
+is built with `STUB_ONLY` (untranslated strings), matching the no-translations
+configuration. It is now fetched explicitly into GLib's subprojects directory,
+checked against the wrap revision/URL/directory, archived with dependency
+sources and included in OSV queries. Its source licence is LGPL-2.0-or-later.
+This does not replace any emulator functionality.
+
+GitHub reports the original frida/proxy-libintl repository has moved to
+frida-forks/proxy-libintl. Metadata records both GLib's original wrap URL and the
+canonical fetch URL. The exact commit is retained. No wrap downloads or security
+suppressions are enabled. The expanded eight-commit scan is still pending;
+Maven dependencies remain unresolved.
+
+- https://github.com/GNOME/glib/blob/3033f7862c2d3c7569cef2ad4b425cf42e95d4b4/subprojects/proxy-libintl.wrap
+- https://github.com/frida-forks/proxy-libintl/tree/33934de09af6a6627eb44e310a8079df009abdbb
