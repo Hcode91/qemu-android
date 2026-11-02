@@ -35,7 +35,13 @@ class VmConfigTest {
             assertTrue(args.contains("virtio-gpu-device"))
             assertTrue(args.contains("virtio-keyboard-device"))
             assertTrue(args.contains("virtio-tablet-device"))
-            assertFalse(VmConfig(id, "Headless").arguments(dir, "/private/qmp").contains("-vnc"))
+            val transport = args.indexOf("-global")
+            assertTrue(transport >= 0)
+            assertEquals("virtio-mmio.force-legacy=false", args[transport + 1])
+            assertTrue(transport < args.indexOf("virtio-gpu-device"))
+            val headless = VmConfig(id, "Headless").arguments(dir, "/private/qmp")
+            assertFalse(headless.contains("-vnc"))
+            assertFalse(headless.contains("virtio-mmio.force-legacy=false"))
         } finally { dir.deleteRecursively() }
     }
 }

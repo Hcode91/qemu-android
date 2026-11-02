@@ -1,7 +1,9 @@
 # Software guest display: milestone D
 
-Status: source implemented; compilation, host graphical tests and S23 display /
-physical-controller verification are pending. Milestone C remains verified for
+Status: the first graphical APK compiled and passed Actions validation. The
+first host graphics test failed because MMIO was left in legacy mode; the
+modern-transport correction needs new CI. Host graphical and S23 display /
+physical-controller verification remain pending. Milestone C remains verified for
 the previous Linux fixture on the owner's S23. This change does not establish D.
 
 ## Data path
@@ -24,6 +26,11 @@ not measured display performance. Aspect-fit scaling uses black letterboxing.
 The display option is saved per VM and defaults off for existing profiles.
 Headless serial/persistence boots remain available. Graphical mode adds genuine
 `virtio-gpu-device`, `virtio-keyboard-device` and `virtio-tablet-device` hardware.
+It explicitly sets `-global virtio-mmio.force-legacy=false`: Linux's GPU and
+input drivers require `VIRTIO_F_VERSION_1`, while the MMIO transport defaults to
+legacy in both the host test QEMU and our native QEMU source. This setting is
+shared by the app command and host graphical test. Headless mode keeps its
+previous transport selection.
 The fixed Linux command line enables the fixture's graphical test mode. This
 is still a Linux initramfs test path, not an Android guest boot implementation.
 
