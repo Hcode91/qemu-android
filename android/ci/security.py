@@ -10,6 +10,8 @@ root = pathlib.Path(__file__).resolve().parents[2]
 reports = root / "android/reports/security"
 reports.mkdir(parents=True, exist_ok=True)
 deps = json.loads((root / "android/ci/native-deps.json").read_text())
+# Include declared source submodules, not just top-level dependency commits.
+deps = [item for dep in deps for item in [dep, *dep.get("submodules", [])]]
 deps += [{"name": "qemu", "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()}]
 queries = [{"commit": d["commit"]} for d in deps]
 # Gradle runtime and test dependencies exported by the build, including transitives.

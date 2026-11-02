@@ -54,3 +54,19 @@ finding is suppressed on that basis.
 
 Upstream fixes and advisory boundaries can change. These notes describe the
 review evidence, not a substitute for the next scan, compilation or device tests.
+
+## Follow-up: native scan passed; GVDB source added to scan scope
+
+Runs 41486471866 and 41486463409 passed the native OSV step for the six
+queried commits, and compiled/installed zlib, PCRE2 and libffi for ARM64.
+Maven coordinates were still unavailable. GLib then failed preparing GVDB
+because a missing origin made its relative Git URL resolve as a local path.
+
+The next change records GLib's existing GVDB gitlink explicitly:
+`2b42fc75f09dbe1cd1057580b5782b08f2dcb400`, LGPL-2.1-or-later. Fetch verifies
+that it matches the parent tree and expected remote, and security.py includes
+it in OSV queries. The previous six-commit pass does not certify the expanded
+seven-commit scan. Source archives and provenance retain this nested dependency.
+
+- https://github.com/GNOME/glib/blob/3033f7862c2d3c7569cef2ad4b425cf42e95d4b4/.gitmodules
+- https://github.com/GNOME/gvdb/tree/2b42fc75f09dbe1cd1057580b5782b08f2dcb400

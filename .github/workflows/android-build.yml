@@ -21,6 +21,8 @@ jobs:
       - uses: ./.github/actions/android-setup
         with:
           read-only-cache: ${{ github.event_name == 'pull_request' }}
+      - name: Dependency fetch regression tests
+        run: python3 -m unittest discover -s android/ci/tests -v
       - name: Build genuine QEMU for Android ARM64
         run: bash android/ci/build-native.sh
       - name: Kotlin unit tests, lint and debug APK

@@ -7,8 +7,8 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Initial build scripts | No | Dependency bootstrap failed; fix submitted | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | Dependency bootstrap failed; fix submitted | No | No |
+| A: Android ARM64 QEMU | Initial build scripts | No | GLib source setup failed; fix submitted | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | GLib source setup failed; fix submitted | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,23 +31,25 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **failed during libffi Autoconf bootstrap**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41485396615
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41485384203
-Source commit: `ac43c128104041d47eb4c9020ae676e47da839d5`.
-SDK/JDK/Gradle setup now succeeds. zlib and PCRE2 compiled and installed for
-Android ARM64. libffi bootstrap stopped at `LT_SYS_SYMBOL_USCORE` because the
-host dependency `libltdl-dev` was missing. QEMU itself, Kotlin and APK packaging
-were not reached. No successful APK or guest boot is claimed.
+Latest observed status: **failed preparing GLib's GVDB source submodule**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41486471866
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41486463409
+Source commit: `1c2654d75fab3503f7d3cdcfd36ac13a5b2ba848`.
+SDK setup, zlib/PCRE2 ARM64 compilation and libffi compilation/install passed.
+The native dependency OSV step passed for six scanned commits with no findings;
+Maven was not resolved and the downstream QEMU commit has limited OSV coverage.
+GLib configuration failed because the fetch script had no named origin, causing
+`../../GNOME/gvdb.git` to resolve to a nonexistent local filesystem path.
+QEMU/Kotlin compilation and APK creation were not reached.
 
-Fix submitted: install `libltdl-dev`, check for `ltdl.m4` before bootstrap and
-retain Autoconf `config.log` alongside Meson logs. OSV still reported zlib
-CVE-2026-76844/CVE-2026-85091 and PCRE2 OSV-2026-343, so the pins now use
-verified upstream snapshots containing the corresponding recorded fix commits.
-See `android/ci/SECURITY_FIXES.md` for references and ancestry evidence. No
-findings have been suppressed; the next scan remains required and blocking.
-The new commit triggers another run. The owner asked the agent not to wait and
-will report completion. Draft PR: https://github.com/Hcode91/qemu-android/pull/1
+Fix submitted: set/repair dependency origin remotes, initialize only explicitly
+declared submodules, check each pin against the parent gitlink and verify the
+resolved repository and checkout SHA. GLib's GVDB commit is explicitly recorded
+and included in OSV queries, source archives and provenance. Actions now runs
+Git fixture regression tests for relative URLs, cached URL repair, mismatched
+gitlinks and path traversal before native compilation. Their results are pending.
+No APK or guest boot is claimed. The owner will report when the next run ends.
+Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
 Latest successful APK: **none**.
 Runs: https://github.com/Hcode91/qemu-android/actions
@@ -57,7 +59,7 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
 ## Known bugs and open risks
 
 - QEMU NDK/Bionic compilation and executable packaging have not been reached.
-  zlib/PCRE2 ARM64 compilation passed at the previous pins. Meson probes,
+  zlib/PCRE2/libffi ARM64 compilation passed at the current pins. Meson probes,
   Linux-only APIs and static linkage may still require port fixes.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
@@ -67,12 +69,10 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
   physical controller forwarding or audio. These controls are not simulated.
 - Guest command line fixed for initramfs Linux. No guest binary is bundled and no
   Linux boot has been verified. CI boot harness is not wired to a fixture yet.
-- Latest OSV scan: zlib CVE-2026-76844/CVE-2026-85091 and PCRE2
-  OSV-2026-343 remain findings against the previous release pins. New snapshot
-  pins contain the recorded upstream fixes but have not been rescanned here.
-  GLib/libffi/dtc had no findings in that run. Maven was not resolved. The
-  earlier release-pin update did not remove all findings. OSV commit coverage
-  is incomplete, and no fully clean security result is claimed.
+- Latest native OSV step passed with no findings for the six scanned commits.
+  This does not cover unresolved Maven dependencies or prove the downstream
+  QEMU commit is indexed. GVDB is added to the next scan, so the expanded scan
+  remains unverified. No full application security pass is claimed.
 - zlib and PCRE2 now use pinned development snapshots because the selected
   stable releases did not include all recorded fixes. These need fresh ARM64
   compilation and security validation; see the dependency fix notes.
