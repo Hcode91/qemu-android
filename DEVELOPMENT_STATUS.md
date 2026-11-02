@@ -48,7 +48,11 @@ boot: VNC could not find its default `en-us` keymap. See
 android/diagnostics/s23-vnc-keymap-2026-11-02.md. That APK lacks required
 runtime data and must not be counted as a real-device display success. A fix
 packages exact upstream maps, extracts them to app-private storage, passes `-L`
-and checks APK contents. Correction CI is pending. The Linux fixture images above
+and checks APK contents. The first keymap-correction Android runs failed before native compilation:
+`:app:compileDebugAndroidTestKotlin` referenced `android.test.InstrumentationTestCase`,
+which SDK 35 no longer supplies. The source now uses the AndroidX JUnit4 runner,
+explicit test dependencies and includes the instrumented runtime classpath in
+OSV scanning. New Actions results are pending. The Linux fixture images above
 remain valid for the retest; no kernel rebuild is required for this packaging fix.
 
 Earlier host graphics failure at 6fa6199 was legacy Virtio MMIO; explicit modern

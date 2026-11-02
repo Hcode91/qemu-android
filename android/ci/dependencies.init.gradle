@@ -6,7 +6,7 @@ allprojects {
             tasks.register('exportSecurityDependencies') {
                 doLast {
                     def coordinates = [] as Set
-                    ['debugRuntimeClasspath', 'releaseRuntimeClasspath', 'debugUnitTestRuntimeClasspath'].each { config ->
+                    ['debugRuntimeClasspath', 'releaseRuntimeClasspath', 'debugUnitTestRuntimeClasspath', 'debugAndroidTestRuntimeClasspath'].each { config ->
                         project.configurations.getByName(config).resolvedConfiguration.resolvedArtifacts.each { artifact ->
                             def id = artifact.moduleVersion.id
                             coordinates.add([name: "${id.group}:${id.name}", version: id.version])
