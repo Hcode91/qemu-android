@@ -8,8 +8,8 @@ Downstream: https://github.com/Hcode91/qemu-android
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
 | A: Android ARM64 QEMU | Native port/build scripts | Yes | Build and ELF validation passed | No | No |
-| B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | No | Installation pending |
-| C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
+| B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | No | Installed; VM creation reported |
+| C: Minimal ARM Linux | Fixture build and two-boot harness | Pending Actions | Pending host test | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
 | F: Android 4.1 test app | No | No | No | No | No |
@@ -71,7 +71,7 @@ stays pending until the S23 has been tested.
 - Networking disabled; no Android Internet permission. No graphics, touch,
   physical controller forwarding or audio. These controls are not simulated.
 - Guest command line fixed for initramfs Linux. No guest binary is bundled and no
-  Linux boot has been verified. CI boot harness is not wired to a fixture yet.
+  Linux boot has been verified. The new fixture workflow is awaiting its first run.
 - Latest combined OSV step passed with no findings for 13 native/Maven entries.
   Dependency resolution now succeeds. Downstream QEMU commit coverage is not
   guaranteed, and no full application security pass is claimed.
@@ -85,6 +85,25 @@ stays pending until the S23 has been tested.
   that behaviour; it takes effect after owner-approved merge. No merge authorised.
 - Signing secrets and protected environments have not been configured or inspected.
 
+## Owner-reported device evidence
+
+The owner reports the CI-built app opened and VM creation succeeded on the
+Galaxy S23. This verifies that frontend path. It does not establish native
+QEMU execution, JIT allocation, guest kernel/userspace, storage or shutdown.
+No guest image has been supplied/tested on the device yet.
+
+## Milestone C source work
+
+A separate ARM Linux guest fixture workflow now builds a pinned Buildroot
+configuration with ARMv7 Linux, static BusyBox initramfs and an ext4 test disk.
+It invokes the two-boot host-QEMU persistence/poweroff harness and uploads
+pristine images, checksums, build/serial logs and corresponding source/licence
+evidence. This source is uncompiled and the fixture has not booted yet.
+Only a passing host test permits handing the images to the owner; Android
+boot/device status remains pending until the phone's actual serial evidence.
+See android/guest/README.md for the eventual test protocol. Full guest
+vulnerability clearance is not claimed by download-hash validation.
+
 ## Real-device requirements
 
 Galaxy S23/Android 14: install CI debug APK, execute ARM64 instrumentation,
@@ -97,8 +116,8 @@ No performance measurements exist.
 
 ## Next priorities
 
-1. Inspect the first Actions logs, fix native/Gradle/lint/security failures and
-   repeat builds. Only mark A/B compiled after real passing evidence.
+1. Inspect the Linux fixture workflow; fix build/boot failures and retain real
+   serial evidence. The Android APK build already passed at the recorded commit.
 2. Build pinned, legally redistributable Linux/BusyBox fixtures in Actions,
    exercise the two-boot harness on host QEMU, then run on Android ARM64.
 3. Add ARM64 device CI and retain instrumentation, guest serial and disk evidence.
