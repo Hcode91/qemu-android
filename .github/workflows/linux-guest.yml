@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: ['**']
-    paths: ['android/guest/**', 'android/ci/boot-test.py', '.github/workflows/linux-guest.yml']
+    paths: ['android/guest/**', 'android/ci/boot-test.py', 'android/ci/display-test.py', '.github/workflows/linux-guest.yml']
   pull_request:
-    paths: ['android/guest/**', 'android/ci/boot-test.py', '.github/workflows/linux-guest.yml']
+    paths: ['android/guest/**', 'android/ci/boot-test.py', 'android/ci/display-test.py', '.github/workflows/linux-guest.yml']
 permissions:
   contents: read
 concurrency:
@@ -27,7 +27,7 @@ jobs:
         with:
           path: android/.guest-downloads
           key: linux-guest-downloads-${{ runner.os }}-${{ hashFiles('android/guest/sources.json', 'android/guest/virt_defconfig.in') }}
-      - name: Build Linux fixture and verify two host boots with persistence
+      - name: Build Linux fixture; verify persistence, framebuffer and guest input
         run: bash android/guest/build-fixture.sh
       - name: Downloadable boot images
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -45,4 +45,4 @@ jobs:
           retention-days: 14
       - name: State test scope
         if: always()
-        run: echo 'Host fixture testing does not establish Android backend boot. S23 kernel/userspace/persistence/shutdown verification remains required.' >> "$GITHUB_STEP_SUMMARY"
+        run: echo 'Host framebuffer/input tests do not verify the Android renderer or a physical controller. See DEVELOPMENT_STATUS.md for previous S23 boot evidence and pending graphics checks.' >> "$GITHUB_STEP_SUMMARY"

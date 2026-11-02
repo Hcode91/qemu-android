@@ -16,7 +16,7 @@ import android.os.Looper
 import android.widget.*
 import java.util.concurrent.Executors
 
-/** Phase one headless controls. Serial pane contains only bytes read from QEMU stdout. */
+/** Real guest serial and optional software display over private sockets. */
 class MainActivity : Activity() {
     private lateinit var store: VmStore
     private lateinit var layout: LinearLayout
@@ -24,6 +24,8 @@ class MainActivity : Activity() {
     private lateinit var serial: TextView
     private lateinit var diagnostics: TextView
     private lateinit var state: TextView
+    private lateinit var displayView: GuestDisplayView
+    private var refreshCount = 0
     private var vms = emptyList<VmConfig>()
     private var service: VmService? = null
     private var importId: String? = null
@@ -38,8 +40,14 @@ class MainActivity : Activity() {
     }
     private val refresh = object : Runnable {
         override fun run() {
-            service?.let { serial.text = it.serialText(); diagnostics.text = it.diagnosticText(); state.text = "Running VM: ${it.activeId ?: "none"}" }
-            handler.postDelayed(this, 500)
+            service?.let {
+                displayView.showFrame(it.frame())
+                if (refreshCount++ % 5 == 0) {
+                    serial.text = it.serialText(); diagnostics.text = it.diagnosticText()
+                    state.text = "Running VM: ${it.activeId ?: "none"}"
+                }
+            }
+            handler.postDelayed(this, 100)
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,14 +57,22 @@ class MainActivity : Activity() {
         store = VmStore(this)
         layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(24, 24, 24, 24) }
         setContentView(ScrollView(this).apply { addView(layout) })
-        label("QEMU-Android — experimental headless development")
-        label("ARMv7 virt / TCG. Import a Linux zImage and initramfs. Closing this screen stops the VM. Graphics, networking, audio and game controllers are pending.")
+        label("QEMU-Android — experimental development")
+        label("ARMv7 virt / TCG. Import a Linux zImage and initramfs. Closing this screen stops the VM. Software display is optional. Controllers map to guest keyboard keys; audio and networking are pending.")
         chooser = Spinner(this); layout.addView(chooser); reload()
         val name = edit("VM name", "Linux")
         val ram = edit("RAM MiB (128–3072)", "512")
         val cpus = edit("CPUs (1–4)", "2")
+        val graphics = CheckBox(this).apply { text = "Software guest display and input" }
+        layout.addView(graphics)
+        chooser.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                graphics.isChecked = vms.getOrNull(position)?.graphics ?: false
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) { graphics.isChecked = false }
+        }
         button("Create VM") {
-            store.create(name.text.toString(), ram.text.toString().toInt(), cpus.text.toString().toInt()); reload(); chooser.setSelection(vms.lastIndex)
+            store.create(name.text.toString(), ram.text.toString().toInt(), cpus.text.toString().toInt(), graphics.isChecked); reload(); chooser.setSelection(vms.lastIndex)
         }
         listOf("kernel", "initrd", "disk.raw").forEach { slot -> button("Import $slot") {
             checkIdle(); check(!importing) { "Import in progress" }
@@ -65,7 +81,15 @@ class MainActivity : Activity() {
         } }
         val size = edit("New blank raw disk MiB", "256")
         button("Create blank disk (does not format)") { checkIdle(); store.createDisk(selected(), size.text.toString().toInt()) }
-        button("Start") { check(!importing) { "Import in progress" }; checkNotNull(service) { "Service connecting" }.start(selected()) }
+        button("Start") {
+            check(!importing) { "Import in progress" }
+            val current = checkNotNull(service) { "Service connecting" }
+            check(current.activeId == null) { "Stop the current VM first" }
+            val vm = selected().copy(graphics = graphics.isChecked)
+            store.save(store.list().map { if (it.id == vm.id) vm else it })
+            vms = store.list()
+            current.start(vm)
+        }
         state = label("Service connecting")
         listOf("Pause" to "stop", "Resume" to "cont", "Reset" to "system_reset", "Guest shutdown" to "system_powerdown", "Stop QEMU" to "quit")
             .forEach { (title, command) -> button(title) { checkNotNull(service).command(command) } }
@@ -91,6 +115,14 @@ class MainActivity : Activity() {
             check(guest.isNotEmpty() || host.isNotEmpty()) { "No logs to copy yet" }
             copyLog("QEMU-Android logs", "Guest serial console\n$guest\n\nHost diagnostics / QMP\n$host")
         }
+        label("Guest display (software)")
+        label("Enable the display option before Start. Use the graphics-capable Linux fixture. Tap the display to focus keyboard/controller controls.")
+        displayView = GuestDisplayView(this).apply {
+            sendKey = { symbol, down -> service?.displayKey(symbol, down); Unit }
+            sendPointer = { x, y, down -> service?.displayPointer(x, y, down); Unit }
+        }
+        layout.addView(displayView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (320 * resources.displayMetrics.density).toInt()))
+        button("Focus guest display") { displayView.requestFocus() }
         label("Guest serial console")
         serial = label("")
         val input = edit("Serial input", "")

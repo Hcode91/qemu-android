@@ -2,6 +2,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Fetch exact dependency commits and explicitly declared pinned submodules."""
 import configparser
+import hashlib
+import io
+import shutil
+import tarfile
+import tempfile
+import urllib.request
 import json
 import os
 import pathlib
@@ -25,6 +31,55 @@ def checked_sha(value):
     if not re.fullmatch(r"[0-9a-f]{40}", value):
         raise ValueError("Dependency must specify a full commit SHA")
     return value
+
+
+def extract_archive(archive, data, dest):
+    if hashlib.sha512(data).hexdigest() != archive["sha512"]:
+        raise ValueError("Dependency archive hash mismatch")
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:xz") as source:
+        entries = source.getmembers()
+        if len(entries) > 10000:
+            raise ValueError("Dependency archive exceeds extraction limits")
+        by_path = {}
+        for entry in entries:
+            path = checked_path(entry.name)
+            if (path.parts[0] != archive["root"] or path in by_path or entry.size < 0
+                    or not (entry.isfile() or entry.isdir() or entry.issym())):
+                raise ValueError(f"Unsafe dependency archive member: {entry.name!r}")
+            by_path[path] = entry
+        # Pixman's official tarball contains CI-config symlinks. Materialize only
+        # direct, relative references to regular members as regular files. Never
+        # extract a filesystem link, follow a link chain, or accept a hardlink.
+        members = []
+        for path, entry in by_path.items():
+            if entry.issym():
+                target_path = path.parent / checked_path(entry.linkname)
+                target = by_path.get(target_path)
+                if target is None or not target.isfile():
+                    raise ValueError(f"Unsafe archive link target: {entry.name!r}")
+                # Preserve the regular target's data offset/size, changing only
+                # its output name. tarfile's data filter still applies below.
+                entry = target.replace(name=entry.name, linkname="", deep=False)
+            members.append(entry)
+        if sum(e.size for e in members) > 128 * 1024 * 1024:
+            raise ValueError("Dependency archive exceeds extraction limits")
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=dest.parent) as temp:
+            source.extractall(temp, members=members, filter="data")
+            if dest.exists():
+                shutil.rmtree(dest)
+            shutil.move(str(pathlib.Path(temp) / archive["root"]), dest)
+
+
+def fetch_archive(dep, dest):
+    archive = dep["archive"]
+    if not archive["url"].startswith("https://"):
+        raise ValueError("Dependency archive URL must use HTTPS")
+    with urllib.request.urlopen(archive["url"], timeout=90) as response:
+        data = response.read(32 * 1024 * 1024 + 1)
+    if len(data) > 32 * 1024 * 1024:
+        raise ValueError("Dependency archive download exceeds limit")
+    extract_archive(archive, data, dest)
 
 
 def fetch_dependency(dep, dest):
@@ -69,7 +124,10 @@ def fetch_manifest_entry(dep, out):
                 or source["url"] != wrap["url"]
                 or source["directory"] != destination.name):
             raise RuntimeError(f"Pinned dependency disagrees with source wrap: {dep['name']}")
-    fetch_dependency(dep, destination)
+    if "archive" in dep:
+        fetch_archive(dep, destination)
+    else:
+        fetch_dependency(dep, destination)
 
 
 def main():

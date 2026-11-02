@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """CI-only Git fixture regression tests. No Android/native compilation."""
+import hashlib
+import io
+import tarfile
 import importlib.util
 import os
 import pathlib
@@ -96,6 +99,69 @@ class DependencyFetchTest(unittest.TestCase):
         self.dep["submodules"][0]["path"] = "../outside"
         with self.assertRaises(ValueError):
             fetch.fetch_dependency(self.dep, self.dest)
+
+
+@unittest.skipUnless(os.environ.get("GITHUB_ACTIONS") == "true", "Source archive tests run in Actions")
+class ArchiveFetchTest(unittest.TestCase):
+    def archive(self, name, value=b"source", extra=()):
+        stream = io.BytesIO()
+        with tarfile.open(fileobj=stream, mode="w:xz") as tar:
+            item = tarfile.TarInfo(name); item.size = len(value)
+            tar.addfile(item, io.BytesIO(value))
+            for member in extra:
+                tar.addfile(member)
+        data = stream.getvalue()
+        return {"root": "fixture-1", "sha512": hashlib.sha512(data).hexdigest()}, data
+
+    def link(self, name, target, kind=tarfile.SYMTYPE):
+        item = tarfile.TarInfo(name)
+        item.type = kind; item.linkname = target
+        return item
+
+    def test_archive_hash_and_safe_extraction(self):
+        archive, data = self.archive("fixture-1/source.c")
+        with tempfile.TemporaryDirectory() as temp:
+            dest = pathlib.Path(temp) / "source"
+            fetch.extract_archive(archive, data, dest)
+            self.assertEqual((dest / "source.c").read_bytes(), b"source")
+            with self.assertRaises(ValueError):
+                fetch.extract_archive(archive, data + b"changed", dest)
+
+    def test_archive_path_traversal_is_rejected(self):
+        archive, data = self.archive("fixture-1/../../outside")
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaises(ValueError):
+                fetch.extract_archive(archive, data, pathlib.Path(temp) / "source")
+
+    def test_pixman_ci_config_link_becomes_regular_file(self):
+        base = "fixture-1/.gitlab-ci.d/meson-cross/"
+        link = self.link(base + "linux-arm64-v8-gnu.meson", "native-gnu.meson")
+        archive, data = self.archive(base + "native-gnu.meson", b"[binaries]\n", [link])
+        with tempfile.TemporaryDirectory() as temp:
+            dest = pathlib.Path(temp) / "source"
+            fetch.extract_archive(archive, data, dest)
+            materialized = dest / ".gitlab-ci.d/meson-cross/linux-arm64-v8-gnu.meson"
+            self.assertFalse(materialized.is_symlink())
+            self.assertEqual(materialized.read_bytes(), b"[binaries]\n")
+
+    def test_archive_link_escapes_chains_and_special_files_are_rejected(self):
+        unsafe = [
+            [self.link("fixture-1/alias", "/tmp/outside")],
+            [self.link("fixture-1/alias", "../../outside")],
+            [self.link("fixture-1/alias", "missing")],
+            [self.link("fixture-1/alias", "other"), self.link("fixture-1/other", "source.c")],
+            [self.link("fixture-1/alias", "fixture-1/source.c", tarfile.LNKTYPE)],
+        ]
+        fifo = tarfile.TarInfo("fixture-1/pipe"); fifo.type = tarfile.FIFOTYPE
+        unsafe.append([fifo])
+        duplicate = tarfile.TarInfo("fixture-1/source.c")
+        unsafe.append([duplicate])
+        for extra in unsafe:
+            with self.subTest(names=[member.name for member in extra]):
+                archive, data = self.archive("fixture-1/source.c", extra=extra)
+                with tempfile.TemporaryDirectory() as temp:
+                    with self.assertRaises(ValueError):
+                        fetch.extract_archive(archive, data, pathlib.Path(temp) / "source")
 
 
 if __name__ == "__main__":

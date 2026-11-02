@@ -32,6 +32,7 @@ cp "$WORK/output/.config" "$REPORT/buildroot.config"
 cp "$WORK/output/build/linux-6.18.7/.config" "$REPORT/linux.config"
 find "$WORK/output/build" -maxdepth 2 -path '*/busybox-*/.config' -exec cp {} "$REPORT/busybox.config" \;
 tar -C "$WORK/output" -czf "$REPORT/guest-corresponding-sources.tar.gz" legal-info
+tar -C "$ROOT" -czf "$REPORT/fixture-source.tar.gz" android/guest android/ci/boot-test.py android/ci/display-test.py
 git -C "$WORK/buildroot" archive --format=tar.gz --output="$REPORT/buildroot-source.tar.gz" HEAD
 cp "$WORK/output/images/zImage" "$DIST/kernel.zImage"
 cp "$WORK/output/images/rootfs.cpio.gz" "$DIST/initramfs.cpio.gz"
@@ -41,6 +42,8 @@ mkfs.ext4 -F -L QEMUAndroid "$DIST/disk.raw"
 cp "$DIST/disk.raw" "$WORK/test-disk.raw"
 python3 "$ROOT/android/ci/boot-test.py" "$(command -v qemu-system-arm)" \
   "$DIST/kernel.zImage" "$DIST/initramfs.cpio.gz" "$WORK/test-disk.raw" "$REPORT/boot"
+python3 "$ROOT/android/ci/display-test.py" "$(command -v qemu-system-arm)" \
+  "$DIST/kernel.zImage" "$DIST/initramfs.cpio.gz" "$WORK/test-disk.raw" "$REPORT/display"
 cp "$ROOT/android/guest/README.md" "$DIST/README.md"
 cp "$ROOT/android/guest/sources.json" "$DIST/sources.json"
 (cd "$DIST" && sha256sum kernel.zImage initramfs.cpio.gz disk.raw > SHA256SUMS)
@@ -54,8 +57,9 @@ report = {
   "sources": json.loads((root / "android/guest/sources.json").read_text()),
   "host_qemu_version": subprocess.check_output(["qemu-system-arm", "--version"], text=True).splitlines()[0],
   "host_fixture_boots_verified": 2,
+  "host_graphical_fixture_test": "Completed; see display/result.json",
   "android_guest_boot_verified": False,
-  "real_device_vm_creation": "Owner reported success on Galaxy S23; guest execution not yet tested",
+  "previous_fixture_device_evidence": "Owner verified kernel/userspace/persistence/power-down on S23; see diagnostics. New graphics remain unverified.",
   "security_scope": "Buildroot download hashes and source/package evidence retained; no full guest vulnerability clearance claimed"
 }
 (root / "android/reports/guest/provenance.json").write_text(json.dumps(report, indent=2) + "\n")

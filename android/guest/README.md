@@ -40,3 +40,23 @@ GPL-2.0-or-later. The fixture uses a static musl toolchain and no guest network
 interface. It is an automated test environment, not a general-purpose secure
 Linux distribution; hashes/package provenance are not vulnerability clearance.
 Do not put valuable data or secrets into its disposable test disk.
+
+## Graphical fixture mode
+
+The updated kernel includes built-in virtio GPU, framebuffer console and evdev /
+virtio input drivers. A small GPL-2.0-or-later guest program writes color bars
+through Linux `/dev/fb0`, logs real keyboard/tablet events and redraws the top
+band when a key/button is pressed. It is a framebuffer test, not a desktop.
+
+With the matching new APK, enable **Software guest display and input** before
+Start. Graphical mode prints `QEMU-ANDROID-GRAPHICS` and `DISPLAY-READY`, then
+stays running instead of immediately shutting down. **Guest shutdown** sends
+the virtual power button; the program exits and init powers off. With graphics
+disabled, the original two-boot persistence test still powers off automatically.
+Older images do not contain this program/drivers and must be replaced in a
+separate test VM. See [display instructions](../DISPLAY.md) for controls and
+required phone evidence.
+
+Actions also runs a third, graphical host boot and saves before/after real guest
+frames, evdev serial events and shutdown results in the evidence artifact.
+These host checks do not verify the Android display or physical controller.

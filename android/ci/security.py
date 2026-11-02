@@ -13,7 +13,7 @@ deps = json.loads((root / "android/ci/native-deps.json").read_text())
 # Include declared source submodules, not just top-level dependency commits.
 deps = [item for dep in deps for item in [dep, *dep.get("submodules", [])]]
 deps += [{"name": "qemu", "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()}]
-queries = [{"commit": d["commit"]} for d in deps]
+queries = [{"commit": d["commit"]} if "commit" in d else d["osv"] for d in deps]
 # Gradle runtime and test dependencies exported by the build, including transitives.
 resolved = root / "android/reports/gradle-dependencies.json"
 if resolved.exists():
