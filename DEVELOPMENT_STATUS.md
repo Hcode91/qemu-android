@@ -31,9 +31,12 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest status: **not yet observed**; branch push/PR should request the first
-Android development run. No build success is claimed. The owner asked the agent
-not to wait for Actions and will report completion.
+Latest observed status: **first development run started** for source commit
+`bedf579be272a8c18770f15e037ea81e77071a17`:
+https://github.com/Hcode91/qemu-android/actions/runs/41457733307
+Draft PR: https://github.com/Hcode91/qemu-android/pull/1
+A follow-up source/status commit may supersede this run. No build success is
+claimed. The owner asked the agent not to wait for Actions and will report completion.
 
 Latest successful APK: **none**.
 Runs: https://github.com/Hcode91/qemu-android/actions

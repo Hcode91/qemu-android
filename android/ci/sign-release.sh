@@ -14,6 +14,7 @@ done
 if [[ "$present" -ne 4 ]]; then
   cp "$UNSIGNED" "$ROOT/android/dist/QEMU-Android-v$VERSION-arm64-UNSIGNED-INSPECTION.apk"
   echo 'No installable signed release was produced. Publisher secrets missing or incomplete.' | tee "$ROOT/android/dist/UNSIGNED.txt"
+  (cd "$ROOT/android/dist" && sha256sum ./*.apk > SHA256SUMS)
   echo 'signed=false' >> "$GITHUB_OUTPUT"
   echo '### Unsigned inspection artifact only; no installable signed release produced.' >> "$GITHUB_STEP_SUMMARY"
   exit 0
