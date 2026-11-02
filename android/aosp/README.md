@@ -55,6 +55,13 @@ existing APK workflows. Guest/kernel/legacy-toolchain vulnerability coverage is
 not comprehensive; exact source pins and source archives are provenance, not a
 security clearance. No proprietary image, firmware, game or Google apps are used.
 
+Initial source audits passed, but the first kernel jobs failed linking host DTC
+because modern GCC treats its duplicate `yylloc` definitions as an error. An
+exported HOSTCFLAGS did not apply: the kernel Makefile assigns its own value.
+The correction passes the original Linux 3.18 defaults plus `-fcommon` directly
+to every make invocation, including recursive Kbuild. A verbose host-tools
+build and DTC version check precede kernel compilation. Correction CI is pending.
+
 The AOSP compiler is executed only in Actions. Local work is source inspection
 and syntax review. The new workflow does not replace the two Android APK
 build/signing workflows and does not publish releases. Its artifacts are

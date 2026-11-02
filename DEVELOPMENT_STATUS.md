@@ -216,7 +216,12 @@ GCC 4.6 compiler are pinned to exact commits. The probe uses vexpress-a9 and
 checks Binder protocol 7, ashmem, Android logging and framebuffer presence, then
 poweroff. This is a tiny independently implemented kernel test, not Android init
 or Android userspace. No Android image, framework startup or application launch
-has been established. New workflow results are pending. Existing working phone
+has been established. The first AOSP source audit passed in both workflows. Both kernel jobs failed
+linking host DTC with duplicate `yylloc`; the exported `-fcommon` setting had
+been overridden by the kernel Makefile. The correction supplies the original
+host flags plus `-fcommon` as make command-line arguments and checks the built
+host tools before the full kernel compile. Correction CI is pending. No kernel
+ABI boot or Android userspace result exists yet. Existing working phone
 APK/images should be retained; the probe does not provide a phone guest preset.
 
 Research found incompatible stock MTD mounts, hardware rc, legacy kernel ABIs,
