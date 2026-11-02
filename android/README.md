@@ -40,8 +40,12 @@ Pause/resume/reset/shutdown use the real QMP server over an app-private Unix
 socket. Guest shutdown requires a guest handling the virtual power button; Stop
 QEMU or Force stop can corrupt a mounted guest filesystem. The guest console
 shows QEMU stdout, while QMP responses and host errors use a separate diagnostics
-pane. Logs are bounded to 128 Ki characters per stream in memory and are not
-exported yet. A bound service owns one child process. Closing/recreating the UI
+pane. Logs are bounded to the latest 128 Ki characters per stream in memory. The
+**Copy logs** section above the console copies the last 100 guest lines, the
+retained guest console, host diagnostics, or both streams with clear headings
+to Android's clipboard. Copying reads a snapshot without pausing or restarting
+the guest. Clipboard contents can then be pasted into a diagnostic report.
+File export is not implemented. A bound service owns one child process. Closing/recreating the UI
 stops the VM; background execution and rotation continuity are not implemented.
 
 The native binary is a PIE executable packaged as `libqemu-system-arm.so`, with

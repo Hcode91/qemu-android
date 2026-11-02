@@ -2,6 +2,8 @@
 package org.qemu.android
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -68,6 +70,27 @@ class MainActivity : Activity() {
         listOf("Pause" to "stop", "Resume" to "cont", "Reset" to "system_reset", "Guest shutdown" to "system_powerdown", "Stop QEMU" to "quit")
             .forEach { (title, command) -> button(title) { checkNotNull(service).command(command) } }
         button("Force stop (may corrupt guest disk)") { checkNotNull(service).forceStop() }
+        label("Copy logs")
+        label("Copies a snapshot while the VM runs. Each stream retains its latest 128 Ki characters.")
+        button("Copy last 100 guest lines") {
+            val current = checkNotNull(service) { "Service connecting" }
+            copyLog("Guest console (last 100 lines)", current.serialText().lines().takeLast(100).joinToString("\n"))
+        }
+        button("Copy guest console") {
+            val current = checkNotNull(service) { "Service connecting" }
+            copyLog("Guest serial console", current.serialText())
+        }
+        button("Copy host diagnostics") {
+            val current = checkNotNull(service) { "Service connecting" }
+            copyLog("Host diagnostics / QMP", current.diagnosticText())
+        }
+        button("Copy all logs") {
+            val current = checkNotNull(service) { "Service connecting" }
+            val guest = current.serialText()
+            val host = current.diagnosticText()
+            check(guest.isNotEmpty() || host.isNotEmpty()) { "No logs to copy yet" }
+            copyLog("QEMU-Android logs", "Guest serial console\n$guest\n\nHost diagnostics / QMP\n$host")
+        }
         label("Guest serial console")
         serial = label("")
         val input = edit("Serial input", "")
@@ -75,6 +98,12 @@ class MainActivity : Activity() {
         label("Host diagnostics / QMP (not guest output)")
         diagnostics = label("")
         bound = bindService(Intent(this, VmService::class.java), connection, Context.BIND_AUTO_CREATE)
+    }
+    private fun copyLog(title: String, text: String) {
+        check(text.isNotEmpty()) { "No logs to copy yet" }
+        val clipboard = checkNotNull(getSystemService(ClipboardManager::class.java)) { "Clipboard unavailable" }
+        clipboard.setPrimaryClip(ClipData.newPlainText(title, text))
+        Toast.makeText(this, "Copied $title", Toast.LENGTH_SHORT).show()
     }
     private fun reload() {
         vms = store.list()
