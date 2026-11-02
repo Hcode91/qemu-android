@@ -1,0 +1,24 @@
+{
+  "aosp": {
+    "version": "android-4.1.2_r1",
+    "manifest_commit": "7af362b848fba5f21ada2c2b9c39d396c9651190",
+    "build_commit": "25454bc3d2925d6b930d9c515f5c090785b11135",
+    "system_core_commit": "ca38f2c7cde05b67bc8d582040210c4aad303298",
+    "frameworks_native_commit": "e0daeb3933e034f037630715e4cd2ecb3880498b",
+    "hardware_libhardware_commit": "55553fcb88152430e1949158945ad492b56f99dd"
+  },
+  "kernel": {
+    "version": "3.18.140",
+    "repository": "https://github.com/gregkh/linux.git",
+    "commit": "6b1ae527b1fdee86e81da0cb26ced75731c6c0fa",
+    "license": "GPL-2.0-only",
+    "scope": "Experimental obsolete guest kernel for Jelly Bean ABI research; no security clearance"
+  },
+  "compiler": {
+    "repository": "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6",
+    "commit": "b4ecd7806d8f46cddeacaf9f8de92c191fb266e4",
+    "version": "AOSP arm-eabi GCC 4.6 (android-4.1.2_r1)"
+  },
+  "machine": "vexpress-a9",
+  "cpu": "cortex-a9"
+}
