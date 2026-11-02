@@ -52,6 +52,12 @@ needs execution and SELinux/JIT verification on Android 14. Split W/X TCG is
 requested; there is no root, KVM, Termux, Surface renderer or GPU acceleration.
 JNI embedding remains a fallback if real-device policy prevents this architecture.
 
+Bionic has no POSIX named shared-memory API or separate librt. The downstream
+Meson configuration skips librt on Android, and `qemu_shm_alloc` uses QEMU's
+existing memfd helper for anonymous fd-owned shared memory. Kernel allocation,
+resize and SELinux errors remain visible; no permission or JIT policy is weakened.
+This source change still needs successful QEMU compilation and device testing.
+
 ## Verification limits
 
 See [DEVELOPMENT_STATUS.md](../DEVELOPMENT_STATUS.md). Unit tests and lint run in

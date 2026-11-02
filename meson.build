@@ -1380,7 +1380,9 @@ spice_headers = spice.partial_dependency(compile_args: true, includes: true)
 rt = not_found
 if host_os != 'windows'
   have_shm_open = cc.has_function('shm_open')
-  if not have_shm_open
+  # Bionic has neither librt nor named POSIX shared memory. The Android
+  # qemu_shm_alloc implementation uses memfd instead.
+  if not have_shm_open and cc.get_define('__ANDROID__') == ''
     rt = cc.find_library('rt', required: true)
   endif
 endif
