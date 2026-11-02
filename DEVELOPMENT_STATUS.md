@@ -10,7 +10,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | A: Android ARM64 QEMU | Native port/build scripts | Yes | Build and ELF validation passed | Linux fixture | Yes, via guest boot |
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | Linux fixture | Installed and guest boot shown |
 | C: Minimal ARM Linux | Fixture build and two-boot harness | Yes | Two host boots/persistence passed | Yes, S23 | Kernel/userspace/disk persistence/unmount/power-down shown |
-| D: Graphics/controller | Software RFB Surface + touch/keyboard/controller mappings + guest fixture | Yes at fd6537c; modern-transport correction pending | APK gates passed; first host graphics test failed | Headless fixture only; graphics pending | Graphics/controller pending |
+| D: Graphics/controller | Software RFB Surface + touch/keyboard/controller mappings + guest fixture; runtime-map fix pending | Yes at 681d79d; runtime-map correction pending | Android and host graphics tests passed at 681d79d | Host guest framebuffer/input/redraw/shutdown passed | S23 VNC startup failed; pixels/controller pending |
 | E: Android ARM guest | Research pending | No | No | No | No |
 | F: Android 4.1 test app | No | No | No | No | No |
 | G: OUYA application | No | No | No | No | No |
@@ -31,30 +31,30 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest successful graphical-source APK: `fd6537c09a82a48489b358a6ad425a97804847b0`.
-Both Android runs passed, including native Pixman/VNC compilation, unit tests,
-lint, dependency checks, ELF/manifest/alignment/signature checks and APK upload:
-- Push: https://github.com/Hcode91/qemu-android/actions/runs/41524918986
-- PR: https://github.com/Hcode91/qemu-android/actions/runs/41524927477
-- APK: https://github.com/Hcode91/qemu-android/actions/runs/41524918986/artifacts/13179846621
+Latest successful Android and host graphical fixture source: `681d79d8968d9ceac705ec2157542a2adab5c70c`.
+Android push and PR runs passed native QEMU/Pixman/VNC compilation, Kotlin/unit
+checks, lint, dependency security scans, APK packaging and signing validation:
+https://github.com/Hcode91/qemu-android/actions/runs/41529607312
+https://github.com/Hcode91/qemu-android/actions/runs/41529616630
+APK: https://github.com/Hcode91/qemu-android/actions/runs/41529607312/artifacts/13182475870
+Linux fixture push and PR runs passed compilation, persistence boots, actual
+host guest framebuffer/input/redraw checks and clean shutdown:
+https://github.com/Hcode91/qemu-android/actions/runs/41529607295
+https://github.com/Hcode91/qemu-android/actions/runs/41529616637
+Images: https://github.com/Hcode91/qemu-android/actions/runs/41529607295/artifacts/13186585213
 
-This APK still has the legacy-MMIO graphics command bug; use a replacement
-built with the modern-transport correction for graphics testing. Its corrected
-source explicitly selects `virtio-mmio.force-legacy=false`; new CI is pending.
-The earlier two Android failures at 6fa6199 were caused by legitimate symlinks
-in the verified Pixman archive. Safe regular-file materialization and archive
-regressions fixed that issue in fd6537c. No security gate was disabled.
+The owner installed the APK on S23 but graphical startup failed before guest
+boot: VNC could not find its default `en-us` keymap. See
+android/diagnostics/s23-vnc-keymap-2026-11-02.md. That APK lacks required
+runtime data and must not be counted as a real-device display success. A fix
+packages exact upstream maps, extracts them to app-private storage, passes `-L`
+and checks APK contents. Correction CI is pending. The Linux fixture images above
+remain valid for the retest; no kernel rebuild is required for this packaging fix.
 
-First graphical fixture run 41518914618 failed after successful compilation
-and both serial/persistence/poweroff boots. The graphical guest could not open
-`/dev/fb0`, then PID 1 exited and Linux panicked/rebooted. Kernel configuration
-already enabled the GPU, framebuffer and input drivers; QEMU's legacy MMIO
-transport hid `VIRTIO_F_VERSION_1`, required by the GPU/input drivers. See
-android/diagnostics/milestone-d-legacy-mmio-2026-11-02.md for retained evidence.
-The host test now selects modern MMIO, stops on a guest panic instead of looping,
-and retains its exact command. These changes are not yet CI verified. The other
-fixture run 41524927515 was still running when first inspected; no success is
-claimed for it.
+Earlier host graphics failure at 6fa6199 was legacy Virtio MMIO; explicit modern
+transport fixed it in 681d79d. Earlier Android archive validation failed at
+6fa6199; safe Pixman link materialization fixed it at fd6537c. Those failures
+are superseded by the passing CI run above.
 
 Previous copy-log baseline: `4240f9a24e875326b80eb7828313fced3159dda8`.
 APK: https://github.com/Hcode91/qemu-android/actions/runs/41514009590/artifacts/13173389273
@@ -176,14 +176,13 @@ No performance measurements exist.
   and third host-QEMU boot checking actual pixels, input/redraw and shutdown.
 - Actions-only protocol/archive safety tests; exact source and graphical evidence
   artifacts. New scripts have only received local syntax/static review.
-- fd6537c passed full Android builds/validation after the archive correction.
-  The new modern-MMIO command correction has only received source/syntax review.
-- The guest compiled and passed two serial boots, disk persistence and shutdown,
-  then failed the first graphics boot because of legacy Virtio MMIO. This was a
-  genuine runtime failure, not a compiler error. The test gate correctly prevented
-  uploading graphics images as successful. Replacement test results are pending.
-- No S23 graphics, physical-controller, audio, acceleration or performance
-  evidence exists. The latest successful APK does not verify runtime graphics.
+- 681d79d passed full Android build/validation and the host graphical guest
+  test, including real pixels, input-driven redraw and clean shutdown.
+- The owner's S23 graphical attempt failed before guest boot because QEMU VNC
+  could not find `en-us`. Runtime data packing/lookup has new source and test
+  gates; CI and phone confirmation are pending.
+- No S23 guest pixels, physical-controller, audio, acceleration or performance
+  evidence exists. Successful host graphics CI does not verify Android rendering.
 - Pixman's archive is SHA-512 pinned, with bounded extraction and safe direct
   links materialized as regular files. Its OSV coordinate has incomplete coverage.
   fd6537c passed native/Maven scans; this does not establish a full security pass.

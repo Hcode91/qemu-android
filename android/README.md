@@ -57,7 +57,11 @@ has verified Linux execution and persistence on an S23 running Android 14;
 broader SELinux/JIT and lifecycle compatibility still need testing. Split W/X TCG is
 requested; there is no root, KVM or Termux. The optional software Surface renderer
 is described in [DISPLAY.md](DISPLAY.md); GPU acceleration is not implemented.
-JNI embedding remains a fallback if real-device policy prevents this architecture.
+JNI embedding remains a fallback if real-device policy prevents this architecture. QEMU VNC also needs its upstream `en-us` keyboard
+map at runtime. The Android build now packages keymaps as verified assets,
+extracts them privately and passes their directory with `-L`. The first S23
+graphical attempt exposed the missing map; see
+[diagnostics](diagnostics/s23-vnc-keymap-2026-11-02.md).
 
 Bionic has no POSIX named shared-memory API or separate librt. The downstream
 Meson configuration skips librt on Android, and `qemu_shm_alloc` uses QEMU's

@@ -33,6 +33,9 @@ val verifyBackend by tasks.registering {
     doLast {
         val backend = file("src/main/jniLibs/arm64-v8a/libqemu-system-arm.so")
         check(backend.isFile && backend.length() > 1_000_000) { "Genuine QEMU backend missing: run the GitHub Actions native build." }
+        check(file("src/main/assets/qemu/keymaps/en-us").let { it.isFile && it.length() > 0 }) {
+            "QEMU runtime keymap missing: run the GitHub Actions native build."
+        }
     }
 }
 // Source compilation, unit tests and lint can run before the expensive native build.
