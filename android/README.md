@@ -57,15 +57,15 @@ Meson configuration skips librt on Android, and `qemu_shm_alloc` uses QEMU's
 existing memfd helper for anonymous fd-owned shared memory. Kernel allocation,
 resize and SELinux errors remain visible; no permission or JIT policy is weakened.
 QEMU has compiled and linked in Actions; complete native validation and device
-testing are still pending. Android explicitly links libfdt from its static
-archive, and the ELF validator rejects unpackaged shared-library dependencies.
+testing are still pending. Android selects the static libfdt archive through pkg-config metadata. An early
+NDK link probe and the final ELF validator reject unpackaged shared dependencies.
 Direct-I/O statx alignment querying is enabled only after a compile/link feature
 check; API levels without it use QEMU's existing alignment probing fallbacks.
 
 ## Verification limits
 
-See [DEVELOPMENT_STATUS.md](../DEVELOPMENT_STATUS.md). Unit tests and lint run in
-Actions. The ARM64 instrumentation test executes the packaged backend's version
+See [DEVELOPMENT_STATUS.md](../DEVELOPMENT_STATUS.md). Kotlin compilation, unit tests and lint run early in
+Actions before native compilation. Packaging still requires the genuine backend. The ARM64 instrumentation test executes the packaged backend's version
 command; it requires an ARM64 Android runner and is **not yet wired to a device**.
 An x86 hosted emulator cannot execute this ARM64-only backend through native
 hardware acceleration. No device test is implied by an APK artifact.

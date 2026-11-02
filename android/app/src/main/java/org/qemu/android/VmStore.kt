@@ -40,7 +40,7 @@ class VmStore(private val context: Context) {
             return Closeable { lock.release(); file.close() }
         } catch (e: Exception) { file.close(); throw e }
     }
-    fun import(vm: VmConfig, uri: Uri, slot: String) = acquire(vm).use {
+    fun importImage(vm: VmConfig, uri: Uri, slot: String) = acquire(vm).use {
         require(slot in listOf("kernel", "initrd", "disk.raw"))
         val dir = directory(vm)
         val destination = File(dir, slot)

@@ -87,6 +87,12 @@ meson_build glib -Dtests=false -Dinstalled_tests=false -Dnls=disabled -Dlibmount
 meson_build dtc -Dtools=false -Dtests=false -Dpython=disabled -Dyaml=disabled -Dstatic-build=true
 # dtc builds both library variants; QEMU's Android lookup explicitly selects .a.
 [[ -s "$PREFIX/lib/libfdt.a" ]] || { echo 'Static libfdt archive missing' >&2; exit 1; }
+# Exercise the same static pkg-config resolution as QEMU before its full build.
+meson setup "$WORK/fdt-link-check" "$ROOT/android/ci/fdt-link-check" \
+  --cross-file "$WORK/android.ini" --wrap-mode=nodownload --buildtype=release
+meson compile -C "$WORK/fdt-link-check" -j 2
+"$TOOLCHAIN/bin/llvm-readelf" -W -h -l -d "$WORK/fdt-link-check/fdt-link-check" > "$ROOT/android/reports/native/fdt-link-check.txt"
+python3 "$ROOT/android/ci/check-elf.py" "$WORK/fdt-link-check/fdt-link-check" "$TOOLCHAIN/bin/llvm-readelf"
 mkdir -p "$WORK/qemu-build"
 cd "$WORK/qemu-build"
 "$ROOT/configure" --cross-prefix="$TOOLCHAIN/bin/aarch64-linux-android-" \

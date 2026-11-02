@@ -23,7 +23,7 @@ class VmService : Service() {
     private val serial = StringBuilder()
     private val diagnostics = StringBuilder()
     override fun onBind(intent: Intent): IBinder = LocalBinder()
-    private fun append(target: StringBuilder, value: String) = synchronized(target) {
+    private fun append(target: StringBuilder, value: String): Unit = synchronized(target) {
         target.append(value)
         if (target.length > 131072) target.delete(0, target.length - 131072)
     }
