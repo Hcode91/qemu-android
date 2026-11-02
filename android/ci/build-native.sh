@@ -95,7 +95,9 @@ cd "$WORK/qemu-build"
   --disable-linux-aio --disable-linux-io-uring --disable-vhost-net --disable-vhost-kernel \
   --disable-virtfs --disable-slirp --enable-fdt=system --enable-pie \
   --extra-cflags="$CFLAGS -I$PREFIX/include" --extra-ldflags="$LDFLAGS -L$PREFIX/lib"
-ninja -j2 qemu-system-arm
+# Keep compiling independent targets after an error to collect all port failures.
+# Ninja still exits nonzero if any required command fails.
+ninja -k 0 -j2 qemu-system-arm
 DEST="$ROOT/android/app/src/main/jniLibs/arm64-v8a"
 mkdir -p "$DEST"
 # A PIE executable named lib*.so is extracted by Android's package installer.

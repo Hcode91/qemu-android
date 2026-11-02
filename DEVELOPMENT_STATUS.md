@@ -7,8 +7,8 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Initial build scripts | No | QEMU Bionic configuration failed; fix submitted | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | QEMU Bionic configuration failed; fix submitted | No | No |
+| A: Android ARM64 QEMU | Initial build scripts | No | QEMU compiling; statx API fix submitted | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | QEMU compiling; statx API fix submitted | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,23 +31,24 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **failed in QEMU Meson configuration on Bionic**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41488567863
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41488557630
-Source commit: `3c95181277a35060c64d1a193860a2a8aa068ec5`.
-Four fetch regression tests pass. All native dependencies, including GLib with
-GVDB and proxy-libintl, compile/install for Android ARM64. The eight-commit native
-OSV step passes with no findings; Maven dependencies remain unresolved. QEMU
-configuration stops at `C shared or static library 'rt' not found` after finding
-that Bionic lacks `shm_open`. Kotlin and APK packaging were not reached.
+Latest observed status: **QEMU compilation failed in block/file-posix.c**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41490614868
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41490606991
+Source commit: `fe144546af1037d5754c7c8270899411364e7f8f`.
+SDK setup, fetch regressions, native dependencies and QEMU Meson configuration
+pass. Ninja compiles over 1,000 of about 1,992 build targets before stopping:
+`call to undeclared function statx` in the direct-I/O alignment probe.
+The eight-commit native OSV scan passes; Maven remains unresolved. QEMU linking,
+Kotlin compilation and APK packaging have not been reached.
 
-Fix submitted: skip the librt lookup specifically for Android and implement
-Android's qemu_shm_alloc through QEMU's existing qemu_memfd_create helper.
-This supplies anonymous fd-owned shared memory with CLOEXEC and error reporting,
-without named POSIX shared-memory objects. Other hosts retain their existing
-allocation path. No SELinux/JIT restrictions are relaxed. Compilation of this
-port change and Android runtime memory/JIT behaviour remain unverified.
-The next build is pending; the owner will report completion. No APK or boot claim.
+Fix submitted: a Meson compile/link check verifies the statx declaration,
+symbol, alignment fields and required flags before enabling that optimization.
+On Android API 28 the existing ioctl/block-size/I/O alignment fallback remains
+available. Other capable hosts retain the statx path. The minimum Android API
+and compiler diagnostics are unchanged. Ninja now collects all independent
+compiler failures with `-k 0` while still failing the workflow on any error.
+The corrected compilation/link and Android runtime are unverified; the owner
+will report the next run's result. No APK or guest boot is claimed.
 Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
 Latest successful APK: **none**.
@@ -57,9 +58,9 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
 
 ## Known bugs and open risks
 
-- QEMU Meson configuration has been reached, but QEMU compilation and APK
-  packaging have not. All native dependencies compile for ARM64. Bionic API
-  differences and static linkage may still require additional port fixes.
+- QEMU configuration passes and compilation has started, but the backend
+  has not linked and no APK exists yet. Bionic API differences and static
+  linkage may still require additional port fixes.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
 - One running VM; activity recreation/unbinding terminates it. No background VM,

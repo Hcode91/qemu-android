@@ -2638,6 +2638,20 @@ config_host_data.set('CONFIG_PREADV', cc.has_function('preadv', prefix: '#includ
 config_host_data.set('CONFIG_PTHREAD_FCHDIR_NP', cc.has_function('pthread_fchdir_np'))
 config_host_data.set('CONFIG_SENDFILE', cc.has_function('sendfile'))
 config_host_data.set('CONFIG_SETNS', cc.has_function('setns') and cc.has_function('unshare'))
+# Kernel headers can expose STATX_DIOALIGN even when the target libc/API
+# does not declare or export statx (for example Android API 28).
+config_host_data.set('CONFIG_STATX_DIOALIGN',
+  host_os == 'linux' and cc.links(osdep_prefix + '''
+    #include <fcntl.h>
+    #include <sys/stat.h>
+    int main(void) {
+      struct statx stx;
+      int (*statx_fn)(int, const char *, int, unsigned int, struct statx *) =
+        statx;
+      (void)stx.stx_dio_offset_align;
+      (void)stx.stx_dio_mem_align;
+      return statx_fn(-1, "", AT_EMPTY_PATH, STATX_DIOALIGN, &stx);
+    }''', name: 'statx direct I/O alignment'))
 config_host_data.set('CONFIG_SYNCFS', cc.has_function('syncfs'))
 config_host_data.set('CONFIG_SYNC_FILE_RANGE', cc.has_function('sync_file_range'))
 config_host_data.set('CONFIG_TIMERFD', cc.has_function('timerfd_create'))
