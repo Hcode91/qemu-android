@@ -71,6 +71,22 @@ class DependencyFetchTest(unittest.TestCase):
         fetch.fetch_dependency(self.dep, self.dest)
         self.assertEqual(git(self.dest, "config", "submodule.subprojects/gvdb.url"), self.dep["submodules"][0]["repository"])
 
+    def test_pinned_wrap_checkout_and_revision_mismatch(self):
+        fetch.fetch_dependency(self.dep, self.dest)
+        child = self.dep["submodules"][0]
+        wrap_file = self.dest / "subprojects/proxy-fixture.wrap"
+        wrap_file.write_text(f"[wrap-git]\ndirectory=proxy-fixture\nurl={child['repository']}\nrevision={self.child_sha}\n")
+        dep = {
+            "name": "proxy-fixture", "repository": child["repository"], "commit": self.child_sha,
+            "destination": "glib/subprojects/proxy-fixture",
+            "wrap": {"path": "glib/subprojects/proxy-fixture.wrap", "url": child["repository"]}
+        }
+        fetch.fetch_manifest_entry(dep, self.dest.parent)
+        self.assertEqual(git(self.dest / "subprojects/proxy-fixture", "rev-parse", "HEAD"), self.child_sha)
+        dep["commit"] = "0" * 40
+        with self.assertRaisesRegex(RuntimeError, "source wrap"):
+            fetch.fetch_manifest_entry(dep, self.dest.parent)
+
     def test_gitlink_mismatch_is_rejected(self):
         self.dep["submodules"][0]["commit"] = "0" * 40
         with self.assertRaisesRegex(RuntimeError, "gitlink"):

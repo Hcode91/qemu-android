@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Fetch exact dependency commits and explicitly declared pinned submodules."""
+import configparser
 import json
 import os
 import pathlib
@@ -53,13 +54,31 @@ def fetch_dependency(dep, dest):
             raise RuntimeError(f"Submodule SHA mismatch: {path}")
 
 
+
+def fetch_manifest_entry(dep, out):
+    destination = out / checked_path(dep.get("destination", dep["name"]))
+    if "wrap" in dep:
+        # A wrap fallback is an ordinary nested checkout, not a Git submodule.
+        # Require metadata to agree with the parent source's pinned wrap file.
+        wrap = dep["wrap"]
+        parser = configparser.ConfigParser()
+        with (out / checked_path(wrap["path"])).open() as source:
+            parser.read_file(source)
+        source = parser["wrap-git"]
+        if (source["revision"] != checked_sha(dep["commit"])
+                or source["url"] != wrap["url"]
+                or source["directory"] != destination.name):
+            raise RuntimeError(f"Pinned dependency disagrees with source wrap: {dep['name']}")
+    fetch_dependency(dep, destination)
+
+
 def main():
     if os.environ.get("GITHUB_ACTIONS") != "true":
         sys.exit("Dependency retrieval is CI-only")
     root = pathlib.Path(__file__).resolve().parents[2]
     out = pathlib.Path(sys.argv[1])
     for dep in json.loads((root / "android/ci/native-deps.json").read_text()):
-        fetch_dependency(dep, out / checked_path(dep["name"]))
+        fetch_manifest_entry(dep, out)
 
 
 if __name__ == "__main__":
