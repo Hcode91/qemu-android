@@ -3,9 +3,11 @@
 Status: host graphics/input/shutdown checks passed at `681d79d`; the runtime-map
 APK correction passed Android CI at `f9714c9`. The owner's S23 screenshot now
 shows real guest color bars, and serial output confirms framebuffer readiness
-and tablet/button delivery. Graphics and touch are device verified. Physical
-controller input and graphical-session shutdown/native exit remain pending.
-See diagnostics/s23-graphics-touch-2026-11-02.md for the evidence limits.
+and tablet/button delivery. A subsequent controller-test response shows key
+press/release pairs matching X/Y/B/L1/A-or-Start/Select/R1. Basic Milestone D is
+verified for this fixture/device. D-pad/sticks, focus behavior and graphical-session
+shutdown/native exit remain pending. See diagnostics/s23-graphics-touch-2026-11-02.md
+and diagnostics/s23-controller-buttons-2026-11-02.md for the evidence limits.
 
 ## Data path
 
