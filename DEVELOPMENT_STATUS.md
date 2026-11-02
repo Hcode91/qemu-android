@@ -1,6 +1,6 @@
 # QEMU-Android development status
 
-Updated: 2026-11-02. Current milestone: **D software display/input source implemented; CI and phone graphics checks pending**.
+Updated: 2026-11-02. Current milestone: **D basic graphics/touch/controller-button goal verified on S23; E planning next**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
@@ -10,7 +10,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | A: Android ARM64 QEMU | Native port/build scripts | Yes | Build and ELF validation passed | Linux fixture | Yes, via guest boot |
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | Linux fixture | Installed and guest boot shown |
 | C: Minimal ARM Linux | Fixture build and two-boot harness | Yes | Two host boots/persistence passed | Yes, S23 | Kernel/userspace/disk persistence/unmount/power-down shown |
-| D: Graphics/controller | Software RFB Surface + touch/keyboard/controller mappings + guest fixture | Yes at fd6537c; modern-transport correction pending | APK gates passed; first host graphics test failed | Headless fixture only; graphics pending | Graphics/controller pending |
+| D: Graphics/controller | Software RFB Surface, touch/keyboard/controller mappings, runtime maps and fixture | Yes, f9714c9 APK | Android gates and host framebuffer/input/redraw/shutdown passed | Graphical fixture boots on S23 | Visible guest pixels, touch and controller-button mappings verified; D-pad/sticks pending |
 | E: Android ARM guest | Research pending | No | No | No | No |
 | F: Android 4.1 test app | No | No | No | No | No |
 | G: OUYA application | No | No | No | No | No |
@@ -31,30 +31,41 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest successful graphical-source APK: `fd6537c09a82a48489b358a6ad425a97804847b0`.
-Both Android runs passed, including native Pixman/VNC compilation, unit tests,
-lint, dependency checks, ELF/manifest/alignment/signature checks and APK upload:
-- Push: https://github.com/Hcode91/qemu-android/actions/runs/41524918986
-- PR: https://github.com/Hcode91/qemu-android/actions/runs/41524927477
-- APK: https://github.com/Hcode91/qemu-android/actions/runs/41524918986/artifacts/13179846621
+Latest successful Android APK source: `f9714c941efec7a90e16453e529672e25e6aef72`.
+Both Android runs passed native compilation, Kotlin/unit tests, instrumented-test
+compilation, lint, native/Maven OSV and APK runtime-keymap/signature validation:
+https://github.com/Hcode91/qemu-android/actions/runs/41542726206
+https://github.com/Hcode91/qemu-android/actions/runs/41542734070
+APK: https://github.com/Hcode91/qemu-android/actions/runs/41542726206/artifacts/13188115227
+ARM64 instrumented tests compiled but have not been executed on a device runner.
 
-This APK still has the legacy-MMIO graphics command bug; use a replacement
-built with the modern-transport correction for graphics testing. Its corrected
-source explicitly selects `virtio-mmio.force-legacy=false`; new CI is pending.
-The earlier two Android failures at 6fa6199 were caused by legitimate symlinks
-in the verified Pixman archive. Safe regular-file materialization and archive
-regressions fixed that issue in fd6537c. No security gate was disabled.
+Host graphical fixture source: `681d79d8968d9ceac705ec2157542a2adab5c70c`.
+Both fixture runs passed persistence boots, actual guest framebuffer/input/redraw
+and clean shutdown:
+https://github.com/Hcode91/qemu-android/actions/runs/41529607295
+https://github.com/Hcode91/qemu-android/actions/runs/41529616637
+Images: https://github.com/Hcode91/qemu-android/actions/runs/41529607295/artifacts/13186585213
 
-First graphical fixture run 41518914618 failed after successful compilation
-and both serial/persistence/poweroff boots. The graphical guest could not open
-`/dev/fb0`, then PID 1 exited and Linux panicked/rebooted. Kernel configuration
-already enabled the GPU, framebuffer and input drivers; QEMU's legacy MMIO
-transport hid `VIRTIO_F_VERSION_1`, required by the GPU/input drivers. See
-android/diagnostics/milestone-d-legacy-mmio-2026-11-02.md for retained evidence.
-The host test now selects modern MMIO, stops on a guest panic instead of looping,
-and retains its exact command. These changes are not yet CI verified. The other
-fixture run 41524927515 was still running when first inspected; no success is
-claimed for it.
+The owner now supplied an S23 screenshot with guest color bars and a serial log
+showing virtio GPU/fb0, DISPLAY-READY at 1280x800/32bpp, and actual tablet/button
+events. Graphics and touch forwarding are verified for this fixture/device.
+See android/diagnostics/s23-graphics-touch-2026-11-02.md. The owner's follow-up
+controller-test response now contains press/release events for x/y/Escape/q/
+Enter/Tab/e, matching X/Y/B/L1/A-or-Start/Select/R1 mappings. See
+android/diagnostics/s23-controller-buttons-2026-11-02.md. Basic Milestone D is
+verified for this fixture/device. D-pad/stick events, focus behavior,
+graphical-session shutdown/native exit and benchmarks remain unverified.
+The new log also contains PERSIST-READ on the preceding graphical boot's disk.
+
+The earlier S23 VNC en-us failure was addressed by packaging exact upstream maps
+and supplying the private -L path. AndroidX instrumented-test compilation and
+its Gradle enablement also passed in the current runs. The installed working
+APK and existing Linux images can be retained for physical-controller testing.
+
+Earlier host graphics failure at 6fa6199 was legacy Virtio MMIO; explicit modern
+transport fixed it in 681d79d. Earlier Android archive validation failed at
+6fa6199; safe Pixman link materialization fixed it at fd6537c. Those failures
+are superseded by the passing CI run above.
 
 Previous copy-log baseline: `4240f9a24e875326b80eb7828313fced3159dda8`.
 APK: https://github.com/Hcode91/qemu-android/actions/runs/41514009590/artifacts/13173389273
@@ -86,8 +97,10 @@ screenshot shows PERSIST-WRITTEN; the later copied serial log shows PERSIST-READ
 on the same ext4 disk, followed by unmount and kernel power down. See
 android/diagnostics/s23-linux-persistence-2026-11-02.md for the evidence excerpt
 and its limits. Native process exit status and performance remain unmeasured.
-Current work: D, software graphical output and physical controller input.
-Source is implemented, but D is not complete until CI and S23 evidence exist.
+Milestone D's basic software display/touch/controller-button goal is verified.
+Follow-up validation covers D-pad/sticks, focus behavior and graphical-session
+shutdown. Milestone E requires research/adaptation before an Android ARM guest
+can boot; no Android/OUYA compatibility is yet claimed.
 
 ## Known bugs and open risks
 
@@ -99,8 +112,9 @@ Source is implemented, but D is not complete until CI and S23 evidence exist.
   behaviour and performance still require testing.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
   image export/deletion, log file export or live profile editing yet.
-- Networking disabled; no Android Internet permission. Software display,
-  touch and controller-to-keyboard source compiled, but runtime is unverified.
+- Networking disabled; no Android Internet permission. Software display and
+  touch and controller-button forwarding work on the owner's S23; D-pad/sticks
+  and focus handling remain unverified.
   Audio, analog virtual gamepad and Android/OUYA guest support remain absent.
 - Guest command line is fixed for initramfs Linux. Guest images are downloaded
   separately. S23 persistence is shown. The latest complete capture reaches
@@ -176,14 +190,14 @@ No performance measurements exist.
   and third host-QEMU boot checking actual pixels, input/redraw and shutdown.
 - Actions-only protocol/archive safety tests; exact source and graphical evidence
   artifacts. New scripts have only received local syntax/static review.
-- fd6537c passed full Android builds/validation after the archive correction.
-  The new modern-MMIO command correction has only received source/syntax review.
-- The guest compiled and passed two serial boots, disk persistence and shutdown,
-  then failed the first graphics boot because of legacy Virtio MMIO. This was a
-  genuine runtime failure, not a compiler error. The test gate correctly prevented
-  uploading graphics images as successful. Replacement test results are pending.
-- No S23 graphics, physical-controller, audio, acceleration or performance
-  evidence exists. The latest successful APK does not verify runtime graphics.
+- 681d79d passed full Android build/validation and the host graphical guest
+  test, including real pixels, input-driven redraw and clean shutdown.
+- The keymap/runtime correction passed CI. Owner-supplied color bars and
+  DISPLAY-READY/INPUT-ABS/BTN_LEFT logs verify S23 pixels and touch forwarding.
+- The owner's follow-up controller test shows expected mapped key down/up
+  events. Basic Milestone D is verified; D-pad/sticks and focus remain unchecked.
+- Audio, acceleration and performance evidence remain absent. Graphical-session
+  shutdown/native exit also require a device capture.
 - Pixman's archive is SHA-512 pinned, with bounded extraction and safe direct
   links materialized as regular files. Its OSV coordinate has incomplete coverage.
   fd6537c passed native/Maven scans; this does not establish a full security pass.
@@ -196,10 +210,10 @@ See android/DISPLAY.md for architecture, limitations and S23 verification steps.
 
 ## Next priorities
 
-1. Inspect the new Android and graphical Linux fixture Actions results; correct
-   any actual failures. The owner asked the agent not to wait for running builds.
-2. On S23, test matching APK/images: real color bars, touch and connected physical
-   controller evdev events/redraw. Require guest shutdown plus QEMU exit status.
+1. Verify graphical-session guest shutdown plus QEMU exit status; keep the
+   working APK and retain before/after pattern evidence.
+2. Check D-pad/sticks separately (no arrow events in the supplied button log),
+   focus release and simultaneous inputs. Basic button mappings are verified.
 3. Check focus/input release, pause/resume, rotation cleanup and image isolation;
    add ARM64 device CI and retain instrumentation/display evidence.
 4. Measure rendering and input latency before optimisation. Audio and proper

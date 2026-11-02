@@ -11,7 +11,7 @@ data class VmConfig(val id: String, val name: String, val memoryMiB: Int = 512, 
         require(memoryMiB in 128..3072)
         require(cpus in 1..4)
     }
-    fun arguments(directory: File, qmpPath: String, vncPath: String? = null): List<String> {
+    fun arguments(directory: File, qmpPath: String, vncPath: String? = null, dataPath: String? = null): List<String> {
         require(File(directory, "kernel").isFile) { "Import an ARMv7 Linux zImage first" }
         require(qmpPath.length < 100 && !qmpPath.contains(','))
         val args = mutableListOf("-no-user-config", "-nodefaults", "-machine", "virt", "-cpu", "cortex-a15",
@@ -19,7 +19,12 @@ data class VmConfig(val id: String, val name: String, val memoryMiB: Int = 512, 
             "-display", "none", "-monitor", "none", "-serial", "stdio", "-nic", "none",
             "-qmp", "unix:$qmpPath,server=on,wait=off", "-kernel", File(directory, "kernel").absolutePath,
             "-append", "console=ttyAMA0 rdinit=/init panic=1")
+        if (dataPath != null) {
+            require(dataPath.isNotBlank() && File(dataPath).isAbsolute && !dataPath.contains('\u0000')) { "Private QEMU data directory required" }
+            args += listOf("-L", dataPath)
+        }
         if (graphics) {
+            require(dataPath != null) { "Graphical QEMU requires packaged runtime data" }
             require(vncPath != null && vncPath.length < 100 && !vncPath.contains(',')) { "Private display socket required" }
             args[args.indexOf("-append") + 1] = "console=tty0 console=ttyAMA0 rdinit=/init panic=1 qemu_android.display_test=1"
             // GPU and input drivers require VIRTIO_F_VERSION_1. The MMIO

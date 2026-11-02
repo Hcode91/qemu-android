@@ -1,10 +1,13 @@
 # Software guest display: milestone D
 
-Status: the first graphical APK compiled and passed Actions validation. The
-first host graphics test failed because MMIO was left in legacy mode; the
-modern-transport correction needs new CI. Host graphical and S23 display /
-physical-controller verification remain pending. Milestone C remains verified for
-the previous Linux fixture on the owner's S23. This change does not establish D.
+Status: host graphics/input/shutdown checks passed at `681d79d`; the runtime-map
+APK correction passed Android CI at `f9714c9`. The owner's S23 screenshot now
+shows real guest color bars, and serial output confirms framebuffer readiness
+and tablet/button delivery. A subsequent controller-test response shows key
+press/release pairs matching X/Y/B/L1/A-or-Start/Select/R1. Basic Milestone D is
+verified for this fixture/device. D-pad/sticks, focus behavior and graphical-session
+shutdown/native exit remain pending. See diagnostics/s23-graphics-touch-2026-11-02.md
+and diagnostics/s23-controller-buttons-2026-11-02.md for the evidence limits.
 
 ## Data path
 
@@ -12,7 +15,9 @@ Linux virtio-gpu framebuffer -> genuine QEMU software display -> QEMU VNC/RFB
 server on app-private `filesDir/vnc.sock` -> bounded Kotlin RFB 3.8 raw-pixel
 client -> Bitmap on an Android SurfaceView canvas. No TCP listener, Android
 Internet permission, root access, external VNC application or GPU acceleration
-is required. Pixman is compiled statically into the native backend. There is no
+is required. Pixman is compiled statically into the native backend. QEMU's upstream keyboard maps are copied into the
+APK as assets by Actions, checked byte-for-byte during APK validation, installed
+atomically in app-private storage and located with `-L` before VNC starts. There is no
 OpenGL ES/Vulkan guest acceleration, audio pipeline or latency benchmark yet.
 
 The client accepts displays up to 2048 by 2048 pixels, bounded rectangles and
