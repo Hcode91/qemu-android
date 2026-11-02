@@ -1,14 +1,14 @@
 # QEMU-Android development status
 
-Updated: 2026-11-02. Current milestone: **A — native compilation achieved; dependency closure pending**.
+Updated: 2026-11-02. Current milestone: **C — minimal ARM Linux guest boot (A/B build checks passed)**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Native port/build scripts | Earlier commit compiled/linked | Current static search failed; validation pending | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | Kotlin view-helper errors; correction submitted | No | No |
+| A: Android ARM64 QEMU | Native port/build scripts | Yes | Build and ELF validation passed | No | No |
+| B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | No | Installation pending |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,37 +31,39 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **early Kotlin compilation failed in three view helpers**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41496412694
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41496399368
-Source commit: `d57d59806802196e33ba2ce9789e4b72db25adca`.
-Four fetch regressions pass. Gradle reaches Kotlin compilation and resolves
-runtime/test dependencies. The combined OSV step queries 13 native/Maven entries
-and passes with no findings. Kotlin reports unresolved addView at MainActivity
-lines 85, 86 and 88: TextView-derived apply receivers shadow the activity's layout
-property with android.text.Layout. Source tests/lint are not complete. The new
-ordering correctly skips the expensive native build after this failure.
+Latest observed status: **both development workflows passed**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41499762975
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41499755001
+Source commit: `012e026db650ff0246ef8612d9530535ae7eee12`.
+PR merge checkout: `21c17cf462ad1a968b798c5a12f18787ede31170`.
 
-Fix submitted: explicitly use this@MainActivity.layout in all three affected
-helpers (label, edit and button). Reviewed other apply blocks for the same
-receiver collision. No compiler diagnostics or lint/security gates are disabled.
-Native pkg-config/static-link corrections from the previous commit are still
-pending their early link test because native compilation was skipped here.
-No new native-validation pass, APK or guest boot is claimed. The owner will
-report the next result. Draft PR: https://github.com/Hcode91/qemu-android/pull/1
+Verified Actions steps: dependency-fetch regressions; Kotlin compilation, unit
+tests and lint; QEMU ARM64 compilation/link; static fdt link probe; native ELF
+closure/hardening/alignment; debug APK packaging; native/Maven vulnerability
+scan; manifest, packaged-backend identity, ZIP/alignment and debug signature
+validation; APK and evidence uploads. All reported success. No device install,
+backend execution on Android or guest boot has been observed.
 
-Latest successful APK: **none**.
-Runs: https://github.com/Hcode91/qemu-android/actions
-On a passing development run download `QEMU-Android-debug-<commit>`.
-Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
+Latest successful debug APK artifact:
+https://github.com/Hcode91/qemu-android/actions/runs/41499762975/artifacts/13168483152
+Name: `QEMU-Android-debug-21c17cf462ad1a968b798c5a12f18787ede31170`.
+Evidence artifact:
+https://github.com/Hcode91/qemu-android/actions/runs/41499762975/artifacts/13168553178
+Artifacts expire 2026-11-16. The commit in the PR artifact name is GitHub's
+merge checkout; the push run builds the branch commit directly.
+
+Next milestone: build a source-pinned, redistributable ARMv7 Linux kernel and
+BusyBox initramfs through Actions; prepare an ext4 raw test disk; validate the
+fixture with the existing two-boot headless harness; then verify actual kernel,
+userspace, disk persistence and shutdown through the Android-packaged backend.
+A host-side fixture boot alone does not verify Android execution. Milestone C
+stays unverified until guest-boot evidence is captured, and real-device status
+stays pending until the S23 has been tested.
 
 ## Known bugs and open risks
 
-- QEMU compiled and linked at an earlier commit, but native validation has
-  not passed. The latest static-library search failed despite the archive
-  being present. pkg-config resolution and early link validation are submitted.
-  Frontend compilation currently fails on view-helper receiver resolution;
-  its correction, APK packaging and runtime remain unverified.
+- Development build and static validation now pass. Real Android execution,
+  installation, guest boot and performance remain unverified.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
