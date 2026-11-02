@@ -19,12 +19,18 @@ for name in ['kernel', 'compiler']:
 PY
 export ARCH=arm
 export CROSS_COMPILE="$WORK/compiler/bin/arm-eabi-"
-export HOSTCFLAGS='-O2 -fcommon'
+# Linux 3.18 assigns HOSTCFLAGS itself, overriding an exported environment value.
+# Preserve its exact default flags and pass the compatibility addition on make's
+# command line so recursive Kbuild also uses it for both DTC translation units.
+HOST_TOOL_FLAGS='-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89 -fcommon'
+kernel_make() {
+  make -C "$WORK/kernel" O="$WORK/output" "HOSTCFLAGS=$HOST_TOOL_FLAGS" "$@"
+}
 "${CROSS_COMPILE}gcc" --version > "$REPORT/compiler-version.txt"
-make -C "$WORK/kernel" O="$WORK/output" vexpress_defconfig
+kernel_make vexpress_defconfig
 "$WORK/kernel/scripts/kconfig/merge_config.sh" -m -O "$WORK/output" \
   "$WORK/output/.config" "$ROOT/android/aosp/kernel.fragment"
-make -C "$WORK/kernel" O="$WORK/output" olddefconfig
+kernel_make olddefconfig
 python3 - "$ROOT" "$WORK" <<'PY'
 import pathlib, sys
 root, work = map(pathlib.Path, sys.argv[1:])
@@ -34,7 +40,11 @@ missing = [line for line in required if line and line not in lines]
 if missing:
     raise SystemExit('Required guest kernel options did not resolve: ' + ', '.join(missing))
 PY
-make -C "$WORK/kernel" O="$WORK/output" -j2 zImage dtbs
+# Fail early on host-tool incompatibilities and retain their real command lines.
+kernel_make -j2 V=1 scripts
+[[ -x "$WORK/output/scripts/dtc/dtc" ]] || { echo 'Built host DTC missing' >&2; exit 1; }
+"$WORK/output/scripts/dtc/dtc" --version > "$REPORT/dtc-version.txt"
+kernel_make -j2 zImage dtbs
 "${CROSS_COMPILE}gcc" -O2 -marm -march=armv7-a -fomit-frame-pointer -ffreestanding \
   -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables \
   -nostdlib -static -Wl,-e,_start -Wall -Wextra -Werror \
