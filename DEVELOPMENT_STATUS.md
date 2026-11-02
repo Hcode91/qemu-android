@@ -8,7 +8,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
 | A: Android ARM64 QEMU | Native port/build scripts | Earlier commit compiled/linked | Current static search failed; validation pending | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | Kotlin/APK steps not reached | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | Kotlin view-helper errors; correction submitted | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,29 +31,22 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **QEMU configuration could not locate the static fdt archive**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41494272350
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41494265318
-Source commit: `310598a94d1bdd4da55ad50574bd507ff73bea8c`.
-libfdt.a is built, installed and passes the archive-presence check, but Meson's
-static find_library search does not infer the private prefix directory from
-global -L flags. That was missed in the previous correction. Native compilation
-in the earlier run remains valid evidence, but the current build stops at setup.
-Four fetch tests and the eight-commit native OSV step pass; Maven is unresolved.
+Latest observed status: **early Kotlin compilation failed in three view helpers**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41496412694
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41496399368
+Source commit: `d57d59806802196e33ba2ce9789e4b72db25adca`.
+Four fetch regressions pass. Gradle reaches Kotlin compilation and resolves
+runtime/test dependencies. The combined OSV step queries 13 native/Maven entries
+and passes with no findings. Kotlin reports unresolved addView at MainActivity
+lines 85, 86 and 88: TextView-derived apply receivers shadow the activity's layout
+property with android.text.Layout. Source tests/lint are not complete. The new
+ordering correctly skips the expensive native build after this failure.
 
-Broader audit corrections submitted:
-- Android libfdt resolution now uses its installed pkg-config metadata with
-  static=true, supplying both search directories and the archive selection.
-- A small NDK link test calls a real fdt symbol and applies the full ELF
-  dependency/alignment checks before the expensive QEMU compilation.
-- Rename the Kotlin image-import function: `import` is a reserved keyword and
-  would prevent the frontend compiling. Its call site is updated too.
-- Run Kotlin compilation/unit tests/lint/dependency export before native builds.
-  APK packaging retains a mandatory genuine-backend guard; no placeholder APK
-  or fake emulator binary is introduced. Both workflows use this ordering.
-- Make the serial-log append helper explicitly return Unit.
-
-The new link test and earlier frontend checks are pending Actions execution.
+Fix submitted: explicitly use this@MainActivity.layout in all three affected
+helpers (label, edit and button). Reviewed other apply blocks for the same
+receiver collision. No compiler diagnostics or lint/security gates are disabled.
+Native pkg-config/static-link corrections from the previous commit are still
+pending their early link test because native compilation was skipped here.
 No new native-validation pass, APK or guest boot is claimed. The owner will
 report the next result. Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
@@ -67,7 +60,8 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
 - QEMU compiled and linked at an earlier commit, but native validation has
   not passed. The latest static-library search failed despite the archive
   being present. pkg-config resolution and early link validation are submitted.
-  Frontend compilation, APK packaging and runtime are still unverified.
+  Frontend compilation currently fails on view-helper receiver resolution;
+  its correction, APK packaging and runtime remain unverified.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
@@ -76,9 +70,9 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
   physical controller forwarding or audio. These controls are not simulated.
 - Guest command line fixed for initramfs Linux. No guest binary is bundled and no
   Linux boot has been verified. CI boot harness is not wired to a fixture yet.
-- Latest native OSV step passed with no findings for the eight scanned commits.
-  Maven dependencies remain unresolved, and downstream QEMU commit coverage is
-  not guaranteed. No full application security pass is claimed.
+- Latest combined OSV step passed with no findings for 13 native/Maven entries.
+  Dependency resolution now succeeds. Downstream QEMU commit coverage is not
+  guaranteed, and no full application security pass is claimed.
 - zlib and PCRE2 use pinned development snapshots because stable releases lacked
   recorded fixes. Their native builds and scan passed at the current pins;
   runtime verification remains pending. See the dependency fix notes.

@@ -155,3 +155,16 @@ and test/lint the frontend before the native build. Only the packaging tasks
 require the compiled backend, and APK verification still checks the exact
 packaged native bytes. No dummy backend or security-check bypass is introduced.
 These corrections are source-reviewed; Actions results remain pending.
+
+## Follow-up: early frontend compile catches receiver shadowing
+
+Runs 41496412694 and 41496399368 fail early at Kotlin compilation, avoiding a
+native rebuild. Three helper apply blocks in MainActivity resolve layout to
+TextView's text-layout property, so addView is unavailable. All three now
+explicitly use this@MainActivity.layout. This changes receiver resolution,
+not emulator behaviour or permission policy. Other apply blocks were reviewed.
+
+Gradle exports resolved runtime/test dependencies in these runs. The combined
+native/Maven OSV step checks 13 entries and passes without findings. Compilation,
+unit tests, lint and the pending native static-link correction still require
+further CI validation. No APK/guest/device result is implied by this scan.
