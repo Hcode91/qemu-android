@@ -1,0 +1,35 @@
+name: Pinned Android build environment
+description: Install SDK, NDK, JDK and CI build tools
+inputs:
+  read-only-cache:
+    description: Restrict Gradle cache writes
+    default: 'true'
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      with:
+        distribution: temurin
+        java-version: '17.0.17+10'
+    - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+      with:
+        gradle-version: '8.11.1'
+        cache-read-only: ${{ inputs.read-only-cache }}
+    - name: Install pinned Android tools
+      shell: bash
+      run: |
+        set -euo pipefail
+        export ANDROID_SDK_ROOT="$ANDROID_HOME"
+        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+        sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358'
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends build-essential cmake pkg-config autoconf automake libtool gettext python3-venv flex bison
+        python3 -m venv "$RUNNER_TEMP/qemu-tools"
+        "$RUNNER_TEMP/qemu-tools/bin/pip" install -r android/ci/requirements.txt
+        echo "$RUNNER_TEMP/qemu-tools/bin" >> "$GITHUB_PATH"
+        echo "$ANDROID_SDK_ROOT/build-tools/35.0.0" >> "$GITHUB_PATH"
+        echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+    - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      with:
+        path: android/.native/src
+        key: android-native-sources-${{ runner.os }}-${{ hashFiles('android/ci/native-deps.json') }}

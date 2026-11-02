@@ -1,30 +1,13 @@
-# Configuration for Repo Lockdown - https://github.com/dessant/repo-lockdown
-
-name: 'Repo Lockdown'
-
+# Keep the upstream mirror policy scoped to the upstream mirror.
+name: Repo Lockdown
 on:
   pull_request_target:
-    types: opened
-
+    types: [opened]
 permissions:
   pull-requests: write
-
 jobs:
   action:
-    runs-on: ubuntu-latest
+    if: github.repository == 'qemu/qemu'
+    runs-on: ubuntu-24.04
     steps:
-      - uses: dessant/repo-lockdown@v2
-        with:
-          pr-comment: |
-            Thank you for your interest in the QEMU project.
-
-            This repository is a read-only mirror of the project's repostories hosted
-            on https://gitlab.com/qemu-project/qemu.git.
-            The project does not process merge requests filed on GitHub.
-
-            QEMU welcomes contributions of code (either fixing bugs or adding new
-            functionality). However, we get a lot of patches, and so we have some
-            guidelines about contributing on the project website:
-            https://www.qemu.org/contribute/
-          lock-pr: true
-          close-pr: true
+      - run: echo 'Upstream QEMU contributions use GitLab and the mailing list. Downstream Android PRs belong in Hcode91/qemu-android.'

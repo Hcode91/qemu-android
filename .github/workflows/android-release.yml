@@ -1,0 +1,101 @@
+name: Android release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      approved_commit:
+        description: Full reviewed release SHA, on master and at the selected workflow ref
+        required: true
+        type: string
+      publish:
+        description: Explicitly authorise public release publishing (requires a version tag)
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: read
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    environment: android-release
+    timeout-minutes: 90
+    outputs:
+      signed: ${{ steps.sign.outputs.signed }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate exact approved release commit
+        env:
+          APPROVED_COMMIT: ${{ inputs.approved_commit || vars.APPROVED_RELEASE_COMMIT }}
+        run: bash android/ci/validate-release.sh
+      - uses: ./.github/actions/android-setup
+      - name: Build genuine QEMU ARM64 backend
+        run: bash android/ci/build-native.sh
+      - name: Unit tests, lint and unsigned release
+        shell: bash
+        run: |
+          set -euo pipefail
+          source android/ci/guard.sh
+          gradle -p android --no-daemon --stacktrace --console=plain -I "$GITHUB_WORKSPACE/android/ci/dependencies.init.gradle" :app:testReleaseUnitTest :app:lintRelease :app:assembleRelease :app:exportSecurityDependencies 2>&1 | tee android/reports/gradle-release.log
+      - name: Native and Maven vulnerability checks
+        if: ${{ !cancelled() }}
+        run: python3 android/ci/security.py
+      - name: Validate unsigned release APK
+        run: bash android/ci/verify-apk.sh android/app/build/outputs/apk/release/app-release-unsigned.apk unsigned
+      - name: Sign with persistent publisher key, or label unsigned inspection artifact
+        id: sign
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: bash android/ci/sign-release.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: QEMU-Android-release-${{ github.sha }}
+          path: android/dist/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Release security, compiler and test evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: QEMU-Android-release-evidence-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            android/reports/
+            android/app/build/reports/
+            android/app/build/test-results/
+          retention-days: 30
+  publish:
+    needs: release
+    # A tag alone NEVER authorises public publishing. Manual explicit opt-in only.
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && github.ref_type == 'tag' && needs.release.outputs.signed == 'true' }}
+    runs-on: ubuntu-24.04
+    environment: android-publication
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: QEMU-Android-release-${{ github.sha }}
+          path: release
+      - name: Publish approved signed APK and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          cd release
+          sha256sum --check SHA256SUMS
+          gh release create "$RELEASE_TAG" --repo "$RELEASE_REPOSITORY" --target "$RELEASE_SHA" --verify-tag --title "QEMU-Android $RELEASE_TAG" --notes 'Experimental Android ARM64 release. See DEVELOPMENT_STATUS.md for verified capabilities.' ./*.apk SHA256SUMS
