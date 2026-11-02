@@ -38,14 +38,21 @@ jobs:
       - uses: ./.github/actions/android-setup
       - name: Dependency fetch regression tests
         run: python3 -m unittest discover -s android/ci/tests -v
-      - name: Build genuine QEMU ARM64 backend
-        run: bash android/ci/build-native.sh
-      - name: Unit tests, lint and unsigned release
+      - name: Kotlin compilation, unit tests, lint and dependency resolution
         shell: bash
         run: |
           set -euo pipefail
           source android/ci/guard.sh
-          gradle -p android --no-daemon --stacktrace --console=plain -I "$GITHUB_WORKSPACE/android/ci/dependencies.init.gradle" :app:testReleaseUnitTest :app:lintRelease :app:assembleRelease :app:exportSecurityDependencies 2>&1 | tee android/reports/gradle-release.log
+          mkdir -p android/reports
+          gradle -p android --no-daemon --stacktrace --console=plain -I "$GITHUB_WORKSPACE/android/ci/dependencies.init.gradle" :app:testReleaseUnitTest :app:lintRelease :app:exportSecurityDependencies 2>&1 | tee android/reports/frontend-release.log
+      - name: Build genuine QEMU ARM64 backend
+        run: bash android/ci/build-native.sh
+      - name: Build unsigned release containing the genuine backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          source android/ci/guard.sh
+          gradle -p android --no-daemon --stacktrace --console=plain -I "$GITHUB_WORKSPACE/android/ci/dependencies.init.gradle" :app:assembleRelease 2>&1 | tee android/reports/gradle-release.log
       - name: Native and Maven vulnerability checks
         if: ${{ !cancelled() }}
         run: python3 android/ci/security.py

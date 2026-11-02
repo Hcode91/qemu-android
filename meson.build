@@ -2051,10 +2051,14 @@ if fdt_opt == 'enabled' and get_option('wrap_mode') == 'nodownload'
   fdt_opt = 'system'
 endif
 if fdt_opt in ['enabled', 'system'] or (fdt_opt == 'auto' and have_system)
-  # The Android APK packages a standalone backend, so libfdt must be
-  # linked from its archive even when dtc also installs a shared library.
-  fdt = cc.find_library('fdt', required: fdt_opt == 'system',
-                       static: cc.get_define('__ANDROID__') != '')
+  if cc.get_define('__ANDROID__') != ''
+    # pkg-config supplies the private prefix's search directories, which
+    # find_library(static: true) does not infer from global -L flags.
+    fdt = dependency('libfdt', method: 'pkg-config', static: true,
+                     required: fdt_opt == 'system', allow_fallback: false)
+  else
+    fdt = cc.find_library('fdt', required: fdt_opt == 'system')
+  endif
   if fdt.found() and cc.links('''
      #include <libfdt.h>
      #include <libfdt_env.h>

@@ -139,3 +139,19 @@ now requests static: true. The dependency build enables dtc's static-build optio
 and verifies libfdt.a exists. The runtime-library allowlist is unchanged. Other
 hosts keep their existing selection. Corrected closure, alignment, APK packaging
 and runtime still require the next CI/device checks.
+
+## Pipeline audit after the static archive search failed
+
+Run 41494272350 confirms libfdt.a is built/installed, then Meson's static
+find_library fails because it lacks the private-prefix search directory. The
+Android path now uses dependency('libfdt', static: true, method: 'pkg-config')
+so the installed metadata supplies the search path. An NDK probe links a real
+libfdt call and runs check-elf.py before QEMU's full compilation, preserving
+all runtime dependency, hardening and segment-alignment checks.
+
+The audit also found a Kotlin function named with the reserved keyword import.
+It is renamed importImage, including its call site. Both workflows now compile
+and test/lint the frontend before the native build. Only the packaging tasks
+require the compiled backend, and APK verification still checks the exact
+packaged native bytes. No dummy backend or security-check bypass is introduced.
+These corrections are source-reviewed; Actions results remain pending.

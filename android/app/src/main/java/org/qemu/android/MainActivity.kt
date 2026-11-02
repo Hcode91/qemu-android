@@ -96,7 +96,7 @@ class MainActivity : Activity() {
         try { checkIdle() } catch (e: Exception) { Toast.makeText(this, e.message, Toast.LENGTH_LONG).show(); return }
         importing = true
         worker.execute {
-            val result = runCatching { store.import(vm, uri, slot) }
+            val result = runCatching { store.importImage(vm, uri, slot) }
             runOnUiThread { importing = false; Toast.makeText(this, result.exceptionOrNull()?.message ?: "Image imported", Toast.LENGTH_LONG).show() }
         }
     }

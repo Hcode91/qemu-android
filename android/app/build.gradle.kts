@@ -35,4 +35,7 @@ val verifyBackend by tasks.registering {
         check(backend.isFile && backend.length() > 1_000_000) { "Genuine QEMU backend missing: run the GitHub Actions native build." }
     }
 }
-tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(verifyBackend) }
+// Source compilation, unit tests and lint can run before the expensive native build.
+// Packaging always requires the genuine compiled backend; no placeholder is used.
+tasks.matching { it.name == "packageDebug" || it.name == "packageRelease" }
+    .configureEach { dependsOn(verifyBackend) }

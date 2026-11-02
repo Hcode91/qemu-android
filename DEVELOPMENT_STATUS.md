@@ -7,7 +7,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Native port/build scripts | Yes, compiled and linked | ELF dependency closure failed | No | No |
+| A: Android ARM64 QEMU | Native port/build scripts | Earlier commit compiled/linked | Current static search failed; validation pending | No | No |
 | B: Installable APK with QEMU | Initial frontend/packaging | No | Kotlin/APK steps not reached | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
@@ -31,24 +31,31 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **QEMU compiled and linked; ELF dependency validation failed**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41492571109
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41492559424
-Source commit: `02413da368c933d561a9a0ef91f5b27d066bc2a8`.
-All 1,992 Ninja targets completed, including linking qemu-system-arm for Android
-ARM64. The ELF validator then found an unpackaged dependency: `libfdt.so`.
-Architecture, Android linker, TEXTREL and RELRO/NOW checks before that assertion
-passed. The later load-alignment check was not reached. Four fetch regressions
-and the eight-commit native OSV scan pass. Maven, Kotlin and APK steps were not
-reached. This is compilation evidence, not an installable APK or boot result.
+Latest observed status: **QEMU configuration could not locate the static fdt archive**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41494272350
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41494265318
+Source commit: `310598a94d1bdd4da55ad50574bd507ff73bea8c`.
+libfdt.a is built, installed and passes the archive-presence check, but Meson's
+static find_library search does not infer the private prefix directory from
+global -L flags. That was missed in the previous correction. Native compilation
+in the earlier run remains valid evidence, but the current build stops at setup.
+Four fetch tests and the eight-commit native OSV step pass; Maven is unresolved.
 
-Fix submitted: QEMU explicitly requests static libfdt when compiling for Android.
-Dtc's static-build option is enabled and the archive is checked before QEMU
-configuration. Other hosts retain the existing library selection. The ELF
-system-library allowlist is unchanged: missing dependencies still fail CI.
-The next build must recheck native closure/alignment and reach Kotlin/APK tests.
-No APK or guest boot is claimed. The owner will report the next result.
-Draft PR: https://github.com/Hcode91/qemu-android/pull/1
+Broader audit corrections submitted:
+- Android libfdt resolution now uses its installed pkg-config metadata with
+  static=true, supplying both search directories and the archive selection.
+- A small NDK link test calls a real fdt symbol and applies the full ELF
+  dependency/alignment checks before the expensive QEMU compilation.
+- Rename the Kotlin image-import function: `import` is a reserved keyword and
+  would prevent the frontend compiling. Its call site is updated too.
+- Run Kotlin compilation/unit tests/lint/dependency export before native builds.
+  APK packaging retains a mandatory genuine-backend guard; no placeholder APK
+  or fake emulator binary is introduced. Both workflows use this ordering.
+- Make the serial-log append helper explicitly return Unit.
+
+The new link test and earlier frontend checks are pending Actions execution.
+No new native-validation pass, APK or guest boot is claimed. The owner will
+report the next result. Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
 Latest successful APK: **none**.
 Runs: https://github.com/Hcode91/qemu-android/actions
@@ -57,9 +64,10 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
 
 ## Known bugs and open risks
 
-- QEMU has compiled and linked for ARM64, but ELF validation found an
-  unpackaged libfdt dependency. Static linkage correction is submitted;
-  complete native validation, Kotlin/APK compilation and runtime are pending.
+- QEMU compiled and linked at an earlier commit, but native validation has
+  not passed. The latest static-library search failed despite the archive
+  being present. pkg-config resolution and early link validation are submitted.
+  Frontend compilation, APK packaging and runtime are still unverified.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
