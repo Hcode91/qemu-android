@@ -56,7 +56,9 @@ Bionic has no POSIX named shared-memory API or separate librt. The downstream
 Meson configuration skips librt on Android, and `qemu_shm_alloc` uses QEMU's
 existing memfd helper for anonymous fd-owned shared memory. Kernel allocation,
 resize and SELinux errors remain visible; no permission or JIT policy is weakened.
-This path still needs a complete QEMU build/link and device testing.
+QEMU has compiled and linked in Actions; complete native validation and device
+testing are still pending. Android explicitly links libfdt from its static
+archive, and the ELF validator rejects unpackaged shared-library dependencies.
 Direct-I/O statx alignment querying is enabled only after a compile/link feature
 check; API levels without it use QEMU's existing alignment probing fallbacks.
 

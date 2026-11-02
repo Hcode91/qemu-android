@@ -1,14 +1,14 @@
 # QEMU-Android development status
 
-Updated: 2026-11-02. Current milestone: **A — initial Android ARM64 cross-build**.
+Updated: 2026-11-02. Current milestone: **A — native compilation achieved; dependency closure pending**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
 
 | Milestone | Source implemented | Compiled | CI tested | Boot verified | Real-device verified |
 |---|---|---|---|---|---|
-| A: Android ARM64 QEMU | Initial build scripts | No | QEMU compiling; statx API fix submitted | No | No |
-| B: Installable APK with QEMU | Initial frontend/packaging | No | QEMU compiling; statx API fix submitted | No | No |
+| A: Android ARM64 QEMU | Native port/build scripts | Yes, compiled and linked | ELF dependency closure failed | No | No |
+| B: Installable APK with QEMU | Initial frontend/packaging | No | Kotlin/APK steps not reached | No | No |
 | C: Minimal ARM Linux | Test protocol/harness only | No guest fixture | No | No | No |
 | D: Graphics/controller | No | No | No | No | No |
 | E: Android ARM guest | Research pending | No | No | No | No |
@@ -31,24 +31,23 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest observed status: **QEMU compilation failed in block/file-posix.c**.
-PR run: https://github.com/Hcode91/qemu-android/actions/runs/41490614868
-Push run: https://github.com/Hcode91/qemu-android/actions/runs/41490606991
-Source commit: `fe144546af1037d5754c7c8270899411364e7f8f`.
-SDK setup, fetch regressions, native dependencies and QEMU Meson configuration
-pass. Ninja compiles over 1,000 of about 1,992 build targets before stopping:
-`call to undeclared function statx` in the direct-I/O alignment probe.
-The eight-commit native OSV scan passes; Maven remains unresolved. QEMU linking,
-Kotlin compilation and APK packaging have not been reached.
+Latest observed status: **QEMU compiled and linked; ELF dependency validation failed**.
+PR run: https://github.com/Hcode91/qemu-android/actions/runs/41492571109
+Push run: https://github.com/Hcode91/qemu-android/actions/runs/41492559424
+Source commit: `02413da368c933d561a9a0ef91f5b27d066bc2a8`.
+All 1,992 Ninja targets completed, including linking qemu-system-arm for Android
+ARM64. The ELF validator then found an unpackaged dependency: `libfdt.so`.
+Architecture, Android linker, TEXTREL and RELRO/NOW checks before that assertion
+passed. The later load-alignment check was not reached. Four fetch regressions
+and the eight-commit native OSV scan pass. Maven, Kotlin and APK steps were not
+reached. This is compilation evidence, not an installable APK or boot result.
 
-Fix submitted: a Meson compile/link check verifies the statx declaration,
-symbol, alignment fields and required flags before enabling that optimization.
-On Android API 28 the existing ioctl/block-size/I/O alignment fallback remains
-available. Other capable hosts retain the statx path. The minimum Android API
-and compiler diagnostics are unchanged. Ninja now collects all independent
-compiler failures with `-k 0` while still failing the workflow on any error.
-The corrected compilation/link and Android runtime are unverified; the owner
-will report the next run's result. No APK or guest boot is claimed.
+Fix submitted: QEMU explicitly requests static libfdt when compiling for Android.
+Dtc's static-build option is enabled and the archive is checked before QEMU
+configuration. Other hosts retain the existing library selection. The ELF
+system-library allowlist is unchanged: missing dependencies still fail CI.
+The next build must recheck native closure/alignment and reach Kotlin/APK tests.
+No APK or guest boot is claimed. The owner will report the next result.
 Draft PR: https://github.com/Hcode91/qemu-android/pull/1
 
 Latest successful APK: **none**.
@@ -58,9 +57,9 @@ Evidence: `QEMU-Android-evidence-<commit>-<attempt>`.
 
 ## Known bugs and open risks
 
-- QEMU configuration passes and compilation has started, but the backend
-  has not linked and no APK exists yet. Bionic API differences and static
-  linkage may still require additional port fixes.
+- QEMU has compiled and linked for ARM64, but ELF validation found an
+  unpackaged libfdt dependency. Static linkage correction is submitted;
+  complete native validation, Kotlin/APK compilation and runtime are pending.
 - Android 14 SELinux/executable-memory policy and split-W/X TCG need actual device
   testing. An extracted PIE is an architecture hypothesis, not a working-emulator claim.
 - One running VM; activity recreation/unbinding terminates it. No background VM,
