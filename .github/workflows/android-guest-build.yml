@@ -1,0 +1,66 @@
+name: AOSP Jelly Bean native userspace
+on:
+  workflow_dispatch:
+  push:
+    branches: ['**']
+    paths: ['android/jellybean/**', '.github/workflows/android-guest-build.yml']
+  pull_request:
+    paths: ['android/jellybean/**', '.github/workflows/android-guest-build.yml']
+permissions:
+  contents: read
+concurrency:
+  group: aosp-native-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-userspace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Check available build space
+        run: |
+          python3 - <<'PY'
+          import shutil
+          free = shutil.disk_usage('.').free
+          print(f'Available: {free // (1024 ** 3)} GiB')
+          if free < 12 * 1024 ** 3:
+              raise SystemExit('Native guest source/build needs at least 12 GiB free')
+          PY
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: android/.aosp-userspace/src
+          key: jb-native-sources-${{ runner.os }}-${{ hashFiles('android/jellybean/project-lock.json') }}
+      - name: Checkout pinned AOSP native source set
+        run: python3 android/jellybean/checkout.py
+      - name: Record legacy guest vulnerability evidence
+        run: python3 android/jellybean/scan-dependencies.py
+      - name: Build genuine AOSP init, Bionic and native service
+        run: bash android/jellybean/build-native.sh
+      - name: Install host kernel test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential bc bison flex libssl-dev libelf-dev libc6-i386 lib32stdc++6 lib32z1 qemu-system-arm
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            android/.aosp-kernel/kernel
+            android/.aosp-kernel/compiler
+          key: android-guest-sources-${{ runner.os }}-${{ hashFiles('android/aosp/sources.json') }}
+      - name: Build tested candidate kernel and verify its ABI again
+        run: bash android/aosp/build-kernel-probe.sh
+      - name: Boot genuine AOSP native userspace in host QEMU
+        run: python3 android/jellybean/run-boot.py
+      - name: Native userspace source, build and guest evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: QEMU-Android-AOSP-native-evidence-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            android/reports/aosp-userspace/
+            android/reports/aosp-kernel/
+          retention-days: 14
+      - name: State verification scope
+        if: always()
+        run: echo 'This builds/tests AOSP native early userspace. No Android framework, launcher, full system image or phone installation is established by a successful native test.' >> "$GITHUB_STEP_SUMMARY"
