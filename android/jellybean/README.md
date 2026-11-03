@@ -28,7 +28,13 @@ The next native run stopped parsing zlib because it explicitly requests historic
 NDK r5/API 9 and the historical NDK checkout was absent. The source closure now
 includes pinned prebuilts/ndk and prebuilts/sdk; a preflight verifies their API 9
 headers, STL include path and SDK jar. These added commits are included in the
-existing guest dependency scan. New native compile/boot CI remains pending.
+existing guest dependency scan. That correction reached actual Bionic/host compilation, then failed because the
+gcc-sdk wrapper selects a 32-bit i686 host compiler which was not yet checked
+out. The source set now includes both pinned i686 and x86_64 host toolchains.
+The container executes both -m32/-m64 compiler paths and the ARM compiler before
+the main build. Make collects independent errors but still fails on any error.
+Verified source checkouts are cached before compilation so failed builds can
+reuse them. New native compile/boot CI remains pending.
 
 The builder uses the digest-pinned official Ubuntu 12.04 image, archived signed
 Ubuntu packages, Python 2, GNU make 3.81 and OpenJDK 6. The sole upstream-build

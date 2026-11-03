@@ -233,8 +233,13 @@ parsing, and both Android APK workflows passed at 09e98e4. The next native jobs
 then stopped on zlib's LOCAL_NDK_VERSION=5 because historical NDK sources were
 not selected. The closure now includes pinned prebuilts/ndk and prebuilts/sdk,
 with explicit API 9 input checks and the existing guest dependency scan covering
-their commits. Correction CI is pending. No actual Android userspace compile or
-boot result is established. It does not produce a framework/system image or a
+their commits. At 996f830 both APK checks passed; native jobs began Bionic
+compilation but failed at the missing i686 host compiler selected by gcc-sdk.
+The source set now includes both locked host compilers and checks their -m32/
+-m64 execution paths inside the container before Make. Verified sources are
+cached before compilation, and Make collects independent failures while still
+failing the job. Correction CI is pending. No complete Android native userspace
+build or boot result is established. It does not produce a framework/system image or a
 phone guest bundle. The OpenJDK 6 vendor compatibility patch retains the Java
 version check and is recorded. The obsolete builder's archived package versions
 and guest vulnerability findings need review; OSV coverage is incomplete and

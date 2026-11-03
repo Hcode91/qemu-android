@@ -25,6 +25,7 @@ selected = {
     'prebuilts/ndk', 'prebuilts/sdk',
     'prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6',
     'prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6',
+    'prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6',
 }
 baseline = json.loads((root / 'android/aosp/sources.json').read_text())['aosp']
 known = {'build': 'build_commit', 'system/core': 'system_core_commit',
@@ -86,7 +87,11 @@ if missing:
 # targets. zlib's ARM rules explicitly require NDK r5 with API 9 headers.
 legacy_inputs = ['prebuilts/ndk/android-ndk-r5/platforms/android-9/arch-arm/usr/include',
                  'prebuilts/ndk/android-ndk-r5/sources/cxx-stl/system/include',
-                 'prebuilts/sdk/9/android.jar']
+                 'prebuilts/sdk/9/android.jar',
+                 'prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6/bin/i686-linux-gcc',
+                 'prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6/bin/i686-linux-g++',
+                 'prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6/bin/x86_64-linux-gcc',
+                 'prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6/bin/x86_64-linux-g++']
 legacy_missing = [path for path in legacy_inputs if not (src / path).exists()]
 (report / 'legacy-build-inputs.json').write_text(json.dumps({'required': legacy_inputs, 'missing': legacy_missing}, indent=2) + '\n')
 if legacy_missing:
