@@ -22,6 +22,7 @@ selected = {
     'external/mksh', 'external/yaffs2', 'external/zlib', 'external/libselinux',
     'external/e2fsprogs', 'hardware/libhardware', 'hardware/libhardware_legacy',
     'device/generic/goldfish', 'prebuilt', 'prebuilts/misc', 'prebuilts/tools',
+    'prebuilts/ndk', 'prebuilts/sdk',
     'prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6',
     'prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6',
 }
@@ -81,6 +82,15 @@ while queue:
 (report / 'product-includes.json').write_text(json.dumps({'scope': 'Literal mandatory inherit-product references; optional and dynamic expressions remain Make checks', 'includes': includes, 'missing': sorted(set(missing))}, indent=2) + '\n')
 if missing:
     raise ValueError('Native checkout lacks mandatory product configuration: ' + ', '.join(sorted(set(missing))))
+# AOSP parses historical SDK/NDK module definitions even for native-only
+# targets. zlib's ARM rules explicitly require NDK r5 with API 9 headers.
+legacy_inputs = ['prebuilts/ndk/android-ndk-r5/platforms/android-9/arch-arm/usr/include',
+                 'prebuilts/ndk/android-ndk-r5/sources/cxx-stl/system/include',
+                 'prebuilts/sdk/9/android.jar']
+legacy_missing = [path for path in legacy_inputs if not (src / path).exists()]
+(report / 'legacy-build-inputs.json').write_text(json.dumps({'required': legacy_inputs, 'missing': legacy_missing}, indent=2) + '\n')
+if legacy_missing:
+    raise ValueError('Pinned legacy SDK/NDK inputs are missing: ' + ', '.join(legacy_missing))
 # Genuine OpenJDK 6 is used for this C-only target. Preserve Java/javac 1.6
 # checks, removing only the old vendor rejection. No version check is bypassed.
 build = src / 'build/core/main.mk'
