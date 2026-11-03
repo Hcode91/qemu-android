@@ -16,6 +16,15 @@ of those projects for BUILD_TINY_ANDROID. It verifies the investigated build,
 system/core, Binder and gralloc pins against the previous source audit. No
 moving branch/tag is used for Git source checkout.
 
+Initial CI fetched the pinned sources, completed the dependency query, built the
+legacy container and ran Java 6/make 3.81. AOSP product parsing then failed because
+frameworks/native was absent from the native checkout: vbox_x86 imports one of its
+heap-configuration files even when compiling native ARM targets. The checkout
+now includes that pinned project. A static preflight follows literal mandatory
+inherit-product references and reports missing files before container compilation;
+optional/dynamic expressions still remain checks for the actual Make build.
+Correction CI is pending; no native userspace compile or boot has passed yet.
+
 The builder uses the digest-pinned official Ubuntu 12.04 image, archived signed
 Ubuntu packages, Python 2, GNU make 3.81 and OpenJDK 6. The sole upstream-build
 patch removes the old OpenJDK vendor rejection; actual Java/javac 1.6 checks are
