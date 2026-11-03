@@ -23,7 +23,12 @@ heap-configuration files even when compiling native ARM targets. The checkout
 now includes that pinned project. A static preflight follows literal mandatory
 inherit-product references and reports missing files before container compilation;
 optional/dynamic expressions still remain checks for the actual Make build.
-Correction CI is pending; no native userspace compile or boot has passed yet.
+That correction passed product parsing. Both Android APK checks also passed.
+The next native run stopped parsing zlib because it explicitly requests historical
+NDK r5/API 9 and the historical NDK checkout was absent. The source closure now
+includes pinned prebuilts/ndk and prebuilts/sdk; a preflight verifies their API 9
+headers, STL include path and SDK jar. These added commits are included in the
+existing guest dependency scan. New native compile/boot CI remains pending.
 
 The builder uses the digest-pinned official Ubuntu 12.04 image, archived signed
 Ubuntu packages, Python 2, GNU make 3.81 and OpenJDK 6. The sole upstream-build
