@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <android/log.h>
@@ -18,6 +19,7 @@ int main(void)
     int fd = open("/dev/ttyAMA0", O_WRONLY);
     char property[PROPERTY_VALUE_MAX];
     int version = 0;
+    struct stat device;
     void *first, *second;
     if (fd < 0) fd = open("/dev/console", O_WRONLY);
     if (fd < 0) return 1;
@@ -25,6 +27,9 @@ int main(void)
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("AOSP-BIONIC-SERVICE pid=%d ppid=%d\n", getpid(), getppid());
     if (getppid() != 1) fail("service not parented by Android init");
+    if (stat("/dev/kmsg", &device) < 0 || !S_ISCHR(device.st_mode))
+        fail("kmsg must be a character device, not an init-created regular file");
+    puts("AOSP-KMSG-DEVICE-OK");
     if (property_get("qemu.android.native_boot", property, "") <= 0 || strcmp(property, "ready"))
         fail("Android property area");
     puts("AOSP-PROPERTY-READ-OK");

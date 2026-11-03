@@ -2,17 +2,20 @@
 # Minimal test configuration interpreted by genuine AOSP 4.1 init.
 on early-init
     loglevel 7
-    write /dev/kmsg QEMU-AOSP-INIT-EARLY
     start ueventd
+    # init mounts a fresh /dev tmpfs. Its write builtin uses O_CREAT, so wait
+    # for ueventd's character device instead of creating a regular kmsg file.
+    wait /dev/kmsg
+    write /dev/kmsg <6>QEMU-AOSP-INIT-EARLY
 
 on init
-    write /dev/kmsg QEMU-AOSP-INIT-ACTIONS
+    write /dev/kmsg <6>QEMU-AOSP-INIT-ACTIONS
 
 on boot
     setprop qemu.android.native_boot ready
 
 on property:qemu.android.native_boot=ready
-    write /dev/kmsg QEMU-AOSP-PROPERTY-TRIGGER
+    write /dev/kmsg <6>QEMU-AOSP-PROPERTY-TRIGGER
     start native_probe
 
 service ueventd /sbin/ueventd
