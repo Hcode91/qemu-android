@@ -1,7 +1,8 @@
 # Genuine Jelly Bean native userspace bring-up
 
 This is the next milestone E stage after the kernel ABI probe passed. Source
-is implemented; this new source/build/boot workflow has not yet passed CI.
+has compiled successfully in Actions. Early init/service execution is observed,
+but the complete boot validation has not yet passed CI.
 There is no Android framework, launcher, full system image or phone guest here.
 Keep the existing f9714c9 APK and graphics-capable Linux fixture installed.
 
@@ -16,25 +17,28 @@ of those projects for BUILD_TINY_ANDROID. It verifies the investigated build,
 system/core, Binder and gralloc pins against the previous source audit. No
 moving branch/tag is used for Git source checkout.
 
-Initial CI fetched the pinned sources, completed the dependency query, built the
-legacy container and ran Java 6/make 3.81. AOSP product parsing then failed because
-frameworks/native was absent from the native checkout: vbox_x86 imports one of its
-heap-configuration files even when compiling native ARM targets. The checkout
-now includes that pinned project. A static preflight follows literal mandatory
-inherit-product references and reports missing files before container compilation;
-optional/dynamic expressions still remain checks for the actual Make build.
-That correction passed product parsing. Both Android APK checks also passed.
-The next native run stopped parsing zlib because it explicitly requests historical
-NDK r5/API 9 and the historical NDK checkout was absent. The source closure now
-includes pinned prebuilts/ndk and prebuilts/sdk; a preflight verifies their API 9
-headers, STL include path and SDK jar. These added commits are included in the
-existing guest dependency scan. That correction reached actual Bionic/host compilation, then failed because the
-gcc-sdk wrapper selects a 32-bit i686 host compiler which was not yet checked
-out. The source set now includes both pinned i686 and x86_64 host toolchains.
-The container executes both -m32/-m64 compiler paths and the ARM compiler before
-the main build. Make collects independent errors but still fails on any error.
-Verified source checkouts are cached before compilation so failed builds can
-reuse them. New native compile/boot CI remains pending.
+At 44238be both Android APK builds and the genuine AOSP native compilation
+passed. The kernel ABI probe passed again. In both host-QEMU native boots, real
+AOSP init started the Bionic service as its child; property reads, Binder 7,
+shared ashmem, liblog and poweroff succeeded, and QEMU exited 0. The full native
+boot test still failed: three mandatory init-action markers were missing.
+The downloaded result.json confirms these were the only missing assertions.
+
+The fixture wrote to /dev/kmsg before starting ueventd. AOSP init first mounts
+a fresh tmpfs on /dev; its write builtin uses O_CREAT. The first marker therefore
+created a regular file before ueventd could create the kernel character device.
+The correction starts ueventd, waits for /dev/kmsg, and then writes the markers
+with explicit informational priority. The native service additionally requires
+/dev/kmsg to be a character device. All original marker assertions remain; no
+success output is supplied by the host. The harness prints its JSON result and
+records failures/timeouts as evidence. Correction CI is pending.
+See ../diagnostics/aosp-native-boot-2026-11-03.md for run links and observed output.
+
+The verified source closure includes frameworks/native product configuration,
+historical NDK r5/API 9/SDK inputs, and both i686 and x86_64 host GCC toolchains
+at release-locked commits. Static input checks and execution of both host
+compiler modes precede the main build. Make collects independent failures while
+retaining a failing status, and Actions saves verified sources before compilation.
 
 The builder uses the digest-pinned official Ubuntu 12.04 image, archived signed
 Ubuntu packages, Python 2, GNU make 3.81 and OpenJDK 6. The sole upstream-build

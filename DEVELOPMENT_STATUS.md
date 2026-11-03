@@ -1,6 +1,6 @@
 # QEMU-Android development status
 
-Updated: 2026-11-03. Current milestone: **E kernel ABI verified in CI; genuine AOSP native userspace build/boot source submitted**.
+Updated: 2026-11-03. Current milestone: **E: AOSP native userspace compiled; early init/service execution observed, full boot-validation correction pending**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
@@ -11,7 +11,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | Linux fixture | Installed and guest boot shown |
 | C: Minimal ARM Linux | Fixture build and two-boot harness | Yes | Two host boots/persistence passed | Yes, S23 | Kernel/userspace/disk persistence/unmount/power-down shown |
 | D: Graphics/controller | Software RFB Surface, touch/keyboard/controller mappings, runtime maps and fixture | Yes, f9714c9 APK | Android gates and host framebuffer/input/redraw/shutdown passed | Graphical fixture boots on S23 | Visible guest pixels, touch and controller-button mappings verified; D-pad/sticks pending |
-| E: Android ARM guest | Kernel ABI probe; pinned AOSP native init/Bionic build and boot harness | Kernel probe yes; native userspace pending | Kernel/source prerequisite checks passed | No Android userspace boot yet | No Android guest test |
+| E: Android ARM guest | Kernel ABI probe; pinned AOSP native init/Bionic build and boot harness | Kernel and real init/Bionic/service yes | Native build and kernel probe passed; full boot check failed on init markers | Early init/service ran in host QEMU; full validation pending | No Android guest test |
 | F: Android 4.1 test app | No | No | No | No | No |
 | G: OUYA application | No | No | No | No | No |
 | H: OUYA-style interface | No | No | No | No | No |
@@ -31,7 +31,14 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest successful Android APK source: `f9714c941efec7a90e16453e529672e25e6aef72`.
+Latest successful Android APK CI source: `44238be5fdaf97a63e7469e5da0d18c94f12e165`.
+Both development builds passed:
+https://github.com/Hcode91/qemu-android/actions/runs/41650775317
+https://github.com/Hcode91/qemu-android/actions/runs/41650786020
+APK: https://github.com/Hcode91/qemu-android/actions/runs/41650775317/artifacts/13237267662
+This does not add an Android guest or require replacing the working phone APK.
+
+Owner-tested working Android APK source: `f9714c941efec7a90e16453e529672e25e6aef72`.
 Both Android runs passed native compilation, Kotlin/unit tests, instrumented-test
 compilation, lint, native/Maven OSV and APK runtime-keymap/signature validation:
 https://github.com/Hcode91/qemu-android/actions/runs/41542726206
@@ -224,28 +231,33 @@ kernel. The service is started through genuine init property actions and must
 read Android properties, exercise Binder/ashmem/logging and power off. Compiler,
 source, package, binary/hash and real guest-output evidence are retained.
 
-This new workflow has not yet passed. Both first native runs fetched pinned
-sources, completed the guest OSV query and built the legacy container, then
-stopped at product parsing because frameworks/native heap configuration was
-missing from the checkout. The correction includes that pinned project and a
-static mandatory-product-include preflight. That correction passed product
-parsing, and both Android APK workflows passed at 09e98e4. The next native jobs
-then stopped on zlib's LOCAL_NDK_VERSION=5 because historical NDK sources were
-not selected. The closure now includes pinned prebuilts/ndk and prebuilts/sdk,
-with explicit API 9 input checks and the existing guest dependency scan covering
-their commits. At 996f830 both APK checks passed; native jobs began Bionic
-compilation but failed at the missing i686 host compiler selected by gcc-sdk.
-The source set now includes both locked host compilers and checks their -m32/
--m64 execution paths inside the container before Make. Verified sources are
-cached before compilation, and Make collects independent failures while still
-failing the job. Correction CI is pending. No complete Android native userspace
-build or boot result is established. It does not produce a framework/system image or a
-phone guest bundle. The OpenJDK 6 vendor compatibility patch retains the Java
-version check and is recorded. The obsolete builder's archived package versions
-and guest vulnerability findings need review; OSV coverage is incomplete and
-research findings are not a release clearance. APK gates remain independent.
-See android/jellybean/README.md for exact scope. The working S23 APK and Linux
-fixture should be retained; no phone intervention is needed at this stage.
+At 44238be both Android APK workflows and genuine AOSP native compilation
+passed. The kernel ABI test also passed. Both native boot jobs reached real
+AOSP init/property actions and its Bionic-linked child (ppid=1); the child
+reported successful property, Binder 7, shared-ashmem and liblog checks, followed
+by clean guest poweroff and QEMU exit 0. The complete native boot gate failed
+because three required init-action markers were absent. It has not passed CI.
+https://github.com/Hcode91/qemu-android/actions/runs/41650775222
+https://github.com/Hcode91/qemu-android/actions/runs/41650786147
+Evidence: https://github.com/Hcode91/qemu-android/actions/runs/41650775222/artifacts/13237602047
+See android/diagnostics/aosp-native-boot-2026-11-03.md for the original result,
+serial excerpt and source-based diagnosis.
+
+The test wrote to /dev/kmsg before ueventd created it. Because AOSP init mounts
+a new /dev tmpfs and its write builtin uses O_CREAT, this created a regular file
+instead of sending markers to the kernel log. The correction starts ueventd,
+waits for the device, then emits the same markers. The service now explicitly
+rejects a non-character /dev/kmsg; all original boot assertions remain required.
+The harness also prints the result JSON and records timeout failures.
+Correction CI is pending. No full native boot-validation pass is claimed yet.
+
+This does not produce an Android framework/system image or phone guest bundle.
+Dalvik, system_server, SurfaceFlinger and Android UI have not booted. The OpenJDK
+6 vendor compatibility patch retains Java version checks and is recorded. The
+obsolete builder's archived packages and guest vulnerability findings need
+review; OSV coverage is incomplete and research findings are not release
+clearance. APK gates remain independent. See android/jellybean/README.md.
+Keep the working S23 APK and Linux fixture; no phone intervention is needed.
 
 ## Next priorities
 
