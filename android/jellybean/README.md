@@ -1,10 +1,14 @@
 # Genuine Jelly Bean native userspace bring-up
 
-This is the next milestone E stage after the kernel ABI probe passed. Source
-has compiled successfully in Actions. Early init/service execution is observed,
-but the complete boot validation has not yet passed CI.
-There is no Android framework, launcher, full system image or phone guest here.
-Keep the existing f9714c9 APK and graphics-capable Linux fixture installed.
+The native stage of milestone E passed both host-QEMU boot checks and Android
+APK checks at 2651036. Real AOSP init/Bionic/service execution, init markers,
+Android properties, Binder, ashmem, liblog and poweroff are CI verified.
+There is no Android framework, launcher or full Android system image yet.
+
+The next source stage adds a separate phone VM profile and packages the exact
+host-tested guest with checksums and corresponding sources. Its CI and S23 boot
+remain pending. Keep the working Linux VM; do not replace its guest files.
+Phone instructions: [DEVICE_TEST.md](DEVICE_TEST.md).
 
 ## Build and boot path
 
@@ -31,7 +35,11 @@ The correction starts ueventd, waits for /dev/kmsg, and then writes the markers
 with explicit informational priority. The native service additionally requires
 /dev/kmsg to be a character device. All original marker assertions remain; no
 success output is supplied by the host. The harness prints its JSON result and
-records failures/timeouts as evidence. Correction CI is pending.
+records failures/timeouts as evidence. Correction 2651036 passed both runs:
+https://github.com/Hcode91/qemu-android/actions/runs/41654622649
+https://github.com/Hcode91/qemu-android/actions/runs/41654632047
+Both returned aosp_native_userspace_passed=true, missing=[], QEMU exit 0 and
+no timeout. Android framework/UI/phone verification remain false.
 See ../diagnostics/aosp-native-boot-2026-11-03.md for run links and observed output.
 
 The verified source closure includes frameworks/native product configuration,
@@ -77,8 +85,18 @@ OSV commit queries cover the selected native guest/kernel/toolchain sources;
 lookup failures fail the job. Findings are retained as research evidence and
 reported, not described as a security clearance. The legacy guest and builder
 are obsolete and may contain known vulnerabilities. There is no release image
-or phone-installable bundle from this research job. Existing APK security and
-release signing gates are independent and remain required.
+from this research job. The next packaging step exposes only this early-native
+research guest for a separate phone VM, and only after the full host boot test
+passes. It verifies the exact boot input paths/initramfs hash, copies images
+without modification, records SHA-256 hashes and includes kernel/native
+corresponding sources. The app profile fixes vexpress-a9/Cortex-A9, 512 MiB,
+1 CPU, serial only, no disk or networking; it requires an imported DTB. Existing
+Linux profiles default to virt and retain their files. Basic bounded FDT header
+checks reject malformed imports; QEMU still parses the full guest device tree.
+Native build evidence requires both board configurations. Profile/import unit
+tests, new bundle packaging and the aligned split-WX host boot run in Actions;
+the new source has received static review only so far. Existing APK security
+and release signing gates remain independent and required.
 
 The current closure builds native boot components. It does not build Dalvik,
 zygote, system_server, SurfaceFlinger, app installation or the Android dashboard.

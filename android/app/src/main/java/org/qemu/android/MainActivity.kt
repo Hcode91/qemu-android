@@ -58,23 +58,36 @@ class MainActivity : Activity() {
         layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(24, 24, 24, 24) }
         setContentView(ScrollView(this).apply { addView(layout) })
         label("QEMU-Android — experimental development")
-        label("ARMv7 virt / TCG. Import a Linux zImage and initramfs. Closing this screen stops the VM. Software display is optional. Controllers map to guest keyboard keys; audio and networking are pending.")
+        label("ARMv7 / TCG. Linux virt supports the graphical fixture. Android native boot test runs early init and shuts down; it has no Android home screen. Closing this screen stops the VM. Audio and networking are pending.")
         chooser = Spinner(this); layout.addView(chooser); reload()
         val name = edit("VM name", "Linux")
         val ram = edit("RAM MiB (128–3072)", "512")
         val cpus = edit("CPUs (1–4)", "2")
-        val graphics = CheckBox(this).apply { text = "Software guest display and input" }
+        label("Profile for a new VM")
+        val profile = Spinner(this).apply { adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, VmBoard.values().map { it.label }) }
+        layout.addView(profile)
+        profile.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                if (VmBoard.values()[position] == VmBoard.AOSP_NATIVE) { ram.setText("512"); cpus.setText("1") }
+                else cpus.setText("2")
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+        val graphics = CheckBox(this).apply { text = "Software guest display and input (Linux virt)" }
         layout.addView(graphics)
         chooser.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                graphics.isChecked = vms.getOrNull(position)?.graphics ?: false
+                val vm = vms.getOrNull(position)
+                graphics.isChecked = vm?.graphics ?: false
+                graphics.isEnabled = vm?.board != VmBoard.AOSP_NATIVE
             }
             override fun onNothingSelected(parent: AdapterView<*>?) { graphics.isChecked = false }
         }
         button("Create VM") {
-            store.create(name.text.toString(), ram.text.toString().toInt(), cpus.text.toString().toInt(), graphics.isChecked); reload(); chooser.setSelection(vms.lastIndex)
+            val board = VmBoard.values()[profile.selectedItemPosition]
+            store.create(name.text.toString(), ram.text.toString().toInt(), cpus.text.toString().toInt(), graphics.isChecked && board == VmBoard.VIRT, board); reload(); chooser.setSelection(vms.lastIndex)
         }
-        listOf("kernel", "initrd", "disk.raw").forEach { slot -> button("Import $slot") {
+        listOf("kernel", "initrd", "dtb", "disk.raw").forEach { slot -> button("Import $slot") {
             checkIdle(); check(!importing) { "Import in progress" }
             importId = selected().id; importSlot = slot
             startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply { type = "*/*"; addCategory(Intent.CATEGORY_OPENABLE) }, 100)
@@ -139,7 +152,7 @@ class MainActivity : Activity() {
     }
     private fun reload() {
         vms = store.list()
-        chooser.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vms.map { "${it.name} (${it.memoryMiB} MiB, ${it.cpus} CPUs)" })
+        chooser.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vms.map { "${it.name} — ${it.board.label} (${it.memoryMiB} MiB, ${it.cpus} CPUs)" })
     }
     private fun selected() = vms.getOrNull(chooser.selectedItemPosition) ?: error("Create a VM first")
     private fun checkIdle() { check(service != null && service?.activeId == null) { "Stop VM before modifying images" }; check(!importing) { "Import in progress" } }
