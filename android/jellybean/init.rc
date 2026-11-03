@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Minimal test configuration interpreted by genuine AOSP 4.1 init.
+on early-init
+    loglevel 7
+    write /dev/kmsg QEMU-AOSP-INIT-EARLY
+    start ueventd
+
+on init
+    write /dev/kmsg QEMU-AOSP-INIT-ACTIONS
+
+on boot
+    setprop qemu.android.native_boot ready
+
+on property:qemu.android.native_boot=ready
+    write /dev/kmsg QEMU-AOSP-PROPERTY-TRIGGER
+    start native_probe
+
+service ueventd /sbin/ueventd
+    critical
+
+service native_probe /sbin/qemu_android_native_probe
+    user root
+    oneshot

@@ -1,6 +1,6 @@
 # QEMU-Android development status
 
-Updated: 2026-11-02. Current milestone: **E Android ARM guest prerequisites implemented; new CI pending**.
+Updated: 2026-11-03. Current milestone: **E kernel ABI verified in CI; genuine AOSP native userspace build/boot source submitted**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
@@ -11,7 +11,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | Linux fixture | Installed and guest boot shown |
 | C: Minimal ARM Linux | Fixture build and two-boot harness | Yes | Two host boots/persistence passed | Yes, S23 | Kernel/userspace/disk persistence/unmount/power-down shown |
 | D: Graphics/controller | Software RFB Surface, touch/keyboard/controller mappings, runtime maps and fixture | Yes, f9714c9 APK | Android gates and host framebuffer/input/redraw/shutdown passed | Graphical fixture boots on S23 | Visible guest pixels, touch and controller-button mappings verified; D-pad/sticks pending |
-| E: Android ARM guest | Pinned AOSP source audit and experimental legacy-kernel ABI probe | Pending kernel probe; no Android userspace build | Pending | No Android guest boot | No Android guest test |
+| E: Android ARM guest | Kernel ABI probe; pinned AOSP native init/Bionic build and boot harness | Kernel probe yes; native userspace pending | Kernel/source prerequisite checks passed | No Android userspace boot yet | No Android guest test |
 | F: Android 4.1 test app | No | No | No | No | No |
 | G: OUYA application | No | No | No | No | No |
 | H: OUYA-style interface | No | No | No | No | No |
@@ -208,32 +208,35 @@ No performance measurements exist.
 
 See android/DISPLAY.md for architecture, limitations and S23 verification steps.
 
-## Milestone E prerequisites
+## Milestone E kernel and native userspace
 
-Source under android/aosp implements an Actions-only AOSP 4.1.2 source audit and
-real ARM kernel ABI probe. Selected source files, Linux 3.18.140 and the AOSP
-GCC 4.6 compiler are pinned to exact commits. The probe uses vexpress-a9 and
-checks Binder protocol 7, ashmem, Android logging and framebuffer presence, then
-poweroff. This is a tiny independently implemented kernel test, not Android init
-or Android userspace. No Android image, framework startup or application launch
-has been established. The first AOSP source audit passed in both workflows. Both kernel jobs failed
-linking host DTC with duplicate `yylloc`; the exported `-fcommon` setting had
-been overridden by the kernel Makefile. The correction supplies the original
-host flags plus `-fcommon` as make command-line arguments and checks the built
-host tools before the full kernel compile. Correction CI is pending. No kernel
-ABI boot or Android userspace result exists yet. Existing working phone
-APK/images should be retained; the probe does not provide a phone guest preset.
+Prerequisite commit 474064ca6a4cd1af42b8f4477bc43c1be4c94f7c passed both
+Android builds and both source/kernel-compatibility runs. The real ARM guest
+verified Binder protocol 7, ashmem ioctls, logger version/write, framebuffer
+presence and clean poweroff. This was the freestanding kernel probe, not Android.
+https://github.com/Hcode91/qemu-android/actions/runs/41546890268
+https://github.com/Hcode91/qemu-android/actions/runs/41546897855
 
-Research found incompatible stock MTD mounts, hardware rc, legacy kernel ABIs,
-Goldfish/OpenGL expectations and legacy host build requirements. The old kernel
-candidate is obsolete and not security-cleared. Full guest/toolchain vulnerability
-coverage and a complete AOSP project lock are open work. See android/aosp/README.md
-for primary sources and exact verification limits.
+New source under android/jellybean locks all 293 AOSP 4.1.2 manifest projects,
+checks out the native build closure, builds real AOSP init/Bionic and a static
+native test service, packages an initramfs, and tests it on the proven candidate
+kernel. The service is started through genuine init property actions and must
+read Android properties, exercise Binder/ashmem/logging and power off. Compiler,
+source, package, binary/hash and real guest-output evidence are retained.
+
+This new workflow has not yet passed. No actual Android userspace compile or
+boot result is established. It does not produce a framework/system image or a
+phone guest bundle. The OpenJDK 6 vendor compatibility patch retains the Java
+version check and is recorded. The obsolete builder's archived package versions
+and guest vulnerability findings need review; OSV coverage is incomplete and
+research findings are not a release clearance. APK gates remain independent.
+See android/jellybean/README.md for exact scope. The working S23 APK and Linux
+fixture should be retained; no phone intervention is needed at this stage.
 
 ## Next priorities
 
-1. Inspect prerequisite CI when the owner reports completion; correct any source,
-   toolchain or kernel ABI errors without waiting on running workflows.
+1. Inspect the new genuine AOSP native userspace workflow when the owner reports
+   completion; correct actual source/build/boot errors. Do not wait on running jobs.
 2. Resolve the complete AOSP userspace source set and a pinned legacy builder;
    build genuine init/Bionic/system images through Actions.
 3. Adapt board, device permissions, system/data/cache mounts and software display;
