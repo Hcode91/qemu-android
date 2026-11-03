@@ -18,7 +18,7 @@ report = root / 'android/reports/aosp-userspace'
 src.mkdir(parents=True, exist_ok=True); report.mkdir(parents=True, exist_ok=True)
 lock = json.loads((root / 'android/jellybean/project-lock.json').read_text())
 selected = {
-    'build', 'bionic', 'system/core', 'system/extras', 'external/gcc-demangle',
+    'build', 'bionic', 'system/core', 'system/extras', 'frameworks/native', 'external/gcc-demangle',
     'external/mksh', 'external/yaffs2', 'external/zlib', 'external/libselinux',
     'external/e2fsprogs', 'hardware/libhardware', 'hardware/libhardware_legacy',
     'device/generic/goldfish', 'prebuilt', 'prebuilts/misc', 'prebuilts/tools',
@@ -59,6 +59,28 @@ for project in projects:
         target = src / fetch.checked_path(copy['dest'])
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
+# Product configuration imports heap settings from frameworks/native even for
+# the C-only target. Check literal, mandatory inherit-product paths before the
+# expensive container build. This is a static preflight, not a Make evaluator.
+queue = list((src / 'build/target/product').glob('*.mk'))
+visited, includes, missing = set(), [], []
+while queue:
+    makefile = queue.pop()
+    if makefile in visited: continue
+    visited.add(makefile)
+    text = makefile.read_text()
+    text = '\n'.join(line for line in text.splitlines() if not line.lstrip().startswith('#'))
+    text = text.replace('$(SRC_TARGET_DIR)', 'build/target')
+    text = text.replace('$(LOCAL_PATH)', str(makefile.parent.relative_to(src)))
+    for value in re.findall(r'\$\(\s*call\s+inherit-product\s*,\s*([a-zA-Z0-9_./+-]+)\s*\)', text):
+        target = src / fetch.checked_path(value)
+        exists = target.is_file()
+        includes.append({'from': str(makefile.relative_to(src)), 'requires': value, 'present': exists})
+        if exists: queue.append(target)
+        else: missing.append(value)
+(report / 'product-includes.json').write_text(json.dumps({'scope': 'Literal mandatory inherit-product references; optional and dynamic expressions remain Make checks', 'includes': includes, 'missing': sorted(set(missing))}, indent=2) + '\n')
+if missing:
+    raise ValueError('Native checkout lacks mandatory product configuration: ' + ', '.join(sorted(set(missing))))
 # Genuine OpenJDK 6 is used for this C-only target. Preserve Java/javac 1.6
 # checks, removing only the old vendor rejection. No version check is bypassed.
 build = src / 'build/core/main.mk'

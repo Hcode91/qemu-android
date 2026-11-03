@@ -224,8 +224,12 @@ kernel. The service is started through genuine init property actions and must
 read Android properties, exercise Binder/ashmem/logging and power off. Compiler,
 source, package, binary/hash and real guest-output evidence are retained.
 
-This new workflow has not yet passed. No actual Android userspace compile or
-boot result is established. It does not produce a framework/system image or a
+This new workflow has not yet passed. Both first native runs fetched pinned
+sources, completed the guest OSV query and built the legacy container, then
+stopped at product parsing because frameworks/native heap configuration was
+missing from the checkout. The correction includes that pinned project and a
+static mandatory-product-include preflight. Correction CI is pending. No actual
+Android userspace compile or boot result is established. It does not produce a framework/system image or a
 phone guest bundle. The OpenJDK 6 vendor compatibility patch retains the Java
 version check and is recorded. The obsolete builder's archived package versions
 and guest vulnerability findings need review; OSV coverage is incomplete and
