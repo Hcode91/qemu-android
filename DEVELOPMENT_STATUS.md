@@ -1,6 +1,6 @@
 # QEMU-Android development status
 
-Updated: 2026-11-03. Current milestone: **E: AOSP native userspace compiled; early init/service execution observed, full boot-validation correction pending**.
+Updated: 2026-11-03. Current milestone: **E: early AOSP native userspace boot CI verified; separate S23 native-guest profile/bundle source submitted**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
@@ -11,7 +11,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | Linux fixture | Installed and guest boot shown |
 | C: Minimal ARM Linux | Fixture build and two-boot harness | Yes | Two host boots/persistence passed | Yes, S23 | Kernel/userspace/disk persistence/unmount/power-down shown |
 | D: Graphics/controller | Software RFB Surface, touch/keyboard/controller mappings, runtime maps and fixture | Yes, f9714c9 APK | Android gates and host framebuffer/input/redraw/shutdown passed | Graphical fixture boots on S23 | Visible guest pixels, touch and controller-button mappings verified; D-pad/sticks pending |
-| E: Android ARM guest | Kernel ABI probe; pinned AOSP native init/Bionic build and boot harness | Kernel and real init/Bionic/service yes | Native build and kernel probe passed; full boot check failed on init markers | Early init/service ran in host QEMU; full validation pending | No Android guest test |
+| E: Android ARM guest | Kernel ABI probe; pinned AOSP native init/Bionic build and boot harness | Kernel and real init/Bionic/service yes | Native build, kernel probe and complete native boot check passed at 2651036 | Early native init/service boot verified in host QEMU; full Android framework pending | No Android guest test |
 | F: Android 4.1 test app | No | No | No | No | No |
 | G: OUYA application | No | No | No | No | No |
 | H: OUYA-style interface | No | No | No | No | No |
@@ -31,11 +31,11 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest successful Android APK CI source: `44238be5fdaf97a63e7469e5da0d18c94f12e165`.
+Latest successful Android APK CI source: `2651036a8a115ed5536b05ade1a8eedb6e18015b`.
 Both development builds passed:
-https://github.com/Hcode91/qemu-android/actions/runs/41650775317
-https://github.com/Hcode91/qemu-android/actions/runs/41650786020
-APK: https://github.com/Hcode91/qemu-android/actions/runs/41650775317/artifacts/13237267662
+https://github.com/Hcode91/qemu-android/actions/runs/41654622448
+https://github.com/Hcode91/qemu-android/actions/runs/41654632153
+APK: https://github.com/Hcode91/qemu-android/actions/runs/41654622448/artifacts/13239342107
 This does not add an Android guest or require replacing the working phone APK.
 
 Owner-tested working Android APK source: `f9714c941efec7a90e16453e529672e25e6aef72`.
@@ -236,7 +236,8 @@ passed. The kernel ABI test also passed. Both native boot jobs reached real
 AOSP init/property actions and its Bionic-linked child (ppid=1); the child
 reported successful property, Binder 7, shared-ashmem and liblog checks, followed
 by clean guest poweroff and QEMU exit 0. The complete native boot gate failed
-because three required init-action markers were absent. It has not passed CI.
+because three required init-action markers were absent. That revision failed
+the complete native boot gate.
 https://github.com/Hcode91/qemu-android/actions/runs/41650775222
 https://github.com/Hcode91/qemu-android/actions/runs/41650786147
 Evidence: https://github.com/Hcode91/qemu-android/actions/runs/41650775222/artifacts/13237602047
@@ -249,24 +250,46 @@ instead of sending markers to the kernel log. The correction starts ueventd,
 waits for the device, then emits the same markers. The service now explicitly
 rejects a non-character /dev/kmsg; all original boot assertions remain required.
 The harness also prints the result JSON and records timeout failures.
-Correction CI is pending. No full native boot-validation pass is claimed yet.
+Correction 2651036 passed both complete native boot tests:
+https://github.com/Hcode91/qemu-android/actions/runs/41654622649
+https://github.com/Hcode91/qemu-android/actions/runs/41654632047
+The result reports aosp_native_userspace_passed=true, missing=[], QEMU exit 0,
+no timeout, and framework/UI/phone flags false. The native boot substage is
+verified in host QEMU. Evidence:
+https://github.com/Hcode91/qemu-android/actions/runs/41654622649/artifacts/13238564938
 
-This does not produce an Android framework/system image or phone guest bundle.
+This does not produce a complete Android framework/system image.
 Dalvik, system_server, SurfaceFlinger and Android UI have not booted. The OpenJDK
 6 vendor compatibility patch retains Java version checks and is recorded. The
 obsolete builder's archived packages and guest vulnerability findings need
 review; OSV coverage is incomplete and research findings are not release
 clearance. APK gates remain independent. See android/jellybean/README.md.
-Keep the working S23 APK and Linux fixture; no phone intervention is needed.
+The next source change adds an explicit AOSP_NATIVE VM board profile with
+Cortex-A9/vexpress-a9, fixed 512 MiB/one CPU, separate DTB import and serial-only
+boot. Existing profiles default to Linux virt. Private bounded DTB imports and
+raw-disk guards prevent mixing the two profiles. New JVM tests cover board
+requirements and malformed FDT headers; they run only in Actions. Native
+configuration evidence must confirm both virt and vexpress were compiled.
+
+The guest workflow now proposes a downloadable early-native guest artifact only
+after complete host boot verification. It contains the exact kernel, DTB and
+initramfs tested, SHA-256 checksums, manifest, instructions and corresponding
+kernel/native sources. The host harness uses the profile's single-threaded,
+split-WX TCG/no-default-device options. New profile/bundle CI and all S23 AOSP
+boot verification remain pending. Keep the working APK/Linux VM until the new
+runs pass; do not overwrite its files. Disposable debug signing may prevent an
+in-place APK update; uninstalling would delete private VMs and disks, and there
+is no VM export yet. Device-test instructions are in android/jellybean/DEVICE_TEST.md.
 
 ## Next priorities
 
-1. Inspect the new genuine AOSP native userspace workflow when the owner reports
-   completion; correct actual source/build/boot errors. Do not wait on running jobs.
-2. Resolve the complete AOSP userspace source set and a pinned legacy builder;
-   build genuine init/Bionic/system images through Actions.
-3. Adapt board, device permissions, system/data/cache mounts and software display;
-   require Android init/framework evidence before claiming milestone E.
-4. Complete D-pad/stick/focus and graphical shutdown checks on the existing S23
-   APK; keep performance and audio claims tied to actual measurements.
+1. Inspect the new profile/bundle CI when the owner reports completion; fix
+   actual failures without waiting on running jobs.
+2. After both workflows pass, use a separate S23 VM with the matching native
+   guest bundle; require actual init/service markers and native process exit 0.
+3. Build/adapt the Android framework, Dalvik/zygote/system_server and partition
+   mounts; then software graphics/input and an Android home screen. Milestone E
+   remains incomplete until a compatible Android system boots.
+4. Complete D-pad/stick/focus and graphical shutdown checks on the Linux guest;
+   keep performance and audio claims tied to actual measurements.
 5. Android 4.1 application and OUYA API/launcher compatibility remain F onward.

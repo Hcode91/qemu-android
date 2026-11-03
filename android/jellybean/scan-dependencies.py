@@ -22,4 +22,4 @@ findings = [{'dependency': p, 'osv': r} for p, r in zip(coordinates, results)]
 (report / 'guest-osv.json').write_text(json.dumps({'scope': 'Legacy guest source commits, incomplete database coverage; not a release clearance', 'dependencies': findings}, indent=2) + '\n')
 count = sum(len(r.get('vulns', [])) for r in results)
 print(f'Legacy guest scan returned {count} finding references; see guest-osv.json. No release image is produced.')
-if count: print('::warning::Known legacy guest findings retained for research review; this job does not produce a release or phone guest bundle.')
+if count: print('::warning::Known legacy guest findings retained for research review. Any native-guest artifact is experimental, has no network, and is not security-cleared or a release.')

@@ -37,4 +37,4 @@ for inode, (name, mode, data) in enumerate(entries, 1):
     archive += b'\0' * (-len(archive) % 4); archive += data; archive += b'\0' * (-len(archive) % 4)
 initrd = root / 'android/.aosp-userspace/native-initramfs.cpio.gz'
 initrd.write_bytes(gzip.compress(bytes(archive), mtime=0))
-(report / 'native-binaries.json').write_text(json.dumps({'init_sha256': hashlib.sha256(init).hexdigest(), 'native_probe_sha256': hashlib.sha256(probe).hexdigest(), 'initramfs_sha256': hashlib.sha256(initrd.read_bytes()).hexdigest(), 'android_framework_built': False, 'phone_guest_bundle': False}, indent=2) + '\n')
+(report / 'native-binaries.json').write_text(json.dumps({'init_sha256': hashlib.sha256(init).hexdigest(), 'native_probe_sha256': hashlib.sha256(probe).hexdigest(), 'initramfs_sha256': hashlib.sha256(initrd.read_bytes()).hexdigest(), 'android_framework_built': False, 'phone_verified': False}, indent=2) + '\n')
