@@ -9,7 +9,8 @@ if os.environ.get('GITHUB_ACTIONS') != 'true': sys.exit('Guest testing runs in A
 root = pathlib.Path(__file__).resolve().parents[2]
 report = root / 'android/reports/aosp-userspace/boot'; report.mkdir(parents=True, exist_ok=True)
 kernel = root / 'android/.aosp-kernel/output/arch/arm/boot'
-command = ['qemu-system-arm', '-no-user-config', '-nodefaults', '-M', 'vexpress-a9', '-cpu', 'cortex-a9',
+command = ['qemu-system-arm', '-no-user-config', '-nodefaults', '-M', 'vexpress-a9,audiodev=aosp-silent',
+           '-audiodev', 'none,id=aosp-silent', '-cpu', 'cortex-a9',
            '-accel', 'tcg,thread=single,split-wx=on', '-m', '512', '-smp', '1',
            '-display', 'none', '-monitor', 'none', '-serial', 'stdio', '-nic', 'none', '-no-reboot',
            '-kernel', str(kernel / 'zImage'), '-dtb', str(kernel / 'dts/vexpress-v2p-ca9.dtb'),

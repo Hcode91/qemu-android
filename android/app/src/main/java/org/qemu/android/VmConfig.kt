@@ -36,6 +36,10 @@ data class VmConfig(val id: String, val name: String, val memoryMiB: Int = 512, 
             GuestDeviceTree.validate(dtb)
             require(!File(directory, "disk.raw").exists()) { "The native boot test does not use a disk; create a separate VM" }
             args += listOf("-dtb", dtb.absolutePath, "-no-reboot")
+            // The board always creates PL041, even for this serial-only guest.
+            // -nodefaults suppresses implicit audio: bind it to an explicit sink.
+            args[args.indexOf("-machine") + 1] = "vexpress-a9,audiodev=aosp-silent"
+            args += listOf("-audiodev", "none,id=aosp-silent")
             args[args.indexOf("-append") + 1] += " androidboot.console=ttyAMA0 androidboot.hardware=qemu_android_native"
         }
         if (dataPath != null) {

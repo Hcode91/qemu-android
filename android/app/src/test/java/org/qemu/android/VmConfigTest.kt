@@ -23,7 +23,8 @@ class VmConfigTest {
             assertThrows(IllegalArgumentException::class.java) { vm.arguments(dir, "/private/qmp") }
             File(dir, "dtb").writeBytes(GuestDeviceTreeTest.emptyTree())
             val args = vm.arguments(dir, "/private/qmp")
-            assertEquals("vexpress-a9", args[args.indexOf("-machine") + 1])
+            assertEquals("vexpress-a9,audiodev=aosp-silent", args[args.indexOf("-machine") + 1])
+            assertEquals("none,id=aosp-silent", args[args.indexOf("-audiodev") + 1])
             assertEquals("cortex-a9", args[args.indexOf("-cpu") + 1])
             assertEquals(File(dir, "dtb").absolutePath, args[args.indexOf("-dtb") + 1])
             assertTrue(args.contains("-no-reboot"))
