@@ -104,6 +104,16 @@ cd "$WORK/qemu-build"
   --disable-linux-aio --disable-linux-io-uring --disable-vhost-net --disable-vhost-kernel \
   --disable-virtfs --disable-slirp --enable-fdt=system --enable-pie \
   --extra-cflags="$CFLAGS -I$PREFIX/include" --extra-ldflags="$LDFLAGS -L$PREFIX/lib"
+# Both supported app profiles must be present in the actual native build.
+python3 - "$ROOT/android/reports/native/boards.json" <<'PY'
+import json, pathlib, sys
+configuration = pathlib.Path('arm-softmmu-config-devices.mak').read_text().splitlines()
+required = ['CONFIG_ARM_VIRT=y', 'CONFIG_VEXPRESS=y']
+missing = [line for line in required if line not in configuration]
+pathlib.Path(sys.argv[1]).write_text(json.dumps({'required': required, 'missing': missing}, indent=2) + '\n')
+if missing:
+    raise SystemExit('Supported VM board absent from native build: ' + ', '.join(missing))
+PY
 # Keep compiling independent targets after an error to collect all port failures.
 # Ninja still exits nonzero if any required command fails.
 ninja -k 0 -j2 qemu-system-arm

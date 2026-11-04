@@ -18,16 +18,16 @@ class VmStore(private val context: Context) {
         val array = JSONArray(preferences.getString("list", "[]"))
         return (0 until array.length()).map { i ->
             val o = array.getJSONObject(i)
-            VmConfig(o.getString("id"), o.getString("name"), o.getInt("ram"), o.getInt("cpus"), o.optBoolean("graphics", false))
+            VmConfig(o.getString("id"), o.getString("name"), o.getInt("ram"), o.getInt("cpus"), o.optBoolean("graphics", false), VmBoard.valueOf(o.optString("board", VmBoard.VIRT.name)))
         }
     }
     fun save(vms: List<VmConfig>) {
         val array = JSONArray()
-        vms.forEach { array.put(JSONObject().put("id", it.id).put("name", it.name).put("ram", it.memoryMiB).put("cpus", it.cpus).put("graphics", it.graphics)) }
+        vms.forEach { array.put(JSONObject().put("id", it.id).put("name", it.name).put("ram", it.memoryMiB).put("cpus", it.cpus).put("graphics", it.graphics).put("board", it.board.name)) }
         check(preferences.edit().putString("list", array.toString()).commit())
     }
-    fun create(name: String, ram: Int, cpus: Int, graphics: Boolean = false): VmConfig {
-        val vm = VmConfig(UUID.randomUUID().toString(), name, ram, cpus, graphics)
+    fun create(name: String, ram: Int, cpus: Int, graphics: Boolean = false, board: VmBoard = VmBoard.VIRT): VmConfig {
+        val vm = VmConfig(UUID.randomUUID().toString(), name, ram, cpus, graphics, board)
         directory(vm).mkdirs()
         save(list() + vm)
         return vm
@@ -41,11 +41,13 @@ class VmStore(private val context: Context) {
         } catch (e: Exception) { file.close(); throw e }
     }
     fun importImage(vm: VmConfig, uri: Uri, slot: String) = acquire(vm).use {
-        require(slot in listOf("kernel", "initrd", "disk.raw"))
+        require(slot in listOf("kernel", "initrd", "disk.raw", "dtb"))
+        require(slot != "dtb" || vm.board == VmBoard.AOSP_NATIVE) { "Device tree import is for the Android native profile" }
+        require(slot != "disk.raw" || vm.board == VmBoard.VIRT) { "The Android native boot test does not use a disk" }
         val dir = directory(vm)
         val destination = File(dir, slot)
         val temp = File.createTempFile("import-", ".part", dir)
-        val cap = if (slot == "disk.raw") 8L shl 30 else 256L shl 20
+        val cap = when (slot) { "disk.raw" -> 8L shl 30; "dtb" -> GuestDeviceTree.MAX_BYTES; else -> 256L shl 20 }
         try {
             var total = 0L
             context.contentResolver.openInputStream(uri).use { input ->
@@ -64,6 +66,7 @@ class VmStore(private val context: Context) {
                 }
             }
             require(total > 0) { "Empty image" }
+            if (slot == "dtb") GuestDeviceTree.validate(temp)
             if (slot == "disk.raw") RandomAccessFile(temp, "r").use {
                 if (it.length() >= 4) require(it.readInt() != 0x514649fb) { "QCOW images are unsupported; import a raw image" }
             }
@@ -76,6 +79,7 @@ class VmStore(private val context: Context) {
         } finally { temp.delete() }
     }
     fun createDisk(vm: VmConfig, sizeMiB: Int) = acquire(vm).use {
+        require(vm.board == VmBoard.VIRT) { "The Android native boot test does not use a disk" }
         require(sizeMiB in 64..8192)
         val disk = File(directory(vm), "disk.raw")
         check(!disk.exists()) { "Disk already exists; refusing to overwrite" }

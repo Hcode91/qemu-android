@@ -60,6 +60,16 @@ jobs:
         run: bash android/aosp/build-kernel-probe.sh
       - name: Boot genuine AOSP native userspace in host QEMU
         run: python3 android/jellybean/run-boot.py
+      - name: Package the exact tested guest for a separate phone VM
+        run: python3 android/jellybean/package-device-guest.py
+      - name: Downloadable early-native guest and corresponding sources
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: QEMU-Android-AOSP-native-guest-${{ github.sha }}
+          path: android/dist/aosp-native-guest/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
       - name: Native userspace source, build and guest evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

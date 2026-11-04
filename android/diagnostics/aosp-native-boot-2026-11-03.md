@@ -78,3 +78,32 @@ validate the corrected complete boot. No local compilation or tests were run.
 Missing optional initlogo and persistent-property directory notices, and host
 ALSA device warnings, also appear in the log. They did not prevent this native
 service execution and do not explain the three missing markers.
+
+## Complete native boot validation passed at 2651036
+
+Both corrected native workflows passed all required steps:
+
+- https://github.com/Hcode91/qemu-android/actions/runs/41654622649
+- https://github.com/Hcode91/qemu-android/actions/runs/41654632047
+
+The push job's structured result reports:
+
+```json
+{
+  "aosp_native_userspace_passed": true,
+  "missing": [],
+  "qemu_exit_status": 0,
+  "timed_out": false,
+  "android_framework_booted": false,
+  "android_ui_verified": false,
+  "phone_verified": false
+}
+```
+
+Evidence artifact:
+https://github.com/Hcode91/qemu-android/actions/runs/41654622649/artifacts/13238564938
+
+This verifies the corrected init markers and character-device assertion along
+with the earlier native checks. The next stage prepares the exact tested files
+for a separate S23 VM. That new phone profile/bundle and phone execution remain
+unverified until their own CI/device results are inspected.
