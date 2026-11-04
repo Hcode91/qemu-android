@@ -1,6 +1,6 @@
 # QEMU-Android development status
 
-Updated: 2026-11-03. Current milestone: **E: early AOSP native userspace boot CI verified; separate S23 native-guest profile/bundle source submitted**.
+Updated: 2026-11-04. Current milestone: **E: early AOSP native userspace boot CI verified; separate S23 native-guest profile/bundle source submitted**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
@@ -31,11 +31,12 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest successful Android APK CI source: `2651036a8a115ed5536b05ade1a8eedb6e18015b`.
+Latest successful Android APK CI source: `ead2df6cf7639cb28450ecc0d15287049f16d2d9`.
 Both development builds passed:
-https://github.com/Hcode91/qemu-android/actions/runs/41654622448
-https://github.com/Hcode91/qemu-android/actions/runs/41654632153
-APK: https://github.com/Hcode91/qemu-android/actions/runs/41654622448/artifacts/13239342107
+https://github.com/Hcode91/qemu-android/actions/runs/41658149394
+https://github.com/Hcode91/qemu-android/actions/runs/41658237809
+These passed the new profile/import tests, native board checks, lint, security and APK validation.
+The matching native guest bundle was not produced; keep the installed working APK.
 This does not add an Android guest or require replacing the working phone APK.
 
 Owner-tested working Android APK source: `f9714c941efec7a90e16453e529672e25e6aef72`.
@@ -280,6 +281,20 @@ boot verification remain pending. Keep the working APK/Linux VM until the new
 runs pass; do not overwrite its files. Disposable debug signing may prevent an
 in-place APK update; uninstalling would delete private VMs and disks, and there
 is no VM export yet. Device-test instructions are in android/jellybean/DEVICE_TEST.md.
+
+At ead2df6 both APK workflows passed. Both new native guest jobs compiled the
+native service/kernel and passed the separate kernel probe, but QEMU exited 1
+before starting the guest: `no default audio driver available`. Adding
+-nodefaults removed implicit audio setup while vexpress still instantiates
+its PL041 sound device. Consequently packaging/upload of the guest was skipped.
+https://github.com/Hcode91/qemu-android/actions/runs/41658149081
+https://github.com/Hcode91/qemu-android/actions/runs/41658237861
+The correction explicitly binds machine audio to a named none backend in both
+app and host harness, with a JVM assertion for the same configuration. This
+provides no audio playback or new permission. Source inspection confirms the
+machine property exists in both CI QEMU 8.2 and the Android QEMU base. Correction
+CI remains pending; no guest bundle or phone boot is claimed. The inherited
+Repo Lockdown failure is separate and remains an unmerged default-branch issue.
 
 ## Next priorities
 

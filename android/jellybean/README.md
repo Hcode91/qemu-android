@@ -110,3 +110,13 @@ Primary sources:
 - https://android.googlesource.com/platform/build/+/25454bc3d2925d6b930d9c515f5c090785b11135/core/main.mk
 - https://android.googlesource.com/platform/system/core/+/ca38f2c7cde05b67bc8d582040210c4aad303298/init/Android.mk
 - https://source.android.com/docs/setup/start/older-versions
+
+## Device-profile CI follow-up, 2026-11-04
+
+Both APK runs passed at ead2df6. Native compilation and the kernel probe also
+passed, but both aligned host boots failed before guest execution because
+-nodefaults removed implicit audio setup. Vexpress still creates its PL041
+sound device. No guest bundle was uploaded. The correction binds the machine's
+audiodev property to an explicit none backend in both app and host harness;
+it adds no playback functionality. The profile unit test requires that binding.
+Correction CI and phone execution remain pending. Keep the installed APK.
