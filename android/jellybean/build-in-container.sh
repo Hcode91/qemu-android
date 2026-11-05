@@ -23,7 +23,9 @@ prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin/arm-linux-androideabi-
 # The native-only build accepts OpenJDK 6, retaining the actual 1.6 version
 # checks. No Java compilation or full-framework compatibility is asserted.
 # Collect independent compile failures while keeping a nonzero result on any error.
-make -k -j2 init qemu_android_native_probe
+make -k -j2 init qemu_android_native_probe qemu_android_servicemanager
 [[ -s /out/target/product/generic/root/init ]]
 [[ -s /out/target/product/generic/root/sbin/qemu_android_native_probe ]]
 file /out/target/product/generic/root/init /out/target/product/generic/root/sbin/qemu_android_native_probe
+
+[[ -s /out/target/product/generic/root/sbin/qemu_android_servicemanager ]]

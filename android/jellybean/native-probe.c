@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /* Runs as a real AOSP init service, statically linked to AOSP Bionic/cutils/log. */
 #include <fcntl.h>
+#include <stdint.h>
+#include "binder.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +16,35 @@
 #include <cutils/ashmem.h>
 #include <cutils/properties.h>
 static void fail(const char *reason) { printf("AOSP-NATIVE-FAIL %s\n", reason); exit(1); }
+/* A real cross-process transaction to the original AOSP context manager.
+ * This tests its CHECK_SERVICE protocol for an intentionally absent name;
+ * it does not claim service registration or Android framework boot. */
+static void check_service_manager(void)
+{
+    struct binder_state *bs = binder_open(128 * 1024);
+    unsigned attempt;
+    if (!bs) fail("service-manager Binder open");
+    for (attempt = 0; attempt < 50; ++attempt) {
+        uint32_t buffer[128];
+        struct binder_io request, reply;
+        int status, valid;
+        bio_init(&request, buffer, sizeof(buffer), 0);
+        bio_put_uint32(&request, 0); /* StrictMode policy */
+        bio_put_string16_x(&request, SVC_MGR_NAME);
+        bio_put_string16_x(&request, "qemu.android.intentionally.absent");
+        status = binder_call(bs, &request, &reply, BINDER_SERVICE_MANAGER, SVC_MGR_CHECK_SERVICE);
+        valid = status == 0 && reply.data_avail == sizeof(uint32_t) && bio_get_uint32(&reply) == 0;
+        binder_done(bs, &request, &reply);
+        if (valid) {
+            binder_close(bs);
+            puts("AOSP-SERVICEMANAGER-IPC-OK");
+            return;
+        }
+        usleep(100000); /* Bounded startup race; overall boot has a CI timeout. */
+    }
+    binder_close(bs);
+    fail("service-manager CHECK_SERVICE transaction");
+}
 int main(void)
 {
     int fd = open("/dev/ttyAMA0", O_WRONLY);
@@ -47,7 +78,9 @@ int main(void)
     puts("AOSP-BIONIC-ASHMEM-OK");
     if (__android_log_write(ANDROID_LOG_INFO, "QemuAosp", "native service booted") < 0)
         fail("Android liblog write");
-    puts("AOSP-LIBLOG-WRITE-OK\nAOSP-NATIVE-USERSPACE-PASS");
+    puts("AOSP-LIBLOG-WRITE-OK");
+    check_service_manager();
+    puts("AOSP-NATIVE-USERSPACE-PASS");
     android_reboot(ANDROID_RB_POWEROFF, 0, NULL);
     fail("Android poweroff returned");
     return 1;

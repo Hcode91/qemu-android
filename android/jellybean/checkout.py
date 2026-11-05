@@ -3,6 +3,9 @@
 """Checkout only the pinned source closure for AOSP's native bring-up mode."""
 import concurrent.futures
 import importlib.util
+import base64
+import hashlib
+import urllib.request
 import json
 import os
 import pathlib
@@ -108,5 +111,24 @@ overlay = src / 'system/core/qemu_android_native_probe'
 overlay.mkdir()
 for name in ['Android.mk', 'native-probe.c']:
     shutil.copyfile(root / 'android/jellybean' / name, overlay / name)
-(report / 'checkout.json').write_text(json.dumps({'manifest_commit': lock['manifest_commit'], 'locked_projects': len(lock['projects']), 'checked_out': projects, 'mode': 'BUILD_TINY_ANDROID=true; native targets only'}, indent=2) + '\n')
+# Copy only the original pinned service-manager source files; fetching all of
+# frameworks/base would unnecessarily expand this C-only source closure.
+manager = json.loads((root / 'android/jellybean/servicemanager-sources.json').read_text())
+project = by_path[manager['project']]
+if project['commit'] != manager['commit'] or project['name'] != manager['repository']:
+    raise ValueError('Service-manager files do not match the release manifest')
+for name, digest in manager['files'].items():
+    if not re.fullmatch(r'[a-zA-Z0-9_.]+', name): raise ValueError('Unsafe source filename')
+    url = 'https://android.googlesource.com/' + manager['repository'] + '/+/' + manager['commit'] + '/' + manager['directory'] + '/' + name + '?format=TEXT'
+    with urllib.request.urlopen(url, timeout=60) as response:
+        encoded = response.read(2 * 1024 * 1024 + 1)
+    if len(encoded) > 2 * 1024 * 1024: raise ValueError('Oversized service-manager source')
+    data = base64.b64decode(encoded.strip(), validate=True)
+    if hashlib.sha256(data).hexdigest() != digest: raise ValueError('Service-manager source hash mismatch: ' + name)
+    # Preserve the original Android.mk for source evidence without replacing
+    # the downstream static-link test module definitions.
+    (overlay / ('upstream-Android.mk.txt' if name == 'Android.mk' else name)).write_bytes(data)
+scoped = dict(project, scope='Pinned service-manager files only', files=manager['files'])
+(report / 'servicemanager-sources.json').write_text(json.dumps(manager, indent=2) + '\n')
+(report / 'checkout.json').write_text(json.dumps({'manifest_commit': lock['manifest_commit'], 'locked_projects': len(lock['projects']), 'checked_out': projects + [scoped], 'mode': 'BUILD_TINY_ANDROID=true; native targets only'}, indent=2) + '\n')
 shutil.copyfile(root / 'android/jellybean/project-lock.json', report / 'project-lock.json')

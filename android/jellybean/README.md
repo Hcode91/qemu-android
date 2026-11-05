@@ -5,9 +5,9 @@ APK checks at 2651036. Real AOSP init/Bionic/service execution, init markers,
 Android properties, Binder, ashmem, liblog and poweroff are CI verified.
 There is no Android framework, launcher or full Android system image yet.
 
-The next source stage adds a separate phone VM profile and packages the exact
-host-tested guest with checksums and corresponding sources. Its CI and S23 boot
-remain pending. Keep the working Linux VM; do not replace its guest files.
+The phone profile and exact guest bundle passed CI at d613583. The owner then
+verified two complete early-native boots and process exits on the S23. The next
+service-manager source stage below is pending CI. Keep the proven guest files.
 Phone instructions: [DEVICE_TEST.md](DEVICE_TEST.md).
 
 ## Build and boot path
@@ -120,3 +120,27 @@ sound device. No guest bundle was uploaded. The correction binds the machine's
 audiodev property to an explicit none backend in both app and host harness;
 it adds no playback functionality. The profile unit test requires that binding.
 Correction CI and phone execution remain pending. Keep the installed APK.
+
+## Next framework prerequisite: original service manager
+
+The owner supplied two complete native boots from the Galaxy S23, both with
+all original checks, clean poweroff and QEMU exit status 0. Early native boot
+and repeat startup are device verified; full milestone E remains incomplete.
+
+The next source stage builds the original AOSP 4.1.2 service-manager C sources
+from frameworks/base commit 4873a480f6df3f84bb3ca5c8647e9498aaf597a5.
+servicemanager-sources.json pins each file's SHA-256 and checks the release
+manifest project pin. Only these original files are downloaded into the tiny
+build overlay, preserving attribution and the original build file as evidence.
+The service is statically linked for this research rootfs, started by real
+Android init and must answer an actual Binder CHECK_SERVICE call. The probe
+queries an intentionally absent service name and requires its null reply;
+it does not claim service registration or Java framework IPC verification.
+The required AOSP-SERVICEMANAGER-IPC-OK marker must originate from the guest
+before PASS. Existing boot assertions remain. Source/build/boot CI is pending.
+
+This begins the system-service prerequisites. It does not yet build Dalvik,
+zygote, system_server, SurfaceFlinger, partitions or a launcher. The native-only
+legacy compiler configuration has not established a full Java platform build.
+After CI passes the new guest uses the existing tested phone APK/profile;
+import its updated initramfs in a separate VM rather than reinstalling the APK.

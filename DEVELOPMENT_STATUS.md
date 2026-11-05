@@ -1,6 +1,6 @@
 # QEMU-Android development status
 
-Updated: 2026-11-04. Current milestone: **E: early AOSP native userspace boot CI verified; separate S23 native-guest profile/bundle source submitted**.
+Updated: 2026-11-05. Current milestone: **E: early-native boot/restart verified on S23; original Android service-manager IPC source submitted**.
 Upstream base: `56afd82bd4db9688f1c1c9d0e2ea163b8cde3283` (11.1.50 development).
 Official upstream: https://gitlab.com/qemu-project/qemu
 Downstream: https://github.com/Hcode91/qemu-android
@@ -11,7 +11,7 @@ Downstream: https://github.com/Hcode91/qemu-android
 | B: Installable APK with QEMU | Frontend/packaging | Yes, signed debug APK | Unit tests/lint/APK checks passed | Linux fixture | Installed and guest boot shown |
 | C: Minimal ARM Linux | Fixture build and two-boot harness | Yes | Two host boots/persistence passed | Yes, S23 | Kernel/userspace/disk persistence/unmount/power-down shown |
 | D: Graphics/controller | Software RFB Surface, touch/keyboard/controller mappings, runtime maps and fixture | Yes, f9714c9 APK | Android gates and host framebuffer/input/redraw/shutdown passed | Graphical fixture boots on S23 | Visible guest pixels, touch and controller-button mappings verified; D-pad/sticks pending |
-| E: Android ARM guest | Kernel ABI probe; pinned AOSP native init/Bionic build and boot harness | Kernel and real init/Bionic/service yes | Native build, kernel probe and complete native boot check passed at 2651036 | Early native init/service boot verified in host QEMU; full Android framework pending | No Android guest test |
+| E: Android ARM guest | Kernel ABI probe; pinned AOSP native init/Bionic build and boot harness | Kernel and real init/Bionic/service yes | Native build, kernel probe and complete native boot check passed at 2651036 | Early native init/service boot verified in host QEMU; full Android framework pending | Early native boot and repeat startup passed on S23; full framework unverified |
 | F: Android 4.1 test app | No | No | No | No | No |
 | G: OUYA application | No | No | No | No | No |
 | H: OUYA-style interface | No | No | No | No | No |
@@ -31,12 +31,12 @@ Downstream: https://github.com/Hcode91/qemu-android
 
 ## GitHub Actions and artifacts
 
-Latest successful Android APK CI source: `ead2df6cf7639cb28450ecc0d15287049f16d2d9`.
+Latest successful Android APK CI source: `d61358312de7d1de6c3efe35be7af7c3efc54e79`.
 Both development builds passed:
-https://github.com/Hcode91/qemu-android/actions/runs/41658149394
-https://github.com/Hcode91/qemu-android/actions/runs/41658237809
-These passed the new profile/import tests, native board checks, lint, security and APK validation.
-The matching native guest bundle was not produced; keep the installed working APK.
+https://github.com/Hcode91/qemu-android/actions/runs/41836304740
+https://github.com/Hcode91/qemu-android/actions/runs/41836315679
+APK: https://github.com/Hcode91/qemu-android/actions/runs/41836304740/artifacts/13325842916
+The matching native guest bundle passed and was uploaded; two owner S23 boots passed.
 This does not add an Android guest or require replacing the working phone APK.
 
 Owner-tested working Android APK source: `f9714c941efec7a90e16453e529672e25e6aef72`.
@@ -308,3 +308,30 @@ Repo Lockdown failure is separate and remains an unmerged default-branch issue.
 4. Complete D-pad/stick/focus and graphical shutdown checks on the Linux guest;
    keep performance and audio claims tied to actual measurements.
 5. Android 4.1 application and OUYA API/launcher compatibility remain F onward.
+
+## S23 native boot and next system-service prerequisite, 2026-11-05
+
+At d613583 both APK and native guest workflows passed. The exact guest bundle
+was uploaded after complete boot verification:
+https://github.com/Hcode91/qemu-android/actions/runs/41836304749
+https://github.com/Hcode91/qemu-android/actions/runs/41836304749/artifacts/13327600984
+The owner then supplied two real S23 boots. Both show the original init markers,
+Bionic/property/Binder/ashmem/liblog checks, native PASS, poweroff and host exit
+status 0. The second capture shows two completed QMP sessions/exits. This
+verifies repeated early-native boot, not an Android framework/system image.
+Known GIC/AMBA/USB/NIC warnings did not prevent these boots; optional device
+compatibility and the four-CPU DTB with one active CPU remain open issues.
+
+Next source builds the original Jelly Bean service manager from SHA-256-pinned
+frameworks/base files and starts it through Android init. The Bionic probe must
+complete an actual Binder CHECK_SERVICE transaction and print
+AOSP-SERVICEMANAGER-IPC-OK before PASS; that assertion gates guest packaging.
+Static linking is used for this tiny rootfs. Source fetching, compilation,
+linking, IPC boot checks and bundle creation are pending CI. No local build or
+test has run. Exact original source files are retained in corresponding-source
+evidence, and their parent commit is included in the existing OSV query.
+
+The currently installed phone APK/profile supports this guest-only stage;
+no reinstall is needed. Keep the proven guest files. Dalvik, zygote,
+system_server, framework storage/display integration and launcher builds remain
+next after the native service prerequisites. Full milestone E remains incomplete.
