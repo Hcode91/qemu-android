@@ -51,3 +51,9 @@ the source_commit in manifest.json. Run the AOSP native userspace workflow on
 that commit to rebuild. See its README and source locks for the legacy toolchain
 and archive limitations. This is a research artifact, not a signed Android guest
 release or a security clearance.
+
+For the service-manager follow-up, also require
+`AOSP-SERVICEMANAGER-IPC-OK` before PASS. The d613583 APK already supports
+this board; no APK replacement is needed for that guest-only change. Use the
+new guest bundle only after its own boot check passes. Its service-manager
+check is still a native prerequisite, not the Android home screen.

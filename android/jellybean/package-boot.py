@@ -13,7 +13,8 @@ product = root / 'android/.aosp-userspace/out/target/product/generic/root'
 report = root / 'android/reports/aosp-userspace'
 init = (product / 'init').read_bytes()
 probe = (product / 'sbin/qemu_android_native_probe').read_bytes()
-for name, data in [('init', init), ('native_probe', probe)]:
+manager = (product / 'sbin/qemu_android_servicemanager').read_bytes()
+for name, data in [('init', init), ('native_probe', probe), ('servicemanager', manager)]:
     if data[:6] != b'\x7fELF\x01\x01' or struct.unpack_from('<H', data, 18)[0] != 40:
         raise ValueError('Expected genuine ELF32 ARM target: ' + name)
     # Reject dynamically linked executables: this tiny ramdisk has no linker.
@@ -24,7 +25,7 @@ for name, data in [('init', init), ('native_probe', probe)]:
         raise ValueError('Native boot target must be statically linked')
 entries = [('dev', 0o040755, b''), ('dev/console', 0o020600, b''), ('proc', 0o040755, b''),
            ('sys', 0o040755, b''), ('sbin', 0o040755, b''), ('init', 0o100755, init),
-           ('sbin/ueventd', 0o120777, b'../init'), ('sbin/qemu_android_native_probe', 0o100755, probe),
+           ('sbin/ueventd', 0o120777, b'../init'), ('sbin/qemu_android_servicemanager', 0o100755, manager), ('sbin/qemu_android_native_probe', 0o100755, probe),
            ('init.rc', 0o100644, (root / 'android/jellybean/init.rc').read_bytes()),
            ('ueventd.rc', 0o100644, b'# Kernel default device permissions for native bring-up only\n'),
            ('default.prop', 0o100644, b'ro.secure=1\nro.debuggable=0\nro.hardware=qemu_android_native\n'),
@@ -37,4 +38,4 @@ for inode, (name, mode, data) in enumerate(entries, 1):
     archive += b'\0' * (-len(archive) % 4); archive += data; archive += b'\0' * (-len(archive) % 4)
 initrd = root / 'android/.aosp-userspace/native-initramfs.cpio.gz'
 initrd.write_bytes(gzip.compress(bytes(archive), mtime=0))
-(report / 'native-binaries.json').write_text(json.dumps({'init_sha256': hashlib.sha256(init).hexdigest(), 'native_probe_sha256': hashlib.sha256(probe).hexdigest(), 'initramfs_sha256': hashlib.sha256(initrd.read_bytes()).hexdigest(), 'android_framework_built': False, 'phone_verified': False}, indent=2) + '\n')
+(report / 'native-binaries.json').write_text(json.dumps({'servicemanager_sha256': hashlib.sha256(manager).hexdigest(), 'init_sha256': hashlib.sha256(init).hexdigest(), 'native_probe_sha256': hashlib.sha256(probe).hexdigest(), 'initramfs_sha256': hashlib.sha256(initrd.read_bytes()).hexdigest(), 'android_framework_built': False, 'phone_verified': False}, indent=2) + '\n')

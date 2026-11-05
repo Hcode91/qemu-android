@@ -30,7 +30,7 @@ with (report / 'guest-serial.log').open('wb') as log:
 text = (report / 'guest-serial.log').read_text(errors='replace')
 required = ['QEMU-AOSP-INIT-EARLY', 'QEMU-AOSP-INIT-ACTIONS', 'QEMU-AOSP-PROPERTY-TRIGGER',
             'AOSP-BIONIC-SERVICE', 'AOSP-KMSG-DEVICE-OK', 'AOSP-PROPERTY-READ-OK', 'AOSP-BIONIC-BINDER-OK',
-            'AOSP-BIONIC-ASHMEM-OK', 'AOSP-LIBLOG-WRITE-OK', 'AOSP-NATIVE-USERSPACE-PASS', 'Power down']
+            'AOSP-BIONIC-ASHMEM-OK', 'AOSP-LIBLOG-WRITE-OK', 'AOSP-SERVICEMANAGER-IPC-OK', 'AOSP-NATIVE-USERSPACE-PASS', 'Power down']
 missing = [marker for marker in required if marker not in text]
 passed = code == 0 and not timed_out and not missing and 'Kernel panic' not in text and 'AOSP-NATIVE-FAIL' not in text
 result = {'aosp_native_userspace_passed': passed, 'missing': missing, 'qemu_exit_status': code,
