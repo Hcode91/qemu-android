@@ -8,9 +8,35 @@ import java.io.File
 class VmConfigTest {
     private val id = "12345678-1234-1234-1234-123456789abc"
     @Test fun unsafeConfigurationsAreRejected() {
+        assertEquals(VmBoard.VIRT, VmConfig(id, "Existing Linux").board)
         listOf(0, 127, 3073).forEach { ram -> assertThrows(IllegalArgumentException::class.java) { VmConfig(id, "Linux", ram) } }
         assertThrows(IllegalArgumentException::class.java) { VmConfig("../escape", "Linux") }
         assertThrows(IllegalArgumentException::class.java) { VmConfig(id, "Linux", cpus = 8) }
+    }
+    @Test fun nativeAndroidProfileRequiresItsBoardFilesAndRejectsVirtDevices() {
+        val dir = Files.createTempDirectory("aosp board").toFile()
+        try {
+            val vm = VmConfig(id, "AOSP native", cpus = 1, board = VmBoard.AOSP_NATIVE)
+            File(dir, "kernel").writeBytes(byteArrayOf(1))
+            assertThrows(IllegalArgumentException::class.java) { vm.arguments(dir, "/private/qmp") }
+            File(dir, "initrd").writeBytes(byteArrayOf(1))
+            assertThrows(IllegalArgumentException::class.java) { vm.arguments(dir, "/private/qmp") }
+            File(dir, "dtb").writeBytes(GuestDeviceTreeTest.emptyTree())
+            val args = vm.arguments(dir, "/private/qmp")
+            assertEquals("vexpress-a9,audiodev=aosp-silent", args[args.indexOf("-machine") + 1])
+            assertEquals("none,id=aosp-silent", args[args.indexOf("-audiodev") + 1])
+            assertEquals("cortex-a9", args[args.indexOf("-cpu") + 1])
+            assertEquals(File(dir, "dtb").absolutePath, args[args.indexOf("-dtb") + 1])
+            assertTrue(args.contains("-no-reboot"))
+            assertTrue(args.contains("tcg,thread=single,split-wx=on"))
+            assertTrue(args[args.indexOf("-append") + 1].contains("androidboot.hardware=qemu_android_native"))
+            assertFalse(args.any { it.contains("virtio") || it.contains("kvm") || it.contains("hostfwd") })
+            File(dir, "disk.raw").writeBytes(byteArrayOf(0))
+            assertThrows(IllegalArgumentException::class.java) { vm.arguments(dir, "/private/qmp") }
+            assertThrows(IllegalArgumentException::class.java) { VmConfig(id, "AOSP", cpus = 2, board = VmBoard.AOSP_NATIVE) }
+            assertThrows(IllegalArgumentException::class.java) { vm.copy(graphics = true) }
+            assertThrows(IllegalArgumentException::class.java) { vm.copy(memoryMiB = 1024) }
+        } finally { dir.deleteRecursively() }
     }
     @Test fun rawDiskUsesExplicitFormatAndNoHostSharing() {
         val dir = Files.createTempDirectory("qemu args with spaces").toFile()
