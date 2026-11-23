@@ -1,0 +1,12 @@
+{
+  "project": "frameworks/base",
+  "repository": "platform/frameworks/base",
+  "commit": "4873a480f6df3f84bb3ca5c8647e9498aaf597a5",
+  "directory": "cmds/servicemanager",
+  "files": {
+    "Android.mk": "4a6c0180ada4cae12225c1f45f99bfb32564c52f7ebbf08a810cad189838a534",
+    "binder.c": "60e394b5ae63fe05a36ea7148bfb56565eee54a9e6e08f387bac3ab23878b033",
+    "binder.h": "b6f4151e2c345755206289081764b62053c77e4f9a461fbd5b51d0709a031b67",
+    "service_manager.c": "7eb9da27eef2609798702118d08ecca3666fffb32d8ae783e8b127c2134a265c"
+  }
+}
