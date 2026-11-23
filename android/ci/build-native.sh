@@ -84,6 +84,7 @@ mkdir -p "$WORK/libffi-build"
 meson_build glib -Dtests=false -Dinstalled_tests=false -Dnls=disabled -Dlibmount=disabled \
   -Dselinux=disabled -Dxattr=false -Dlibelf=disabled -Dintrospection=disabled \
   -Ddocumentation=false -Dman-pages=disabled -Dsysprof=disabled
+meson_build pixman -Dtests=disabled -Ddemos=disabled -Dgtk=disabled -Dlibpng=disabled -Dgnuplot=false -Dopenmp=disabled
 meson_build dtc -Dtools=false -Dtests=false -Dpython=disabled -Dyaml=disabled -Dstatic-build=true
 # dtc builds both library variants; QEMU's Android lookup explicitly selects .a.
 [[ -s "$PREFIX/lib/libfdt.a" ]] || { echo 'Static libfdt archive missing' >&2; exit 1; }
@@ -99,7 +100,7 @@ cd "$WORK/qemu-build"
   --cc="$CC" --cxx="$CXX" --host-cc=gcc \
   --cpu=aarch64 --target-list=arm-softmmu --without-default-features \
   --enable-tcg --disable-kvm --disable-user --disable-tools --disable-guest-agent \
-  --disable-docs --disable-plugins --disable-rust --disable-werror --disable-pixman \
+  --disable-docs --disable-plugins --disable-rust --disable-werror --enable-pixman --enable-vnc \
   --disable-linux-aio --disable-linux-io-uring --disable-vhost-net --disable-vhost-kernel \
   --disable-virtfs --disable-slirp --enable-fdt=system --enable-pie \
   --extra-cflags="$CFLAGS -I$PREFIX/include" --extra-ldflags="$LDFLAGS -L$PREFIX/lib"

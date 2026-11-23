@@ -24,4 +24,24 @@ class VmConfigTest {
             assertEquals("none", args[args.indexOf("-nic") + 1])
         } finally { dir.deleteRecursively() }
     }
+    @Test fun graphicalModeIsOptInAndUsesPrivateSocketAndVirtioInput() {
+        val dir = Files.createTempDirectory("qemu graphics").toFile()
+        try {
+            File(dir, "kernel").writeBytes(byteArrayOf(1))
+            val vm = VmConfig(id, "Linux", graphics = true)
+            assertThrows(IllegalArgumentException::class.java) { vm.arguments(dir, "/private/qmp") }
+            val args = vm.arguments(dir, "/private/qmp", "/private/vnc")
+            assertTrue(args.contains("unix:/private/vnc"))
+            assertTrue(args.contains("virtio-gpu-device"))
+            assertTrue(args.contains("virtio-keyboard-device"))
+            assertTrue(args.contains("virtio-tablet-device"))
+            val transport = args.indexOf("-global")
+            assertTrue(transport >= 0)
+            assertEquals("virtio-mmio.force-legacy=false", args[transport + 1])
+            assertTrue(transport < args.indexOf("virtio-gpu-device"))
+            val headless = VmConfig(id, "Headless").arguments(dir, "/private/qmp")
+            assertFalse(headless.contains("-vnc"))
+            assertFalse(headless.contains("virtio-mmio.force-legacy=false"))
+        } finally { dir.deleteRecursively() }
+    }
 }

@@ -18,16 +18,16 @@ class VmStore(private val context: Context) {
         val array = JSONArray(preferences.getString("list", "[]"))
         return (0 until array.length()).map { i ->
             val o = array.getJSONObject(i)
-            VmConfig(o.getString("id"), o.getString("name"), o.getInt("ram"), o.getInt("cpus"))
+            VmConfig(o.getString("id"), o.getString("name"), o.getInt("ram"), o.getInt("cpus"), o.optBoolean("graphics", false))
         }
     }
     fun save(vms: List<VmConfig>) {
         val array = JSONArray()
-        vms.forEach { array.put(JSONObject().put("id", it.id).put("name", it.name).put("ram", it.memoryMiB).put("cpus", it.cpus)) }
+        vms.forEach { array.put(JSONObject().put("id", it.id).put("name", it.name).put("ram", it.memoryMiB).put("cpus", it.cpus).put("graphics", it.graphics)) }
         check(preferences.edit().putString("list", array.toString()).commit())
     }
-    fun create(name: String, ram: Int, cpus: Int): VmConfig {
-        val vm = VmConfig(UUID.randomUUID().toString(), name, ram, cpus)
+    fun create(name: String, ram: Int, cpus: Int, graphics: Boolean = false): VmConfig {
+        val vm = VmConfig(UUID.randomUUID().toString(), name, ram, cpus, graphics)
         directory(vm).mkdirs()
         save(list() + vm)
         return vm

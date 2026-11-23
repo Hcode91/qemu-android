@@ -15,7 +15,8 @@ images before uninstalling (an in-app export feature is still pending).
 
 The workflow compiles the actual fork checkout for `arm-softmmu`, using pinned
 NDK r28c, SDK 35, SDK command-line tools 16.0 (12266719), JDK 17, Gradle 8.11.1, AGP 8.9.2, Kotlin 2.1.20 and native
-source commits. Native sources and declared submodules are fetched and SHA-checked in Actions.
+source pins. Native Git sources and declared submodules are fetched and commit-checked in Actions.
+Pixman uses an official release archive verified by a pinned SHA-512.
 Each declared submodule is checked against its parent gitlink and expected URL.
 GLib's proxy-libintl fallback is explicitly fetched at the revision in its wrap
 file; automatic Meson downloads stay disabled. Translations are disabled. QEMU's
@@ -51,17 +52,19 @@ stops the VM; background execution and rotation continuity are not implemented.
 The native binary is a PIE executable packaged as `libqemu-system-arm.so`, with
 legacy native-library extraction enabled, then executed from the package
 installer's `nativeLibraryDir`. It is **not** a JNI library and is never dlopened.
-This avoids trying to execute writable imported files on Android 10+. It still
-needs execution and SELinux/JIT verification on Android 14. Split W/X TCG is
-requested; there is no root, KVM, Termux, Surface renderer or GPU acceleration.
+This avoids trying to execute writable imported files on Android 10+. The owner
+has verified Linux execution and persistence on an S23 running Android 14;
+broader SELinux/JIT and lifecycle compatibility still need testing. Split W/X TCG is
+requested; there is no root, KVM or Termux. The optional software Surface renderer
+is described in [DISPLAY.md](DISPLAY.md); GPU acceleration is not implemented.
 JNI embedding remains a fallback if real-device policy prevents this architecture.
 
 Bionic has no POSIX named shared-memory API or separate librt. The downstream
 Meson configuration skips librt on Android, and `qemu_shm_alloc` uses QEMU's
 existing memfd helper for anonymous fd-owned shared memory. Kernel allocation,
 resize and SELinux errors remain visible; no permission or JIT policy is weakened.
-QEMU has compiled and linked in Actions; complete native validation and device
-testing are still pending. Android selects the static libfdt archive through pkg-config metadata. An early
+QEMU has compiled, linked and passed native validation in Actions. The earlier
+Linux fixture booted on the S23; new graphics code remains unverified. Android selects the static libfdt archive through pkg-config metadata. An early
 NDK link probe and the final ELF validator reject unpackaged shared dependencies.
 Direct-I/O statx alignment querying is enabled only after a compile/link feature
 check; API levels without it use QEMU's existing alignment probing fallbacks.
@@ -74,12 +77,16 @@ command; it requires an ARM64 Android runner and is **not yet wired to a device*
 An x86 hosted emulator cannot execute this ARM64-only backend through native
 hardware acceleration. No device test is implied by an APK artifact.
 
-`ci/boot-test.py` and `guest/init` define a two-boot Linux persistence test. They
-are not enabled until a source-pinned, redistributable ARM kernel/BusyBox fixture
-is built in Actions. The harness requires a fresh ext4 raw disk and verifies
-kernel messages, PID 1 userspace, persistence over two runs and poweroff. A host
-QEMU pass would establish fixture correctness, not Android backend correctness.
-No guest binaries, firmware, games or copyrighted OUYA artwork are included.
+The [Linux fixture](guest/README.md) workflow builds source-pinned Linux/BusyBox
+images and verifies kernel output, PID 1 userspace, disk persistence across two
+host boots and poweroff. The owner also verified the earlier fixture on S23.
+The new graphical fixture adds actual framebuffer and keyboard/pointer checks
+on host QEMU. These do not verify the Android Surface or a physical controller.
+No proprietary firmware, games or OUYA artwork are included.
+
+Enable **Software guest display and input** for the new graphical Linux fixture.
+The [display instructions](DISPLAY.md) explain the private RFB transport, initial
+controller-to-keyboard mappings, required images and device verification steps.
 
 ## Security and licensing
 
@@ -93,7 +100,8 @@ process running under the app's UID. Do not run untrusted images or put host
 secrets into this experimental app. TCG does not provide the upstream QEMU
 hardware-virtualization security guarantee.
 
-OSV checks native commits and resolved Maven runtime/test coordinates, failing
+OSV checks native commits, Pixman's OSS-Fuzz package/version coordinate and
+resolved Maven runtime/test coordinates, failing
 on findings or lookup failure. Commit coverage in OSV is incomplete; a clean
 report is not proof of safety. Pinned upstream snapshots address the latest reported findings; see
 `ci/SECURITY_FIXES.md`. They still require the next CI security and build checks. Build-tool/SDK supply-chain scanning is

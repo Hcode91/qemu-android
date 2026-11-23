@@ -61,5 +61,22 @@
     "repository": "https://github.com/qemu/dtc.git",
     "commit": "2d10aa2afe35527728db30b35ec491ecb6959e5c",
     "license": "GPL-2.0-or-later OR BSD-2-Clause"
+  },
+  {
+    "name": "pixman",
+    "version": "0.46.4",
+    "license": "MIT",
+    "archive": {
+      "url": "https://xorg.freedesktop.org/releases/individual/lib/pixman-0.46.4.tar.xz",
+      "sha512": "83b133e7969ba34f883f4e08dcc5d388c4397f43ce836c191c05945fe77c16ff501d531600780c12678a0d08105828a6bdeff2156b63f9c1a84087bc7f40ae9f",
+      "root": "pixman-0.46.4"
+    },
+    "osv": {
+      "package": {
+        "ecosystem": "OSS-Fuzz",
+        "name": "pixman"
+      },
+      "version": "pixman-0.46.4"
+    }
   }
 ]
