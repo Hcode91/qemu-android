@@ -43,6 +43,9 @@
 #include "qemu/units.h"
 #include "qemu/thread-context.h"
 #include "qemu/main-loop.h"
+#ifdef __ANDROID__
+#include "qemu/memfd.h"
+#endif
 
 #ifdef CONFIG_LINUX
 #include <sys/syscall.h>
@@ -984,6 +987,14 @@ void qemu_close_all_open_fd(const int *skip, unsigned int nskip)
 
 int qemu_shm_alloc(size_t size, Error **errp)
 {
+#ifdef __ANDROID__
+    /*
+     * Bionic lacks shm_open/shm_unlink. A CLOEXEC memfd gives the same
+     * anonymous, fd-owned lifetime as the immediately unlinked object below.
+     * Keep kernel/SELinux errors visible to the caller.
+     */
+    return qemu_memfd_create("qemu-shm", size, false, 0, 0, errp);
+#else
     g_autoptr(GString) shm_name = g_string_new(NULL);
     int fd, oflag, cur_sequence;
     static int sequence;
@@ -1032,4 +1043,5 @@ int qemu_shm_alloc(size_t size, Error **errp)
     }
 
     return fd;
+#endif /* __ANDROID__ */
 }

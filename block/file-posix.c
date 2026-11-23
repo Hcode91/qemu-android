@@ -427,7 +427,7 @@ static void raw_probe_alignment(BlockDriverState *bs, int fd, Error **errp)
     bs->bl.request_alignment = 0;
     s->buf_align = 0;
 
-#if defined(__linux__) && defined(STATX_DIOALIGN)
+#ifdef CONFIG_STATX_DIOALIGN
     struct statx stx;
 
     /*
@@ -440,7 +440,7 @@ static void raw_probe_alignment(BlockDriverState *bs, int fd, Error **errp)
         bs->bl.request_alignment = stx.stx_dio_offset_align;
         s->buf_align = stx.stx_dio_mem_align;
     }
-#endif /* defined(__linux__) && defined(STATX_DIOALIGN) */
+#endif /* CONFIG_STATX_DIOALIGN */
 
 #ifdef __linux__
     if (!bs->bl.request_alignment) {

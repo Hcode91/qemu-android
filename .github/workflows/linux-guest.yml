@@ -1,0 +1,48 @@
+name: ARM Linux guest fixture
+on:
+  workflow_dispatch:
+  push:
+    branches: ['**']
+    paths: ['android/guest/**', 'android/ci/boot-test.py', '.github/workflows/linux-guest.yml']
+  pull_request:
+    paths: ['android/guest/**', 'android/ci/boot-test.py', '.github/workflows/linux-guest.yml']
+permissions:
+  contents: read
+concurrency:
+  group: linux-guest-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install host build and headless test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential bc bison flex libssl-dev libelf-dev libncurses-dev cpio rsync unzip wget file patch python3 qemu-system-arm e2fsprogs
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: android/.guest-downloads
+          key: linux-guest-downloads-${{ runner.os }}-${{ hashFiles('android/guest/sources.json', 'android/guest/virt_defconfig.in') }}
+      - name: Build Linux fixture and verify two host boots with persistence
+        run: bash android/guest/build-fixture.sh
+      - name: Downloadable boot images
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: QEMU-Android-Linux-fixture-${{ github.sha }}
+          path: android/guest-dist/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Guest build, boot and corresponding source evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: QEMU-Android-Linux-evidence-${{ github.sha }}-${{ github.run_attempt }}
+          path: android/reports/guest/
+          retention-days: 14
+      - name: State test scope
+        if: always()
+        run: echo 'Host fixture testing does not establish Android backend boot. S23 kernel/userspace/persistence/shutdown verification remains required.' >> "$GITHUB_STEP_SUMMARY"
