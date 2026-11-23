@@ -1,0 +1,2063 @@
+{
+  "manifest_commit": "7af362b848fba5f21ada2c2b9c39d396c9651190",
+  "manifest_sha256": "dc2416d07bb260ff576076a873ee28d0c770d88b0f006f8bd2941ff22de18ac7",
+  "version": "android-4.1.2_r1",
+  "projects": [
+    {
+      "name": "platform/build",
+      "path": "build",
+      "commit": "25454bc3d2925d6b930d9c515f5c090785b11135",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": [
+        {
+          "src": "core/root.mk",
+          "dest": "Makefile"
+        }
+      ]
+    },
+    {
+      "name": "platform/abi/cpp",
+      "path": "abi/cpp",
+      "commit": "eb789ea833d8d800662b67914d9c1785a58c2caa",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/bionic",
+      "path": "bionic",
+      "commit": "e13338429f12ed760a690a02c268b128f90c5d99",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/bootable/bootloader/legacy",
+      "path": "bootable/bootloader/legacy",
+      "commit": "b1fde5cd7d5158b8e6876139ca76a341d0e49708",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/bootable/diskinstaller",
+      "path": "bootable/diskinstaller",
+      "commit": "d2a0ffa065dbb98e9acbf873dff5eb129bf2be71",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/bootable/recovery",
+      "path": "bootable/recovery",
+      "commit": "0c0efa0285301d1d50f5151b1c3fc74952f9dda1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/cts",
+      "path": "cts",
+      "commit": "5957086045b1df627756dddb5731cc2c2b0f5313",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/dalvik",
+      "path": "dalvik",
+      "commit": "61c966b09d0fc5113d7d10d761594bc1fddc9ed1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/development",
+      "path": "development",
+      "commit": "bda8a3659a32dac03c08ba88d8ce4a0693c92941",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/asus/grouper",
+      "path": "device/asus/grouper",
+      "commit": "505d795dfcfd473d2a5a2f20177d355bcd254492",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/common",
+      "path": "device/common",
+      "commit": "f76cc4b11c182d13e916678283cd4d2254384b67",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/generic/armv7-a-neon",
+      "path": "device/generic/armv7-a-neon",
+      "commit": "a1bfdaa528c0972b2c7fd89841595bb1297ebc82",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/generic/armv7-a",
+      "path": "device/generic/armv7-a",
+      "commit": "499f7e2d190e7dd649428364ff0219fbc26d2902",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/generic/goldfish",
+      "path": "device/generic/goldfish",
+      "commit": "f0397b68bd158c97f8c83ad7c299f8962d6c885e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/google/accessory/arduino",
+      "path": "device/google/accessory/arduino",
+      "commit": "9b1ef69828775a15396b753c16a83417bb769138",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/google/accessory/demokit",
+      "path": "device/google/accessory/demokit",
+      "commit": "c35b0f59498895a58dcc3d0ab8fb03683e123ded",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/moto/common",
+      "path": "device/moto/common",
+      "commit": "88f2f2b4fcf01b3e3a2d9dcaf6e03449865ea251",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/moto/stingray",
+      "path": "device/moto/stingray",
+      "commit": "9659000cabbd720e1f434b227a27f44e5947f13e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/moto/wingray",
+      "path": "device/moto/wingray",
+      "commit": "773bfed053e0b35dc82166eddf84d142ca33fd8f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/sample",
+      "path": "device/sample",
+      "commit": "7064df464e7ea595bc80ebdafc17c63432688afb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/samsung/crespo",
+      "path": "device/samsung/crespo",
+      "commit": "c181cc132d5077ea28ffeb9d0be656665f5319c6",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/samsung/crespo4g",
+      "path": "device/samsung/crespo4g",
+      "commit": "896001c7bf385daa0e1027a96056ba554173baeb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/samsung/maguro",
+      "path": "device/samsung/maguro",
+      "commit": "55e4aae0c66d02bdb9bfd41be08bc5916dc0d3a1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/samsung/toro",
+      "path": "device/samsung/toro",
+      "commit": "ce8e1af2b599c656ea45292cf4c1e8dda460b6d6",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/samsung/tuna",
+      "path": "device/samsung/tuna",
+      "commit": "d59ae3bd78af43ad2ae099da26c4053c877a42ee",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "device/ti/panda",
+      "path": "device/ti/panda",
+      "commit": "4e8d47e422a475fbb11805b9e5f9a116835eb927",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/docs/source.android.com",
+      "path": "docs/source.android.com",
+      "commit": "52723675375fca0bd34c71cba3f1d2a9818475bd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/aac",
+      "path": "external/aac",
+      "commit": "2228e360595641dd906bf1773307f43d304f5b2e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/android-mock",
+      "path": "external/android-mock",
+      "commit": "40bb73886c61d4b2e96bab98b50c1cbfcb54d9a3",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/antlr",
+      "path": "external/antlr",
+      "commit": "324c4644fee44b9898524c09511bd33c3f12e2df",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/apache-harmony",
+      "path": "external/apache-harmony",
+      "commit": "5b53d279675709a4beb54974c72e257c1262da2c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/apache-http",
+      "path": "external/apache-http",
+      "commit": "b975b95b02a5ae8e9e0f909c9ad39d61ba55fed4",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/apache-xml",
+      "path": "external/apache-xml",
+      "commit": "74b8044dcd1208a1fc11ee9638584be74663c5a3",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/astl",
+      "path": "external/astl",
+      "commit": "0a397b4802b88af52c30e0f866929c70ef7e121b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/bison",
+      "path": "external/bison",
+      "commit": "4af3c477523bc96a5a535500a722cd563f1d486f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/blktrace",
+      "path": "external/blktrace",
+      "commit": "55236cdbcee4e543d69e2c25dbf27c62301d760a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/bluetooth/bluez",
+      "path": "external/bluetooth/bluez",
+      "commit": "dfe961f591046174be590c46f7acfc674417f67e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/bluetooth/glib",
+      "path": "external/bluetooth/glib",
+      "commit": "1143b9918eab068401b604eb11c3f651f4e38b25",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/bluetooth/hcidump",
+      "path": "external/bluetooth/hcidump",
+      "commit": "7322661808c2006b7848e79e6bb72b37fbcf6710",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/bouncycastle",
+      "path": "external/bouncycastle",
+      "commit": "806ca813c0327a5d673914883853f55440b39cc7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/bsdiff",
+      "path": "external/bsdiff",
+      "commit": "81872540236d9bb15cccf963d05b9de48baa5375",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/bzip2",
+      "path": "external/bzip2",
+      "commit": "414a94a045a359ab76fa22feaee883180a9b2779",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/checkpolicy",
+      "path": "external/checkpolicy",
+      "commit": "a6834194069d4dd2f5883b57a0783b97def7e9ab",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/chromium",
+      "path": "external/chromium",
+      "commit": "a75b259c30d54752a0d42804631bcf309b381f90",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/chromium-trace",
+      "path": "external/chromium-trace",
+      "commit": "1f5d4e97822266b682a8a599b532b3b6460f9e3f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/cibu-fonts",
+      "path": "external/cibu-fonts",
+      "commit": "04031024425e067f6b0fdc40def6e04516c31c4f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/clang",
+      "path": "external/clang",
+      "commit": "094004c9c6693abad38a37906ec4363a7ee9e0df",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/compiler-rt",
+      "path": "external/compiler-rt",
+      "commit": "27590d73e7a656b92ed5789172a38468ce7b615e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/dbus",
+      "path": "external/dbus",
+      "commit": "537eaff5de9aace3348436166d4cde7adc1e488e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/dexmaker",
+      "path": "external/dexmaker",
+      "commit": "8d4cf4fbc6d164960275e2993baad28702681393",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/dhcpcd",
+      "path": "external/dhcpcd",
+      "commit": "40d921b22a5c878d64b17a1138477e0eeb37842e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/dnsmasq",
+      "path": "external/dnsmasq",
+      "commit": "f621afad94df46204c25fc2593a19d704d2637f5",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/doclava",
+      "path": "external/doclava",
+      "commit": "3c925b473212325cbf5f734cb5d1d57588ea83e3",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/dropbear",
+      "path": "external/dropbear",
+      "commit": "23022b83136aed155988e760f890ad01b2b77f92",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/e2fsprogs",
+      "path": "external/e2fsprogs",
+      "commit": "fada366033e80c119867eb303e8b48a8e027a9be",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/easymock",
+      "path": "external/easymock",
+      "commit": "c9a234086537e5fd820b110bbd99e3cdc695004c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/eclipse-basebuilder",
+      "path": "external/eclipse-basebuilder",
+      "commit": "6134da6347cc997e0cf2921aaadfb46f21c05d85",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/eclipse-windowbuilder",
+      "path": "external/eclipse-windowbuilder",
+      "commit": "7d5e809721ca0f3460afcd8ae32fa366c86ec978",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/elfutils",
+      "path": "external/elfutils",
+      "commit": "65a81b28950a6cf604aaa85b4695490a6be8e92a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/embunit",
+      "path": "external/embunit",
+      "commit": "336b7c65098af0d1be69f2db55f4e75342d73b3f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/emma",
+      "path": "external/emma",
+      "commit": "77b9074f3d835682d66fe18e0768639745c34239",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/esd",
+      "path": "external/esd",
+      "commit": "224a67f2683a7ee997179fc5dd16115e39987b0f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/expat",
+      "path": "external/expat",
+      "commit": "6f6dbce408598404d701f101a684908cb951e25c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/eyes-free",
+      "path": "external/eyes-free",
+      "commit": "16bd4c7a4d1bfe229068b637614dad7c48dd2ceb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/fdlibm",
+      "path": "external/fdlibm",
+      "commit": "f0c0422e71b8752cc5a6b71f783f8f5a16f861cd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/flac",
+      "path": "external/flac",
+      "commit": "686d6ff2afda2ea3211bec37ad0daa655c24e6d4",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/freetype",
+      "path": "external/freetype",
+      "commit": "41371e1e39c8528eb0c4bc40683c736e6683e60c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/fsck_msdos",
+      "path": "external/fsck_msdos",
+      "commit": "e1dd6c88cff4f71c298921ef34f7662eb227aacf",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/ganymed-ssh2",
+      "path": "external/ganymed-ssh2",
+      "commit": "8d1992afbc3c2560bc3d6395473bd3ad2981300b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/gcc-demangle",
+      "path": "external/gcc-demangle",
+      "commit": "caf5670525abbd6b98e11bb98c620932cf795624",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/genext2fs",
+      "path": "external/genext2fs",
+      "commit": "2e672fab1b8935ab6df5c2fc69386fe6b4ade873",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/giflib",
+      "path": "external/giflib",
+      "commit": "b2597268aef084202a8c349d1cc072c03c6e22eb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/google-diff-match-patch",
+      "path": "external/google-diff-match-patch",
+      "commit": "cecbe12841337860291c2d6a5728b681ec5fca2a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/grub",
+      "path": "external/grub",
+      "commit": "cd484b7fcd18d5f967cadbaeb6d27b62f015a5e2",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/gtest",
+      "path": "external/gtest",
+      "commit": "cfee58b45a11221732c58582988d6bb47fb4de04",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/guava",
+      "path": "external/guava",
+      "commit": "adee4a2c97a40a92d5b65962d73321e3da4e2679",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/hamcrest",
+      "path": "external/hamcrest",
+      "commit": "1e0972dccb32b15511bd87c40d47cfe3b8bc0624",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/harfbuzz",
+      "path": "external/harfbuzz",
+      "commit": "580c68b86c79b455bdae828456ff68e89137eeef",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/hyphenation",
+      "path": "external/hyphenation",
+      "commit": "bfa84834dfeb7fe8d058c2e7e07b5981451ddf82",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/icu4c",
+      "path": "external/icu4c",
+      "commit": "02c1be445f109b3ffe2b10663bff2fd8aaa9bddc",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/iproute2",
+      "path": "external/iproute2",
+      "commit": "a6628ec1917c375e5247d707c6f1340a12b67445",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/ipsec-tools",
+      "path": "external/ipsec-tools",
+      "commit": "adfbc90a9f63d1e0c87b4b17689c07cd3c781a0e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/iptables",
+      "path": "external/iptables",
+      "commit": "e07e0d31f48d951e0f03ba254d4754810732c241",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/javasqlite",
+      "path": "external/javasqlite",
+      "commit": "c508dc69793e188873a46e8dff480264dad7eb83",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/javassist",
+      "path": "external/javassist",
+      "commit": "14b4d945586243192c8118f4f49be59ebbf561b8",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/jdiff",
+      "path": "external/jdiff",
+      "commit": "e4694302d6a3786c64d954e0b3cf42786283bd3c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/jhead",
+      "path": "external/jhead",
+      "commit": "42c1e4bde9be6b05412e6482cc20c3581b6d3b0b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/jmdns",
+      "path": "external/jmdns",
+      "commit": "f4eb7466d5c09098f9dc54137ed3235e3c43fc9f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/jmonkeyengine",
+      "path": "external/jmonkeyengine",
+      "commit": "a6b44658eb1c55295f132a36233a11aa2bd8f9cf",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/jpeg",
+      "path": "external/jpeg",
+      "commit": "d4fad7f50f79626455d88523207e05b868819cd8",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/jsilver",
+      "path": "external/jsilver",
+      "commit": "a618b151d54625078424bc5940f6bfd63344d11b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/jsr305",
+      "path": "external/jsr305",
+      "commit": "5c7719ffff2b6b6acfde07b0e41c08224f443a7b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/junit",
+      "path": "external/junit",
+      "commit": "c62242988737e0204e6b01312faeda3b9a2b64cd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/kernel-headers",
+      "path": "external/kernel-headers",
+      "commit": "fb79aaeadc656a854f3ba378b64743880873c9ba",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libffi",
+      "path": "external/libffi",
+      "commit": "5dea54fd57265ce037ac94055b9f94a45558b39e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libgsm",
+      "path": "external/libgsm",
+      "commit": "5e4516958690b9a1b2c98f88eeecba3edd2dbda4",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/liblzf",
+      "path": "external/liblzf",
+      "commit": "6946aa575b0949d045722794850896099d937cbb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libmtp",
+      "path": "external/libmtp",
+      "commit": "afc55a0d0657e4e12b17ea4bac5472c0f17d338a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libnfc-nxp",
+      "path": "external/libnfc-nxp",
+      "commit": "856d765487a0fb3d1b3532fc3cb66a4fa45c28dd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libnl-headers",
+      "path": "external/libnl-headers",
+      "commit": "6ccf7349d61f73ac26a0675d735d903ab919c658",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libpcap",
+      "path": "external/libpcap",
+      "commit": "3a7bce5dda6a8db92c9248846d0255e68c3a5b2a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libphonenumber",
+      "path": "external/libphonenumber",
+      "commit": "b0e21c22b1ca6b9aeb1426924cdf42a221c3d416",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libpng",
+      "path": "external/libpng",
+      "commit": "4c5554b04e73f89d4a9bab8cbcec1943d8c274be",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libselinux",
+      "path": "external/libselinux",
+      "commit": "52cd377a74a710b2476c6a4c46da8b59a0dce50d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libsepol",
+      "path": "external/libsepol",
+      "commit": "6617731185f5d7c899b376d1bfa2dea11eb494a0",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libusb",
+      "path": "external/libusb",
+      "commit": "2801917fe150393d4f4a354165fe89550ae22613",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libusb-compat",
+      "path": "external/libusb-compat",
+      "commit": "94867ba54eb7faa8efca81cf2214d00bb9143d27",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libvpx",
+      "path": "external/libvpx",
+      "commit": "d45f2f42e089fcbab69c5200119c5c5f2985c2ed",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libxml2",
+      "path": "external/libxml2",
+      "commit": "64a784a6fdd98fe0f65b881f9ace00f9a55d2053",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libxslt",
+      "path": "external/libxslt",
+      "commit": "98f5140c33273d3bd67ca03566f8417406001016",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/libyuv",
+      "path": "external/libyuv",
+      "commit": "351958316957352685f15674ee5bd71726dc993e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/linux-tools-perf",
+      "path": "external/linux-tools-perf",
+      "commit": "8a1715044713722b9fa01419a2148a4a2a67aae5",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/littlemock",
+      "path": "external/littlemock",
+      "commit": "39909902f8225d886e40f929aaa25a2ef2aa58ec",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/llvm",
+      "path": "external/llvm",
+      "commit": "8cd85a728d71bb9756866570b32a65e613d4d671",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/lohit-fonts",
+      "path": "external/lohit-fonts",
+      "commit": "948e68fa340804dd2036c7d02779ee84b386aceb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/markdown",
+      "path": "external/markdown",
+      "commit": "21ce115e566aa5af7fe8a971805af1daab12c754",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/mdnsresponder",
+      "path": "external/mdnsresponder",
+      "commit": "cf36684dd6ea25b2490317f2f76d2586b4c3e834",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/mesa3d",
+      "path": "external/mesa3d",
+      "commit": "45d57d9d39224c317e4cb130e803f452bbb00ca8",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/mksh",
+      "path": "external/mksh",
+      "commit": "93bd42c789325fdd5f8c9ba8f000abd65281f241",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/mockwebserver",
+      "path": "external/mockwebserver",
+      "commit": "83aa2d278c5a3f9b93cd809f6fdffba9d1fa3868",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/mtpd",
+      "path": "external/mtpd",
+      "commit": "fba8fdc6c588873aa944d7aa79b2f12ade78566a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/naver-fonts",
+      "path": "external/naver-fonts",
+      "commit": "22b92e01287be8705e2d7637c6d70538b051d91c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/netcat",
+      "path": "external/netcat",
+      "commit": "e4e83f8147f92141cd02cc46cccca088c527ea2a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/netperf",
+      "path": "external/netperf",
+      "commit": "58ecd3b7c76263900e38921360e334a416aec362",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/neven",
+      "path": "external/neven",
+      "commit": "7f22db82120e7ac17165ab7614e417baa2742623",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/nist-sip",
+      "path": "external/nist-sip",
+      "commit": "b23dbfce7ea84c39cea75b612868a5832cb9af2b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/oauth",
+      "path": "external/oauth",
+      "commit": "bc170f58de82000ed6460f111686a850a1890c07",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/opencv",
+      "path": "external/opencv",
+      "commit": "1691b57dbad9cfc15b9a8b72f8b376733b934ffe",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/openfst",
+      "path": "external/openfst",
+      "commit": "f4c12fce1ee58e670f9c3fce46c40296ba9ee8a2",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/openssh",
+      "path": "external/openssh",
+      "commit": "d1e76ad972fb7d7db3087d9f50795134f0421dd4",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/openssl",
+      "path": "external/openssl",
+      "commit": "9b4b062050bf9a39ae49bce7b735a3c046d7452c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/oprofile",
+      "path": "external/oprofile",
+      "commit": "18536b6cb0c5e4f316b98ba471d138cb45b490b7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/ping",
+      "path": "external/ping",
+      "commit": "e9640ed4c9c4441b512fd17344b8ca7ab507c176",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/ping6",
+      "path": "external/ping6",
+      "commit": "82aaae2089b39522da2d4f93a996d78930ec3382",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/ppp",
+      "path": "external/ppp",
+      "commit": "ab377ba41c51981a0fa4d5aaf350fe4ca540a610",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/proguard",
+      "path": "external/proguard",
+      "commit": "10aa7224f49abe49d123bde5d34346202d49aaca",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/protobuf",
+      "path": "external/protobuf",
+      "commit": "e217977611c52bccde7f7c78e1d3c790c6357431",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/qemu",
+      "path": "external/qemu",
+      "commit": "be9ba74995187f541a297da73cf72da6bde490df",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/qemu-pc-bios",
+      "path": "external/qemu-pc-bios",
+      "commit": "20349dae98d7de09a7e390d4a706c64f1db6edc2",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/quake",
+      "path": "external/quake",
+      "commit": "3a8615dddb462ae2ab51f864ebdfa846907537cd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/regex-re2",
+      "path": "external/regex-re2",
+      "commit": "2ee91b4af4353b9e6a9d591c32fedfc58fd4ef35",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/replicaisland",
+      "path": "external/replicaisland",
+      "commit": "800662a3696ccd22a7d9d33cb2a5ee198df2c6cd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/safe-iop",
+      "path": "external/safe-iop",
+      "commit": "07073634e2e3aa4f518e36ed5dec3aabc549d5fb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/sepolicy",
+      "path": "external/sepolicy",
+      "commit": "d045eaec2c2e54806d0a9040674bf6b1a7668004",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/skia",
+      "path": "external/skia",
+      "commit": "2cc242762de47ca4ca7706ead3bb0d114a5aa523",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/smali",
+      "path": "external/smali",
+      "commit": "28333561005524c15818b98c7f8f07409451ff30",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/sonivox",
+      "path": "external/sonivox",
+      "commit": "e6d06460f6936adaf2c5df783700a683fd082878",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/speex",
+      "path": "external/speex",
+      "commit": "ebe6230a7f7c69f5a4389f2b09b7b19ef9e94f32",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/sqlite",
+      "path": "external/sqlite",
+      "commit": "2d758ba484351cd86f3f551c3a788255d2e8d9d0",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/srec",
+      "path": "external/srec",
+      "commit": "3b86e1f2371f3bfb4b798d5c7671bf8ed79f5caf",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/srtp",
+      "path": "external/srtp",
+      "commit": "386ce4d9144fc190797f4e43a31aeaf76ca2e373",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/stlport",
+      "path": "external/stlport",
+      "commit": "ec42173ef0955aa1844e0be303363c7e5dc98fb7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/strace",
+      "path": "external/strace",
+      "commit": "f76f96e20f766e6bb91593885b1e800f8bc14a52",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/stressapptest",
+      "path": "external/stressapptest",
+      "commit": "b0303471fba852a1f1172e749a1ac8ced1499f08",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/svox",
+      "path": "external/svox",
+      "commit": "358de7f221657b7ebd2619f887007f1669c20f7f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/tagsoup",
+      "path": "external/tagsoup",
+      "commit": "68c2ec9e0acdb3214b7fb91dbab8c9fab8736817",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/tcpdump",
+      "path": "external/tcpdump",
+      "commit": "532b8f38c144da9a298260a5d8978ab9e8e3856c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/tinyalsa",
+      "path": "external/tinyalsa",
+      "commit": "60d82d75f995538f04ff47e9b7499c86d54b72f4",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/tinyxml",
+      "path": "external/tinyxml",
+      "commit": "d589f7e4a51e75bd5c98a3defd8ee84d7059e86e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/tremolo",
+      "path": "external/tremolo",
+      "commit": "25bd78d2392dbdc879ae53382cde9d019f79cf6f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/v8",
+      "path": "external/v8",
+      "commit": "d757d67b3374fb67d4c4f9f91fd2ff6f98c636d2",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/valgrind",
+      "path": "external/valgrind",
+      "commit": "a3d54f44dda50dcf3da53299ceea0075ee381926",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/webkit",
+      "path": "external/webkit",
+      "commit": "59a472361aaeaa5709d29f76294672b5d7145ae7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/webp",
+      "path": "external/webp",
+      "commit": "88fe2b83c4b9232cd08729556fd0485d6a6a92cd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/webrtc",
+      "path": "external/webrtc",
+      "commit": "5870e071aabfbde0d570142acf440ab4dca97e04",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/wpa_supplicant_6",
+      "path": "external/wpa_supplicant_6",
+      "commit": "5a8011fbbc6015171f329637aa00b43fe2afcf10",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/wpa_supplicant_8",
+      "path": "external/wpa_supplicant_8",
+      "commit": "e488da341f1264a7d5e053d7b16f9cc1f3c6af1e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/xmlwriter",
+      "path": "external/xmlwriter",
+      "commit": "e95d92246ee35273dde2bee8b00485cc14c12be5",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/yaffs2",
+      "path": "external/yaffs2",
+      "commit": "64a7dfb5cd56d758a74a4f98e29724e84a276acc",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/zlib",
+      "path": "external/zlib",
+      "commit": "7b332dbcb6a69c1919decb488c28d9b1fc5ba141",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/external/zxing",
+      "path": "external/zxing",
+      "commit": "7620644768ffc235607b3a94671e49518c18686f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/av",
+      "path": "frameworks/av",
+      "commit": "fc938e092ecd91d877a8c86ca1027337a71f682e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/base",
+      "path": "frameworks/base",
+      "commit": "4873a480f6df3f84bb3ca5c8647e9498aaf597a5",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/compile/libbcc",
+      "path": "frameworks/compile/libbcc",
+      "commit": "93fab3393d206c6bc07921d717b637bc35db4536",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/compile/linkloader",
+      "path": "frameworks/compile/linkloader",
+      "commit": "9f02779af9fc6f8de19f3feb71e1ad01ebf517f6",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/compile/mclinker",
+      "path": "frameworks/compile/mclinker",
+      "commit": "abe0db302735bbdf9cd84caee2a36e6c4538fc4d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/compile/slang",
+      "path": "frameworks/compile/slang",
+      "commit": "bfee2d19ef3b630d3d1bd13dc1f5777b65091ea0",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/ex",
+      "path": "frameworks/ex",
+      "commit": "3fc60c81dabab76c0617494dbbf016a2f2894c18",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/mff",
+      "path": "frameworks/mff",
+      "commit": "b9669b8540a1e5c953374d53b115514335e23c27",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/ml",
+      "path": "frameworks/ml",
+      "commit": "b019e89cbea221598c482b05ab68b7660b41aa23",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/native",
+      "path": "frameworks/native",
+      "commit": "e0daeb3933e034f037630715e4cd2ecb3880498b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/opt/calendar",
+      "path": "frameworks/opt/calendar",
+      "commit": "46e001bc78b36235758dde896a0f5d3aa5c9c98b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/opt/emoji",
+      "path": "frameworks/opt/emoji",
+      "commit": "0805d75d3c4319f54fb3c854be2f7baab561cf1b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/opt/inputmethodcommon",
+      "path": "frameworks/opt/inputmethodcommon",
+      "commit": "df9dd39c2047992a43b64e13bb0fc348a1630f3b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/opt/mailcommon",
+      "path": "frameworks/opt/mailcommon",
+      "commit": "36aa2bb0089cd944e8d8cf683cc6789c4ef14f0d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/opt/vcard",
+      "path": "frameworks/opt/vcard",
+      "commit": "449d710428682b3f44ba20ce290564cd9352ca0a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/rs",
+      "path": "frameworks/rs",
+      "commit": "9d6b2b359c43a388090aa34b3a558c262214192b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/support",
+      "path": "frameworks/support",
+      "commit": "fc783472d6420e804ec34b536985f183adcac76b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/testing",
+      "path": "frameworks/testing",
+      "commit": "476328047e3f82d6d9be8ab23f502a670613f94c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/frameworks/wilhelm",
+      "path": "frameworks/wilhelm",
+      "commit": "91145ef159d3e165a461cbd76341ff8ed3d72bae",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/gdk",
+      "path": "gdk",
+      "commit": "90dfd3839f9f755ee288e5d64fb2221d1512ea8d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/broadcom/wlan",
+      "path": "hardware/broadcom/wlan",
+      "commit": "9002fdbdf86753148dafcf910ad47fa0a1b85471",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/invensense",
+      "path": "hardware/invensense",
+      "commit": "8792ef0f74a024dec788de02f60280dd66f871f3",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/libhardware",
+      "path": "hardware/libhardware",
+      "commit": "55553fcb88152430e1949158945ad492b56f99dd",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/libhardware_legacy",
+      "path": "hardware/libhardware_legacy",
+      "commit": "4113a42b37257141322c78e5388dcdf42c7a0bf7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/msm7k",
+      "path": "hardware/msm7k",
+      "commit": "dc17c427ea7bcb98dac2405b2a476add45c5cb3f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/qcom/gps",
+      "path": "hardware/qcom/gps",
+      "commit": "7573253c2637e026e0943620d62ec335e5a9dc10",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/qcom/media",
+      "path": "hardware/qcom/media",
+      "commit": "3d528deb37f16eab7d699ec8e7f60d34141a6316",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/ril",
+      "path": "hardware/ril",
+      "commit": "5b16efdeca04c524df241af9315c8ec3bf774491",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/ti/omap3",
+      "path": "hardware/ti/omap3",
+      "commit": "efbb6b2de5fa16ef72bbf02526e3c0a7a6d63a4f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/ti/omap4xxx",
+      "path": "hardware/ti/omap4xxx",
+      "commit": "7d5da7131f5628f04d3c6e601f3938709ecf5a77",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/ti/wlan",
+      "path": "hardware/ti/wlan",
+      "commit": "99ca798f07e70442ca525ef4861df46994037543",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/hardware/ti/wpan",
+      "path": "hardware/ti/wpan",
+      "commit": "d8ca062b061b04561c60873905ecbcf0fdfda1a9",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/libcore",
+      "path": "libcore",
+      "commit": "94534e731dadae876dbffd056badc1bdfbd31a6c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/libnativehelper",
+      "path": "libnativehelper",
+      "commit": "73d3c2e3ed100f1d0ccc08a9675844bf8a0848fa",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/ndk",
+      "path": "ndk",
+      "commit": "4e4734233ef625509d1fd23542a7a7e646caa38c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/BasicSmsReceiver",
+      "path": "packages/apps/BasicSmsReceiver",
+      "commit": "098a6d8fbd4382eab84724eb06e2c5608c458a7f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Bluetooth",
+      "path": "packages/apps/Bluetooth",
+      "commit": "21bc58521f9dd4c4c78fd2b828fba4076fdce8c1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Browser",
+      "path": "packages/apps/Browser",
+      "commit": "2f6a636c601b861843d4e42c6980ec494c844969",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Calculator",
+      "path": "packages/apps/Calculator",
+      "commit": "786a7e446a0469e37b1f9677499fd212e9a2c28d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Calendar",
+      "path": "packages/apps/Calendar",
+      "commit": "02fd9828bd92ce0dd377a9bdb93c413e0e5bf4b7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Camera",
+      "path": "packages/apps/Camera",
+      "commit": "e607294a2fdb0607203b3e7ad046c96b1c837236",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/CellBroadcastReceiver",
+      "path": "packages/apps/CellBroadcastReceiver",
+      "commit": "4458579f0acc75d7682360e98cfcc7281baae8f7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/CertInstaller",
+      "path": "packages/apps/CertInstaller",
+      "commit": "83df03c8f5d61d37e2fda501c67937f970b7af0c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Contacts",
+      "path": "packages/apps/Contacts",
+      "commit": "337c941a9fc592f397128058066fcb57838c2fd6",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/DeskClock",
+      "path": "packages/apps/DeskClock",
+      "commit": "c2125cbd154a7352b08c7c1dacd266b6a406b977",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Email",
+      "path": "packages/apps/Email",
+      "commit": "217a4640c580e55aad180560ecb5f185b8a018e3",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Exchange",
+      "path": "packages/apps/Exchange",
+      "commit": "973b7707439e9485eb73e279a4f295068b153143",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Gallery",
+      "path": "packages/apps/Gallery",
+      "commit": "d734c20e322e335a7a8405cac2bb9ae5b3958705",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Gallery2",
+      "path": "packages/apps/Gallery2",
+      "commit": "ae0453756c1b8807743823a021ada539a77ed4d7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/HTMLViewer",
+      "path": "packages/apps/HTMLViewer",
+      "commit": "78afabcb89cc9b94bd0bc0b9eebe317e7c2ba959",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/KeyChain",
+      "path": "packages/apps/KeyChain",
+      "commit": "b9bae2cd234ed07d72cf73616d15774860eac023",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Launcher2",
+      "path": "packages/apps/Launcher2",
+      "commit": "fcc1116423cf4fe12faca9ac7fd2f0d2fe1d18ec",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/LegacyCamera",
+      "path": "packages/apps/LegacyCamera",
+      "commit": "9d6aaa8c6818b41b4c356d78232206e8a0593c8a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Mms",
+      "path": "packages/apps/Mms",
+      "commit": "5e4d93a07404ec685644260c08e445879307fe1f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Music",
+      "path": "packages/apps/Music",
+      "commit": "198a0a2c50c3f9ddd6a1d024797362aa1ca5e32b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/MusicFX",
+      "path": "packages/apps/MusicFX",
+      "commit": "d9fc04055aed9130f02627a73414ee12865a473d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Nfc",
+      "path": "packages/apps/Nfc",
+      "commit": "156c71e4b217d7da285ccc82e56d92f2b1874db5",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/PackageInstaller",
+      "path": "packages/apps/PackageInstaller",
+      "commit": "8c6cf864a36e1d93e057c2a28cbddbe720931197",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Phone",
+      "path": "packages/apps/Phone",
+      "commit": "36255b7ff1980fae2d6a073faf1b952204d8584c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Protips",
+      "path": "packages/apps/Protips",
+      "commit": "99a56cb36dabe758e556362aefa92039dd5f3ed2",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Provision",
+      "path": "packages/apps/Provision",
+      "commit": "86bf6d8ac38de74b1bead64ac26fe5130dfffbf5",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/QuickSearchBox",
+      "path": "packages/apps/QuickSearchBox",
+      "commit": "4825a957126bead9a482a75856909487c26ce00d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Settings",
+      "path": "packages/apps/Settings",
+      "commit": "7a6674d1b1c68b3919709399c5e820e501d26496",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/SoundRecorder",
+      "path": "packages/apps/SoundRecorder",
+      "commit": "de28200b196b869971368f90436f637273212065",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/SpareParts",
+      "path": "packages/apps/SpareParts",
+      "commit": "10f05a57805c5409f990959dcad25c67a82ec16d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/SpeechRecorder",
+      "path": "packages/apps/SpeechRecorder",
+      "commit": "62db451fb742f17669300b9915b9f446f43361ce",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Stk",
+      "path": "packages/apps/Stk",
+      "commit": "038e7d6dde7c7105240d8c248198ce6191679324",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/Tag",
+      "path": "packages/apps/Tag",
+      "commit": "116871653662979554a7326991ba4fd599ac44ff",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/VideoEditor",
+      "path": "packages/apps/VideoEditor",
+      "commit": "0aa129b8732c96fe8608535289bdadd5f172b69b",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/apps/VoiceDialer",
+      "path": "packages/apps/VoiceDialer",
+      "commit": "3e0d206155efe1ecb1b5da9c7ed4a068ba07c8d9",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/experimental",
+      "path": "packages/experimental",
+      "commit": "efae2faac9b7b17cac311da8ad409e151b0e26cc",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/inputmethods/LatinIME",
+      "path": "packages/inputmethods/LatinIME",
+      "commit": "c565eebdd55b37f549fbc8d8bbef65926425c21f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/inputmethods/OpenWnn",
+      "path": "packages/inputmethods/OpenWnn",
+      "commit": "59aefa242169b7a51c2381daee58ff22fd1834ce",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/inputmethods/PinyinIME",
+      "path": "packages/inputmethods/PinyinIME",
+      "commit": "272bd8691dd6cd81d4651a61ee5ea7df8d6e5787",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/ApplicationsProvider",
+      "path": "packages/providers/ApplicationsProvider",
+      "commit": "f16d590bf10dacca4839d700badb8347ca3dcb75",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/CalendarProvider",
+      "path": "packages/providers/CalendarProvider",
+      "commit": "485a1841b281b83e35229b1bb385986d43608aa1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/ContactsProvider",
+      "path": "packages/providers/ContactsProvider",
+      "commit": "71318ff2dcac26909741f5e00e74924c83bdaf1e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/DownloadProvider",
+      "path": "packages/providers/DownloadProvider",
+      "commit": "85a3499c84b64f74f13ad61953b4d509ea9380e4",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/DrmProvider",
+      "path": "packages/providers/DrmProvider",
+      "commit": "0ee91f938ec04f332adff1adaa685e6303c6e38f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/MediaProvider",
+      "path": "packages/providers/MediaProvider",
+      "commit": "2dc83e226f1016c117e9dc377aa6bcbc7328e10e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/PartnerBookmarksProvider",
+      "path": "packages/providers/PartnerBookmarksProvider",
+      "commit": "96d0a80af45923767baf449fc8c735c2f71d64ae",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/TelephonyProvider",
+      "path": "packages/providers/TelephonyProvider",
+      "commit": "6ee7d78f71526bb631a7a6a6ea308d7927b2b4a1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/providers/UserDictionaryProvider",
+      "path": "packages/providers/UserDictionaryProvider",
+      "commit": "ccfedce270d66beb36c685cb496245c699917832",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/Basic",
+      "path": "packages/wallpapers/Basic",
+      "commit": "c31dd3f30d02758747a40da1057a326b8bc0e01e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/Galaxy4",
+      "path": "packages/wallpapers/Galaxy4",
+      "commit": "9cc201742a70ab0879965d23d2c2b33ee6c18e70",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/HoloSpiral",
+      "path": "packages/wallpapers/HoloSpiral",
+      "commit": "dcc502f8570a018d6cdf8ba8491409f79598b89d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/LivePicker",
+      "path": "packages/wallpapers/LivePicker",
+      "commit": "3330e415f17012e42ba6c1a2e2df5dd6392f3af7",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/MagicSmoke",
+      "path": "packages/wallpapers/MagicSmoke",
+      "commit": "48b5d9c23834eb74cc883b046d9cb7918687c868",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/MusicVisualization",
+      "path": "packages/wallpapers/MusicVisualization",
+      "commit": "3042e3ab2ea21be3ffe740a377c2030431ace04e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/NoiseField",
+      "path": "packages/wallpapers/NoiseField",
+      "commit": "4cd1e13e3f6af7ab2c2ff3d5953d7e3677e2f0b1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/packages/wallpapers/PhaseBeam",
+      "path": "packages/wallpapers/PhaseBeam",
+      "commit": "646ff43b4e358492c98f17d1e969f73afbd283cb",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/pdk",
+      "path": "pdk",
+      "commit": "109b65d9d317ef81ffee58736c511e17757b154a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilt",
+      "path": "prebuilt",
+      "commit": "e7aee28e3fd854ebee3304a1274f3f32da72e71f",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/eclipse",
+      "path": "prebuilts/eclipse",
+      "commit": "c271db8ee0361092b49841f66673296107b9c5d9",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/darwin-x86/arm/arm-eabi-4.6",
+      "path": "prebuilts/gcc/darwin-x86/arm/arm-eabi-4.6",
+      "commit": "a1833f5102e79a38f44cbf2cc924521957356e7c",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/darwin-x86/arm/arm-linux-androideabi-4.6",
+      "path": "prebuilts/gcc/darwin-x86/arm/arm-linux-androideabi-4.6",
+      "commit": "82a38ffaad280ad07506fd6ee762c93c79f7f05a",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/darwin-x86/mips/mipsel-linux-android-4.4.3",
+      "path": "prebuilts/gcc/darwin-x86/mips/mipsel-linux-android-4.4.3",
+      "commit": "78060bd30f50c43c7442f32e7740efcdb87ba587",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/darwin-x86/mips/mipsel-linux-android-4.6",
+      "path": "prebuilts/gcc/darwin-x86/mips/mipsel-linux-android-4.6",
+      "commit": "8e23c6c0a4bc4fe221a6c1087b09a6d46b096bd6",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/darwin-x86/x86/i686-android-linux-4.4.3",
+      "path": "prebuilts/gcc/darwin-x86/x86/i686-android-linux-4.4.3",
+      "commit": "ce6f05e962bcedcb79437d59e288aa8365fd60a6",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/darwin-x86/x86/i686-linux-android-4.6",
+      "path": "prebuilts/gcc/darwin-x86/x86/i686-linux-android-4.6",
+      "commit": "907c92922b6f593b6d122e3e02212d589ec70ff8",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6",
+      "path": "prebuilts/gcc/linux-x86/arm/arm-eabi-4.6",
+      "commit": "b4ecd7806d8f46cddeacaf9f8de92c191fb266e4",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6",
+      "path": "prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6",
+      "commit": "c63c3b97bd3b9d37680f58b63c61027ec414ad79",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.4.3",
+      "path": "prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.4.3",
+      "commit": "10191e2f442c5409cb70783508658d474612a97e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6",
+      "path": "prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6",
+      "commit": "9e754ea754eac37d1cd20182cc5d37df85239b0d",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6",
+      "path": "prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6",
+      "commit": "02075080d51c371ae87b9898bf84a085e436ee27",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.4.3",
+      "path": "prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.4.3",
+      "commit": "9841d729919cd19016525e2b6b1670ab52ad0b16",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6",
+      "path": "prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6",
+      "commit": "ddd014fe1da895bff96f49d51a84423fd72c7970",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/x86/i686-android-linux-4.4.3",
+      "path": "prebuilts/gcc/linux-x86/x86/i686-android-linux-4.4.3",
+      "commit": "286506f01f8ca64d6eb0e33bafb475a5cf10ff37",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/gcc/linux-x86/x86/i686-linux-android-4.6",
+      "path": "prebuilts/gcc/linux-x86/x86/i686-linux-android-4.6",
+      "commit": "907c92922b6f593b6d122e3e02212d589ec70ff8",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/misc",
+      "path": "prebuilts/misc",
+      "commit": "eb007bf7a77026a304709f5ff204ba7364d18b2e",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/ndk",
+      "path": "prebuilts/ndk",
+      "commit": "0e9345c19d21bd3652a706c23d5e46ed2d3c7f36",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/qemu-kernel",
+      "path": "prebuilts/qemu-kernel",
+      "commit": "a0628ceaf72f362cf327d659bb0afb3939873998",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/sdk",
+      "path": "prebuilts/sdk",
+      "commit": "3f205799f673189be2b1d880cd1f2f0cf9097cd3",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/prebuilts/tools",
+      "path": "prebuilts/tools",
+      "commit": "f3caf7e4e568492fa2f93df9d43a8fce747eef91",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/sdk",
+      "path": "sdk",
+      "commit": "8e301e151f7d6c00eeb299e3d84f0d462c097cc3",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/system/bluetooth",
+      "path": "system/bluetooth",
+      "commit": "d7ea7038239847ad1033012ff4a61b8e2e086f21",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/system/core",
+      "path": "system/core",
+      "commit": "ca38f2c7cde05b67bc8d582040210c4aad303298",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/system/extras",
+      "path": "system/extras",
+      "commit": "32243fadeab8cf244861e3df89744b78ba3eff92",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/system/media",
+      "path": "system/media",
+      "commit": "7549ccb4e4c4172b4a3f2280c1f54cb702e8d7c2",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/system/netd",
+      "path": "system/netd",
+      "commit": "cef54c42c914900e17ec820054dbf85eca225063",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/system/security",
+      "path": "system/security",
+      "commit": "0114bd9f9bbc2458ca77bf3508e7c15992a432b1",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    },
+    {
+      "name": "platform/system/vold",
+      "path": "system/vold",
+      "commit": "a20b197260f33dc32f61b245934753c252c8b2f5",
+      "revision": "refs/tags/android-4.1.2_r1",
+      "copyfiles": []
+    }
+  ]
+}
