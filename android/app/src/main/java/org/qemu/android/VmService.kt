@@ -45,7 +45,9 @@ class VmService : Service() {
             val displaySocket = File(filesDir, "vnc.sock").apply { delete() }
             latestFrame = null
             val dir = VmStore(this).directory(vm)
-            val p = ProcessBuilder(listOf(executable.absolutePath) + vm.arguments(dir, socket.absolutePath, displaySocket.absolutePath))
+            val data = QemuRuntimeData.install(File(filesDir, "qemu-data"),
+                assets.list("qemu/keymaps")?.toList() ?: emptyList()) { assets.open("qemu/keymaps/$it") }
+            val p = ProcessBuilder(listOf(executable.absolutePath) + vm.arguments(dir, socket.absolutePath, displaySocket.absolutePath, data.absolutePath))
                 .directory(dir).apply { environment()["TMPDIR"] = cacheDir.absolutePath }.start()
             process = p; activeId = vm.id
             synchronized(serial) { serial.clear() }

@@ -30,7 +30,9 @@ class VmConfigTest {
             File(dir, "kernel").writeBytes(byteArrayOf(1))
             val vm = VmConfig(id, "Linux", graphics = true)
             assertThrows(IllegalArgumentException::class.java) { vm.arguments(dir, "/private/qmp") }
-            val args = vm.arguments(dir, "/private/qmp", "/private/vnc")
+            assertThrows(IllegalArgumentException::class.java) { vm.arguments(dir, "/private/qmp", "/private/vnc") }
+            val args = vm.arguments(dir, "/private/qmp", "/private/vnc", dir.absolutePath)
+            assertEquals(dir.absolutePath, args[args.indexOf("-L") + 1])
             assertTrue(args.contains("unix:/private/vnc"))
             assertTrue(args.contains("virtio-gpu-device"))
             assertTrue(args.contains("virtio-keyboard-device"))
